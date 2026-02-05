@@ -11,16 +11,16 @@ Dự án phục vụ mục đích **học tập và nghiên cứu**, không sử
 - Hỗ trợ quy trình bán hàng và thanh toán  
 - Tự động lập hóa đơn bán hàng  
 - Quản lý người dùng và phân quyền cơ bản  
-- Áp dụng mô hình MVC của Laravel  
+- Áp dụng RESTful API
 
 ---
 
 ## ⚙️ Công nghệ sử dụng
 - **Backend**: Laravel 12.x  
-- **Frontend**: Blade Template + Vite  
+- **Frontend**: React + Vite
 - **Database**: MySQL  
-- **Authentication**: Laravel Auth  
-- **ORM**: Eloquent  
+- **Authentication**:  
+- **ORM**: Eloquent ORM
 
 ---
 
@@ -28,7 +28,7 @@ Dự án phục vụ mục đích **học tập và nghiên cứu**, không sử
 
 ### 👤 Quản lý người dùng
 - Đăng nhập / đăng xuất  
-- Phân quyền (Admin / Nhân viên thu ngân / Nhân viên kho)
+- Phân quyền (Quản lý / Nhân viên thu ngân / Nhân viên kho)
 
 ### 📦 Quản lý sản phẩm
 - Thêm / sửa / xóa sản phẩm  
@@ -54,8 +54,9 @@ Dự án phục vụ mục đích **học tập và nghiên cứu**, không sử
 
 ### 1️⃣ Clone dự án
 ```bash
-git clone https://github.com/lmv2004/QuanLySieuThiMini.git
-cd QuanLySieuThiMini
+git init
+git remote add origin https://github.com/lmv2004/QuanLySieuThiMini.git
+git pull origin main
 ```
 
 ### 2️⃣ Cài đặt thư viện
@@ -88,6 +89,7 @@ npm install
 npm run dev
 
 #Backend
+cd server
 php artisan serve
 ```
 
