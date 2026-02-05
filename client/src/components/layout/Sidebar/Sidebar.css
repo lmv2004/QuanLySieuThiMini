@@ -1,0 +1,84 @@
+.sidebar {
+  width: 250px;
+  background-color: #fff;
+  border-right: 1px solid #f0f0f0;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  position: sticky;
+  top: 64px;
+}
+
+.sidebar-nav {
+  padding: 1rem 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #595959;
+  text-decoration: none;
+  transition: all 0.3s;
+  cursor: pointer;
+  font-size: 14px;
+  gap: 0.75rem;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
+  color: #1890ff;
+}
+
+.menu-item.active {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border-right: 3px solid #1890ff;
+}
+
+.menu-icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.menu-group {
+  margin-bottom: 0.5rem;
+}
+
+.menu-group-title {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #262626;
+  font-weight: 600;
+  font-size: 14px;
+  gap: 0.75rem;
+}
+
+.menu-group-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-group-items .menu-item {
+  padding-left: 3.5rem;
+  font-weight: normal;
+}
+
+/* Scrollbar styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
