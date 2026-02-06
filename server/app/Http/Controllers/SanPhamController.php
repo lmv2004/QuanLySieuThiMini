@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SanPhamResource;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,7 @@ class SanPhamController extends Controller
      */
     public function index()
     {
-        return response()->json(SanPham::all());
+        return SanPhamResource::collection(SanPham::all());
     }
 
     /**
@@ -20,7 +21,7 @@ class SanPhamController extends Controller
      */
     public function create()
     {
-        //
+
     }
 
     /**
@@ -28,7 +29,6 @@ class SanPhamController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
