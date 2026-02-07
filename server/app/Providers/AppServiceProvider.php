@@ -21,8 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Route::bind('product', function ($value) {
-            return SanPham::where('IS_DELETED', false)->findOrFail($value);
-        });
+        //
     }
 }

@@ -14,7 +14,10 @@ class SanPhamController extends Controller
      */
     public function index()
     {
-        return SanPhamResource::collection(SanPham::with(['loaiSanPham', 'nhaCungCap'])->get());
+        return SanPhamResource::collection(SanPham::active()
+            ->with(['loaiSanPham', 'nhaCungCap'])
+            ->get()
+        );
     }
 
     /**
@@ -23,39 +26,39 @@ class SanPhamController extends Controller
     public function store(StoreSanPhamRequest $request)
     {
         $data = $request->validated();
-        $sp = SanPham::create($data);
-        $sp->load(['loaiSanPham', 'nhaCungCap']);
-        return response()->json(new SanPhamResource($sp), 201);
+        $sanPham = SanPham::create($data);
+        $sanPham->load(['loaiSanPham', 'nhaCungCap']);
+        return new SanPhamResource($sanPham);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(SanPham $product)
+    public function show(SanPham $sanPham)
     {
-        $product->load(['loaiSanPham', 'nhaCungCap']);
-        return new SanPhamResource($product);
+        $sanPham->load(['loaiSanPham', 'nhaCungCap'])::active();
+        return new SanPhamResource($sanPham);
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSanPhamRequest $request, SanPham $product)
+    public function update(UpdateSanPhamRequest $request, SanPham $sanPham)
     {
         $data = $request->validated();
-        $product->update($data);
-        $product->load(['loaiSanPham', 'nhaCungCap']);
-        return response()->json(new SanPhamResource($product), 200);
+        $sanPham->update($data);
+        $sanPham->load(['loaiSanPham', 'nhaCungCap']);
+        return new SanPhamResource($sanPham);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SanPham $product)
+    public function destroy(SanPham $sanPham)
     {
-        $product->IS_DELETED = true;
-        $product->save();
+        $sanPham->IS_DELETED = true;
+        $sanPham->save();
         return response()->noContent();
     }
 }

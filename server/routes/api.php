@@ -1,9 +1,59 @@
 <?php
 
+use App\Http\Controllers\ChucVuController;
+use App\Http\Controllers\GiamGiaSPController;
+use App\Http\Controllers\HoaDonController;
+use App\Http\Controllers\KhachHangController;
+use App\Http\Controllers\LoaiSanPhamController;
+use App\Http\Controllers\NhaCungCapController;
+use App\Http\Controllers\NhanVienController;
+use App\Http\Controllers\PhieuHuyController;
+use App\Http\Controllers\PhieuNhapController;
 use App\Http\Controllers\SanPhamController;
+use App\Http\Controllers\TaiKhoanController;
+use App\Http\Controllers\TonKhoController;
+use App\Http\Controllers\VoucherController;
+use App\Models\ChucVu;
+use App\Models\GiamGiaSP;
+use App\Models\HoaDon;
+use App\Models\KhachHang;
+use App\Models\LoaiSanPham;
+use App\Models\NhaCungCap;
+use App\Models\NhanVien;
+use App\Models\PhieuHuy;
+use App\Models\PhieuNhap;
 use App\Models\SanPham;
+use App\Models\TaiKhoan;
+use App\Models\TonKho;
+use App\Models\Voucher;
 use Illuminate\Support\Facades\Route;
 
-Route::model('product', SanPham::class);// Đăng ký model binding
-Route::apiResource('products', SanPhamController::class);
+// Đăng ký model binding
+Route::model('product', SanPham::class);
+Route::model('category', LoaiSanPham::class);
+Route::model('supplier', NhaCungCap::class);
+Route::model('customer', KhachHang::class);
+Route::model('employee', NhanVien::class);
+Route::model('position', ChucVu::class);
+Route::model('invoice', HoaDon::class);
+Route::model('purchase_order', PhieuNhap::class);
+Route::model('disposal_slip', PhieuHuy::class);
+Route::model('inventory', TonKho::class);
+Route::model('voucher', Voucher::class);
+Route::model('discount', GiamGiaSP::class);
+Route::model('account', TaiKhoan::class);
 
+// API Resources
+Route::apiResource('products', SanPhamController::class);                    // Sản phẩm
+Route::apiResource('categories', LoaiSanPhamController::class);               // Loại sản phẩm
+Route::apiResource('suppliers', NhaCungCapController::class);                 // Nhà cung cấp
+Route::apiResource('customers', KhachHangController::class);                  // Khách hàng
+Route::apiResource('employees', NhanVienController::class);                   // Nhân viên
+Route::apiResource('positions', ChucVuController::class);                     // Chức vụ
+Route::apiResource('invoices', HoaDonController::class);                      // Hóa đơn
+Route::apiResource('purchase-orders', PhieuNhapController::class);            // Phiếu nhập
+Route::apiResource('disposal-slips', PhieuHuyController::class);              // Phiếu hủy
+Route::apiResource('inventories', TonKhoController::class);                   // Tồn kho
+Route::apiResource('vouchers', VoucherController::class);                     // Voucher
+Route::apiResource('discounts', GiamGiaSPController::class);                  // Giảm giá sản phẩm
+Route::apiResource('accounts', TaiKhoanController::class);                    // Tài khoản
