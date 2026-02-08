@@ -22,6 +22,7 @@ class RegisteredTaiKhoanController extends Controller
     {
         $request->validate([
             'TENTK' => ['required', 'string', 'max:255', 'unique:tai_khoans,TENTK'],
+            'EMAIL' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:tai_khoans,EMAIL'],
             'MATKHAU' => ['required', 'confirmed', Rules\Password::defaults()],
             'MANV' => ['required', 'integer', 'exists:nhan_viens,MANV', 'unique:tai_khoans,MANV'],
         ]);
@@ -29,6 +30,7 @@ class RegisteredTaiKhoanController extends Controller
         // Tạo tài khoản
         $taiKhoan = TaiKhoan::create([
             'TENTK' => $request->TENTK,
+            'EMAIL' => $request->EMAIL,
             'MATKHAU' => Hash::make($request->MATKHAU),
             'MANV' => $request->MANV,
             'SOLANSAI' => 0,

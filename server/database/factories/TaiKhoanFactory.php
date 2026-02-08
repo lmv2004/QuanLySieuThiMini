@@ -18,6 +18,7 @@ class TaiKhoanFactory extends Factory
     {
         return [
             'TENTK' => fake()->unique()->userName(),
+            'EMAIL' => fake()->unique()->safeEmail(),
             'MATKHAU' => bcrypt('password'),
             'MANV' => \App\Models\NhanVien::factory(),
             'SOLANSAI' => 0,

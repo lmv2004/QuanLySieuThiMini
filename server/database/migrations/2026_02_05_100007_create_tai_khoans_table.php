@@ -15,10 +15,13 @@ return new class extends Migration
             $table->id('SOTK');
             $table->string('TENTK', 50)->unique();
             $table->string('MATKHAU', 255);
+            $table->string('EMAIL', 255)->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->unsignedBigInteger('MANV')->unique();
             $table->integer('SOLANSAI')->default(0);
             $table->tinyInteger('KHOA_TK')->default(0);
             $table->tinyInteger('IS_DELETED')->default(0);
+            $table->rememberToken();
             $table->timestamps();
 
             $table->foreign('MANV')->references('MANV')->on('nhan_viens')->onDelete('cascade');

@@ -12,12 +12,14 @@ class TaiKhoanSeeder extends Seeder
      */
     public function run(): void
     {
-        $nhanVienIds = \App\Models\NhanVien::pluck('MANV')->toArray();
+        $nhanViens = \App\Models\NhanVien::all();
 
-        foreach ($nhanVienIds as $manv) {
+        foreach ($nhanViens as $nhanVien) {
             \App\Models\TaiKhoan::factory()->create([
-                'MANV' => $manv,
-                'TENTK' => 'user' . $manv,
+                'MANV' => $nhanVien->MANV,
+                'TENTK' => 'user' . $nhanVien->MANV,
+                'EMAIL' => 'user' . $nhanVien->MANV . '@example.com',
+                'MATKHAU' => bcrypt('password123'),
             ]);
         }
     }

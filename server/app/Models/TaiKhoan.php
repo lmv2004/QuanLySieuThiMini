@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class TaiKhoan extends Authenticatable
+class TaiKhoan extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, HasApiTokens, Notifiable;
 
@@ -17,6 +18,7 @@ class TaiKhoan extends Authenticatable
     protected $fillable = [
         'TENTK',
         'MATKHAU',
+        'EMAIL',
         'MANV',
         'SOLANSAI',
         'KHOA_TK',
@@ -68,9 +70,20 @@ class TaiKhoan extends Authenticatable
         return $this->nhanVien ? $this->nhanVien->TENNV : $this->TENTK;
     }
 
-    public function getEmailAttribute()
+    /**
+     * Get the email address for password reset.
+     */
+    public function getEmailForPasswordReset()
     {
-        return $this->nhanVien?->EMAIL ?? '';
+        return $this->EMAIL;
+    }
+
+    /**
+     * Get the email address for verification.
+     */
+    public function getEmailForVerification()
+    {
+        return $this->EMAIL;
     }
 
     public function initials()

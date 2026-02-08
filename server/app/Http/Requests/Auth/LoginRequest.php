@@ -82,4 +82,12 @@ class LoginRequest extends FormRequest
     {
         return Str::transliterate(Str::lower($this->input('TENTK')).'|'.$this->ip());
     }
+
+    /**
+     * Get the authenticated user.
+     */
+    public function taikhoan()
+    {
+        return Auth::user();
+    }
 }
