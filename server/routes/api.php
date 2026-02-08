@@ -57,3 +57,5 @@ Route::apiResource('inventories', TonKhoController::class);                   //
 Route::apiResource('vouchers', VoucherController::class);                     // Voucher
 Route::apiResource('discounts', GiamGiaSPController::class);                  // Giảm giá sản phẩm
 Route::apiResource('accounts', TaiKhoanController::class);                    // Tài khoản
+
+require __DIR__.'/auth.php';
