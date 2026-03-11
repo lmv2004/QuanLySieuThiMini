@@ -2,63 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreGiamGiaSPRequest;
+use App\Http\Requests\UpdateGiamGiaSPRequest;
+use App\Http\Resources\GiamGiaSPResource;
+use App\Models\GiamGiaSP;
 
 class GiamGiaSPController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return GiamGiaSPResource::collection(
+            GiamGiaSP::active()
+                ->with(['sanPham'])
+                ->get()
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        // Dùng cho form-based, API không cần
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreGiamGiaSPRequest $request)
     {
-        //
+        $giamGia = GiamGiaSP::create($request->validated());
+        $giamGia->load(['sanPham']);
+        return new GiamGiaSPResource($giamGia);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(GiamGiaSP $discount)
     {
-        //
+        $discount->load(['sanPham']);
+        return new GiamGiaSPResource($discount);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(GiamGiaSP $discount)
     {
-        //
+        $discount->load(['sanPham']);
+        return new GiamGiaSPResource($discount);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(UpdateGiamGiaSPRequest $request, GiamGiaSP $discount)
     {
-        //
+        $discount->update($request->validated());
+        $discount->load(['sanPham']);
+        return new GiamGiaSPResource($discount);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(GiamGiaSP $discount)
     {
-        //
+        $discount->IS_DELETED = true;
+        $discount->save();
+        return response()->noContent();
     }
 }

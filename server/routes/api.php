@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChucVuController;
+use App\Http\Controllers\CTPhieuHuyController;
 use App\Http\Controllers\GiamGiaSPController;
 use App\Http\Controllers\HoaDonController;
 use App\Http\Controllers\KhachHangController;
@@ -57,5 +58,11 @@ Route::apiResource('inventories', TonKhoController::class);                   //
 Route::apiResource('vouchers', VoucherController::class);                     // Voucher
 Route::apiResource('discounts', GiamGiaSPController::class);                  // Giảm giá sản phẩm
 Route::apiResource('accounts', TaiKhoanController::class);                    // Tài khoản
+
+Route::get('ct-phieu-huys', [CTPhieuHuyController::class, 'index']);
+Route::post('ct-phieu-huys', [CTPhieuHuyController::class, 'store']);
+Route::get('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'show']);
+Route::put('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'update']);
+Route::delete('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'destroy']);
 
 require __DIR__.'/auth.php';

@@ -2,63 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreVoucherRequest;
+use App\Http\Requests\UpdateVoucherRequest;
+use App\Http\Resources\VoucherResource;
+use App\Models\Voucher;
 
 class VoucherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return VoucherResource::collection(
+            Voucher::active()->get()
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        // Dùng cho form-based, API không cần
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreVoucherRequest $request)
     {
-        //
+        $voucher = Voucher::create($request->validated());
+        return new VoucherResource($voucher);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Voucher $voucher)
     {
-        //
+        return new VoucherResource($voucher);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Voucher $voucher)
     {
-        //
+        return new VoucherResource($voucher);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(UpdateVoucherRequest $request, Voucher $voucher)
     {
-        //
+        $voucher->update($request->validated());
+        return new VoucherResource($voucher);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Voucher $voucher)
     {
-        //
+        $voucher->IS_DELETED = true;
+        $voucher->save();
+        return response()->noContent();
     }
 }

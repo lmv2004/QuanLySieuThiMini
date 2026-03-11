@@ -2,63 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StorePhieuHuyRequest;
+use App\Http\Requests\UpdatePhieuHuyRequest;
+use App\Http\Resources\PhieuHuyResource;
+use App\Models\PhieuHuy;
 
 class PhieuHuyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return PhieuHuyResource::collection(
+            PhieuHuy::active()
+                ->with(['nhanVien', 'chiTiets'])
+                ->get()
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        // Dùng cho form-based, API không cần
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StorePhieuHuyRequest $request)
     {
-        //
+        $phieuHuy = PhieuHuy::create($request->validated());
+        $phieuHuy->load(['nhanVien', 'chiTiets']);
+        return new PhieuHuyResource($phieuHuy);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(PhieuHuy $disposal_slip)
     {
-        //
+        $disposal_slip->load(['nhanVien', 'chiTiets.sanPham']);
+        return new PhieuHuyResource($disposal_slip);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(PhieuHuy $disposal_slip)
     {
-        //
+        $disposal_slip->load(['nhanVien', 'chiTiets']);
+        return new PhieuHuyResource($disposal_slip);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(UpdatePhieuHuyRequest $request, PhieuHuy $disposal_slip)
     {
-        //
+        $disposal_slip->update($request->validated());
+        $disposal_slip->load(['nhanVien', 'chiTiets']);
+        return new PhieuHuyResource($disposal_slip);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(PhieuHuy $disposal_slip)
     {
-        //
+        $disposal_slip->IS_DELETED = true;
+        $disposal_slip->save();
+        return response()->noContent();
     }
 }
