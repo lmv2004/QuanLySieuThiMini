@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreCTHoaDonRequest;
+use App\Http\Requests\UpdateCTHoaDonRequest;
+use App\Http\Resources\CTHoaDonResource;
+use App\Models\CTHoaDon;
 
 class CTHoaDonController extends Controller
 {
@@ -11,54 +14,71 @@ class CTHoaDonController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return CTHoaDonResource::collection(CTHoaDon::with(['sanPham', 'tonKho'])->get());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCTHoaDonRequest $request)
     {
-        //
+        $data = $request->validated();
+        
+        $ctHoaDon = CTHoaDon::create($data);
+        $ctHoaDon->load(['sanPham', 'tonKho']);
+        
+        return new CTHoaDonResource($ctHoaDon);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($mahd, $masp, $id_tonkho)
     {
-        //
-    }
+        $ctHoaDon = CTHoaDon::where('MAHD', $mahd)
+            ->where('MASP', $masp)
+            ->where('ID_TONKHO', $id_tonkho)
+            ->firstOrFail();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        $ctHoaDon->load(['sanPham', 'tonKho']);
+        
+        return new CTHoaDonResource($ctHoaDon);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCTHoaDonRequest $request, $mahd, $masp, $id_tonkho)
     {
-        //
+        $ctHoaDon = CTHoaDon::where('MAHD', $mahd)
+            ->where('MASP', $masp)
+            ->where('ID_TONKHO', $id_tonkho)
+            ->firstOrFail();
+            
+        abort_if($ctHoaDon->hoaDon->TRANGTHAI == 1, 403, 'Không thể chỉnh sửa chi tiết hóa đơn của hóa đơn đã thanh toán.');
+
+        $data = $request->validated();
+        $ctHoaDon->update($data);
+        
+        $ctHoaDon->load(['sanPham', 'tonKho']);
+        
+        return new CTHoaDonResource($ctHoaDon);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($mahd, $masp, $id_tonkho)
     {
-        //
+        $ctHoaDon = CTHoaDon::where('MAHD', $mahd)
+            ->where('MASP', $masp)
+            ->where('ID_TONKHO', $id_tonkho)
+            ->firstOrFail();
+            
+        abort_if($ctHoaDon->hoaDon->TRANGTHAI == 1, 403, 'Không thể xóa chi tiết hóa đơn của hóa đơn đã thanh toán.');
+
+        $ctHoaDon->delete();
+        
+        return response()->noContent();
     }
 }

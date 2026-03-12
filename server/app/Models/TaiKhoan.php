@@ -41,6 +41,12 @@ class TaiKhoan extends Authenticatable implements MustVerifyEmail
         return $this->MATKHAU;
     }
 
+    // 👈 Thêm method này để Auth::attempt dùng đúng field mật khẩu
+    public function getAuthPasswordName()
+    {
+        return 'MATKHAU';
+    }
+
     protected $casts = [
         'SOLANSAI' => 'integer',
         'KHOA_TK' => 'boolean',
@@ -70,17 +76,11 @@ class TaiKhoan extends Authenticatable implements MustVerifyEmail
         return $this->nhanVien ? $this->nhanVien->TENNV : $this->TENTK;
     }
 
-    /**
-     * Get the email address for password reset.
-     */
     public function getEmailForPasswordReset()
     {
         return $this->EMAIL;
     }
 
-    /**
-     * Get the email address for verification.
-     */
     public function getEmailForVerification()
     {
         return $this->EMAIL;
@@ -92,14 +92,12 @@ class TaiKhoan extends Authenticatable implements MustVerifyEmail
         $words = explode(' ', $name);
 
         if (count($words) >= 2) {
-            // Lấy chữ cái đầu của 2 từ cuối (Họ và Tên trong tiếng Việt)
             return mb_strtoupper(
                 mb_substr($words[count($words) - 2], 0, 1) .
                 mb_substr($words[count($words) - 1], 0, 1)
             );
         }
 
-        // Nếu chỉ có 1 từ, lấy 2 chữ cái đầu
         return mb_strtoupper(mb_substr($name, 0, 2));
     }
 }

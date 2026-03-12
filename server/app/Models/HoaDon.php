@@ -18,6 +18,7 @@ class HoaDon extends Model
         'TONGTIEN_HANG',
         'TIEN_GIAM_VOUCHER',
         'TONG_THANHTOAN',
+        'TRANGTHAI',
         'MANV',
         'MAKH',
         'SOVOUCHER',
@@ -29,6 +30,7 @@ class HoaDon extends Model
         'TONGTIEN_HANG' => 'decimal:0',
         'TIEN_GIAM_VOUCHER' => 'decimal:0',
         'TONG_THANHTOAN' => 'decimal:0',
+        'TRANGTHAI' => 'integer',
         'IS_DELETED' => 'boolean',
     ];
 

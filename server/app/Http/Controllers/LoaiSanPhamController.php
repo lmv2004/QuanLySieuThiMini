@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreLoaiSanPhamRequest;
+use App\Http\Requests\UpdateLoaiSanPhamRequest;
+use App\Http\Resources\LoaiSanPhamResource;
+use App\Models\LoaiSanPham;
 
 class LoaiSanPhamController extends Controller
 {
@@ -11,54 +14,45 @@ class LoaiSanPhamController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return LoaiSanPhamResource::collection(LoaiSanPham::active()->get());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLoaiSanPhamRequest $request)
     {
-        //
+        $data = $request->validated();
+        $category = LoaiSanPham::create($data);
+        return new LoaiSanPhamResource($category);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(LoaiSanPham $category)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        abort_if($category->IS_DELETED, 404);
+        return new LoaiSanPhamResource($category);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateLoaiSanPhamRequest $request, LoaiSanPham $category)
     {
-        //
+        $data = $request->validated();
+        $category->update($data);
+        return new LoaiSanPhamResource($category);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(LoaiSanPham $category)
     {
-        //
+        $category->IS_DELETED = true;
+        $category->save();
+        return response()->noContent();
     }
 }
