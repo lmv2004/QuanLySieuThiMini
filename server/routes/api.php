@@ -65,4 +65,10 @@ Route::get('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'show
 Route::put('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'update']);
 Route::delete('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'destroy']);
 
+Route::get('ct-hoa-dons', [\App\Http\Controllers\CTHoaDonController::class, 'index']);
+Route::post('ct-hoa-dons', [\App\Http\Controllers\CTHoaDonController::class, 'store']);
+Route::get('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'show']);
+Route::put('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'update']);
+Route::delete('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'destroy']);
+
 require __DIR__.'/auth.php';

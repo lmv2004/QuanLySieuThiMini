@@ -26,39 +26,40 @@ class SanPhamController extends Controller
     public function store(StoreSanPhamRequest $request)
     {
         $data = $request->validated();
-        $sanPham = SanPham::create($data);
-        $sanPham->load(['loaiSanPham', 'nhaCungCap']);
-        return new SanPhamResource($sanPham);
+        $product = SanPham::create($data);
+        $product->load(['loaiSanPham', 'nhaCungCap']);
+        return new SanPhamResource($product);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(SanPham $sanPham)
+    public function show(SanPham $product)
     {
-        $sanPham->load(['loaiSanPham', 'nhaCungCap'])::active();
-        return new SanPhamResource($sanPham);
+        abort_if($product->IS_DELETED, 404);
+        $product->load(['loaiSanPham', 'nhaCungCap']);
+        return new SanPhamResource($product);
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSanPhamRequest $request, SanPham $sanPham)
+    public function update(UpdateSanPhamRequest $request, SanPham $product)
     {
         $data = $request->validated();
-        $sanPham->update($data);
-        $sanPham->load(['loaiSanPham', 'nhaCungCap']);
-        return new SanPhamResource($sanPham);
+        $product->update($data);
+        $product->load(['loaiSanPham', 'nhaCungCap']);
+        return new SanPhamResource($product);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SanPham $sanPham)
+    public function destroy(SanPham $product)
     {
-        $sanPham->IS_DELETED = true;
-        $sanPham->save();
+        $product->IS_DELETED = true;
+        $product->save();
         return response()->noContent();
     }
 }

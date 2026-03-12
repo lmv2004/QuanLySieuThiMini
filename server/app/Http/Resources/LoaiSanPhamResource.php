@@ -18,8 +18,8 @@ class LoaiSanPhamResource extends JsonResource
             'MALOAI' => $this->MALOAI,
             'TENLOAI' => $this->TENLOAI,
             'MOTA' => $this->MOTA,
-            'CREATED_AT' => $this->CREATED_AT,
-            'UPDATED_AT' => $this->UPDATED_AT,
+            'CREATED_AT' => $this->created_at?->format('Y-m-d H:i:s'),
+            'UPDATED_AT' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }
