@@ -13,6 +13,9 @@ import PublicRoute from './PublicRoute.jsx';
 import Login from '../pages/Auth/Login.jsx';
 import Dashboard from '../pages/Dashboard/Dashboard.jsx';
 import ProductList from '../pages/Products/ProductList.jsx';
+import Manage from '../pages/Manage/Manage.jsx';
+import Cashier from '../pages/Cashier/Cashier.jsx';
+import Warehouse from '../pages/Warehouse/Warehouse.jsx';
 
 const AppRoutes = () => {
   return (
@@ -27,7 +30,6 @@ const AppRoutes = () => {
             </PublicRoute>
           }
         />
-
         {/* Private Routes */}
         <Route
           path={ROUTES.DASHBOARD}
@@ -49,6 +51,24 @@ const AppRoutes = () => {
               </MainLayout>
             </PrivateRoute>
           }
+        />
+
+        {/* Manage – full management UI with its own dark-theme layout */}
+        <Route
+          path={ROUTES.MANAGE}
+          element={<Manage />}
+        />
+
+        {/* Cashier – thu ngân interface */}
+        <Route
+          path={ROUTES.CASHIER}
+          element={<Cashier />}
+        />
+
+        {/* Warehouse – nhân viên kho interface */}
+        <Route
+          path={ROUTES.WAREHOUSE}
+          element={<Warehouse />}
         />
 
         {/* Catch all - redirect to dashboard */}

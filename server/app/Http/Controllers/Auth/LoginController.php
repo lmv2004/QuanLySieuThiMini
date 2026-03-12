@@ -18,6 +18,7 @@ class LoginController extends Controller
     {
         $request->authenticate();
         $taikhoan = $request->taikhoan();
+        $taikhoan->load('nhanVien.chucVu');
         $token = $taikhoan->createToken('main')->plainTextToken;
 
         return response()->json([

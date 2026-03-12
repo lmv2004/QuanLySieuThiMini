@@ -58,7 +58,9 @@ Route::apiResource('inventories', TonKhoController::class);                   //
 Route::apiResource('vouchers', VoucherController::class);                     // Voucher
 Route::apiResource('discounts', GiamGiaSPController::class);                  // Giảm giá sản phẩm
 Route::apiResource('accounts', TaiKhoanController::class);                    // Tài khoản
-
+Route::prefix('auth')->group(base_path('routes/auth.php'));
+<<<<<<< HEAD
+=======
 Route::get('ct-phieu-huys', [CTPhieuHuyController::class, 'index']);
 Route::post('ct-phieu-huys', [CTPhieuHuyController::class, 'store']);
 Route::get('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'show']);
@@ -72,3 +74,4 @@ Route::put('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoa
 Route::delete('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'destroy']);
 
 require __DIR__.'/auth.php';
+>>>>>>> 7fb5019d41033bc2220fe59dbc044cf85666bacf

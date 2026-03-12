@@ -26,7 +26,7 @@ const Header = () => {
         <div className="header-right">
           {user && (
             <div className="user-menu">
-              <span className="user-name">{user.name || user.email}</span>
+              <span className="user-name">{user.TENTK || user.name}</span>
               <button onClick={handleLogout} className="logout-btn">
                 Đăng xuất
               </button>
