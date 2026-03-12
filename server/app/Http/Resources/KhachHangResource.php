@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class NhanVienResource extends JsonResource
+class KhachHangResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,17 +15,11 @@ class NhanVienResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'MANV' => $this->MANV,
-            'TENNV' => $this->TENNV,
-            'GIOITINH' => $this->GIOITINH,
-            'CCCD' => $this->CCCD,
-            'NGAYSINH' => $this->NGAYSINH?->format('Y-m-d'),
+            'MAKH' => $this->MAKH,
+            'TENKH' => $this->TENKH,
             'SODIENTHOAI' => $this->SODIENTHOAI,
-            'EMAIL' => $this->EMAIL,
             'DIACHI' => $this->DIACHI,
-            'NGAYTHAMGIA' => $this->NGAYTHAMGIA?->format('Y-m-d'),
-            'MACHUCVU' => $this->MACHUCVU,
-            'chucVu' => new ChucVuResource($this->whenLoaded('chucVu')),
+            'DIEMTHUONG' => $this->DIEMTHUONG,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

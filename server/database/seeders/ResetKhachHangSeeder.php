@@ -6,13 +6,22 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class KhachHangSeeder extends Seeder
+class ResetKhachHangSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
+        // Tắt foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        
+        // Xóa tất cả dữ liệu
+        DB::table('khach_hangs')->truncate();
+        
+        // Bật lại foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        
         $now = Carbon::now();
 
         $khachHangs = [
