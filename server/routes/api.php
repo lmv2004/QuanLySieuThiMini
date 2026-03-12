@@ -58,4 +58,4 @@ Route::apiResource('vouchers', VoucherController::class);                     //
 Route::apiResource('discounts', GiamGiaSPController::class);                  // Giảm giá sản phẩm
 Route::apiResource('accounts', TaiKhoanController::class);                    // Tài khoản
 
-require __DIR__.'/auth.php';
+Route::prefix('auth')->group(base_path('routes/auth.php'));

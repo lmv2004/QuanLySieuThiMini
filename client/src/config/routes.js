@@ -58,4 +58,13 @@ export const ROUTES = {
   SALES_REPORT: '/reports/sales',
   INVENTORY_REPORT: '/reports/inventory',
   REVENUE_REPORT: '/reports/revenue',
+
+  // Manage (all-in-one management section)
+  MANAGE: '/manage',
+
+  // Cashier (thu ngân )
+  CASHIER: '/cashier',
+
+  // Warehouse (nhân viên kho )
+  WAREHOUSE: '/warehouse',
 };

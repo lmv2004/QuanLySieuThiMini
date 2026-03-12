@@ -29,8 +29,15 @@ const Login = () => {
     setError('');
 
     try {
-      await login(formData);
-      navigate(ROUTES.DASHBOARD);
+      const response = await login(formData);
+      const chucVu = response?.user?.nhan_vien?.chuc_vu?.TENCHUCVU?.toLowerCase() || '';
+      if (chucVu.includes('thu')) {
+        navigate(ROUTES.CASHIER);
+      } else if (chucVu.includes('kho')) {
+        navigate(ROUTES.WAREHOUSE);
+      } else {
+        navigate(ROUTES.MANAGE);
+      }
     } catch (err) {
       setError(err.message || 'Đăng nhập thất bại');
     } finally {
@@ -48,15 +55,15 @@ const Login = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Tên đăng nhập</label>
             <input
-              type="email"
+              type="text"
               id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Nhập email"
+              placeholder="Nhập tên đăng nhập"
             />
           </div>
 
@@ -82,6 +89,7 @@ const Login = () => {
             {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </Button>
         </form>
+
       </div>
     </div>
   );

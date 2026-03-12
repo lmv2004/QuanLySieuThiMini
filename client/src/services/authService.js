@@ -5,18 +5,19 @@ import { STORAGE_KEYS } from '../config/constants.js';
 const authService = {
   // Login
   login: async (credentials) => {
-    const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
-    
-    if (response.access_token) {
-      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.access_token);
-      if (response.refresh_token) {
-        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refresh_token);
-      }
+    const payload = {
+      TENTK: credentials.email,
+      MATKHAU: credentials.password,
+    };
+    const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, payload);
+
+    if (response.token) {
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.token);
       if (response.user) {
         localStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(response.user));
       }
     }
-    
+
     return response;
   },
 
