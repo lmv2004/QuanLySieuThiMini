@@ -35,3 +35,18 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
 Route::post('/logout', [LoginController::class, 'destroy'])
     ->middleware('auth:sanctum')
     ->name('logout');
+
+Route::get('/me', function (\Illuminate\Http\Request $request) {
+    $taikhoan = $request->user()->load('nhanVien.chucVu');
+    $nhanVien = $taikhoan->nhanVien;
+    return response()->json([
+        'user' => [
+            'SOTK'   => $taikhoan->SOTK,
+            'TENTK'  => $taikhoan->TENTK,
+            'EMAIL'  => $taikhoan->EMAIL,
+            'MANV'   => $taikhoan->MANV,
+            'TENNV'  => $nhanVien?->TENNV,
+            'chucVu' => $nhanVien?->chucVu,
+        ],
+    ]);
+})->middleware('auth:sanctum')->name('auth.me');

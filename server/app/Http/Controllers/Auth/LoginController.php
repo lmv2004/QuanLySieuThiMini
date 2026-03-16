@@ -21,9 +21,18 @@ class LoginController extends Controller
         $taikhoan->load('nhanVien.chucVu');
         $token = $taikhoan->createToken('main')->plainTextToken;
 
+        $nhanVien = $taikhoan->nhanVien;
+
         return response()->json([
-            'user' => $taikhoan,
             'token' => $token,
+            'user' => [
+                'SOTK'   => $taikhoan->SOTK,
+                'TENTK'  => $taikhoan->TENTK,
+                'EMAIL'  => $taikhoan->EMAIL,
+                'MANV'   => $taikhoan->MANV,
+                'TENNV'  => $nhanVien?->TENNV,
+                'chucVu' => $nhanVien?->chucVu,
+            ],
         ]);
     }
 
