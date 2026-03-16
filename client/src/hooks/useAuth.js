@@ -16,8 +16,18 @@ export const useAuth = () => {
   const checkAuth = async () => {
     try {
       if (authService.isAuthenticated()) {
-        const userInfo = authService.getUserInfo();
-        setUser(userInfo);
+        try {
+          // Fetch fresh user info from server (includes TENNV, chucVu)
+          const data = await authService.getCurrentUser();
+          const userInfo = data?.user ?? data;
+          setUser(userInfo);
+          // Update localStorage with fresh data
+          localStorage.setItem('user_info', JSON.stringify(userInfo));
+        } catch {
+          // Fallback to localStorage if API fails
+          const userInfo = authService.getUserInfo();
+          setUser(userInfo);
+        }
         setIsAuthenticated(true);
       }
     } catch (error) {
