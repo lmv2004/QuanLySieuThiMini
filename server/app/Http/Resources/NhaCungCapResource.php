@@ -20,8 +20,8 @@ class NhaCungCapResource extends JsonResource
             'DIACHI' => $this->DIACHI,
             'SDT' => $this->SDT,
             'EMAIL' => $this->EMAIL,
-            'CREATED_AT' => $this->CREATED_AT,
-            'UPDATED_AT' => $this->UPDATED_AT,
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }
