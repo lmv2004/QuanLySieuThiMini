@@ -1,0 +1,322 @@
+/* ══ VOUCHER-SPECIFIC STYLES ══ */
+
+/* Specific Voucher "Ticket" look */
+.ticket-divider {
+    height: 0;
+    border-top: 2px dashed var(--border);
+    margin: 0;
+    position: relative;
+}
+
+.ticket-divider::before,
+.ticket-divider::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: var(--bg);
+    border-radius: 50%;
+    top: -8px;
+    border: 1px solid var(--border);
+}
+
+.ticket-divider::before {
+    left: -8px;
+    border-left: none;
+}
+
+.ticket-divider::after {
+    right: -8px;
+    border-right: none;
+}
+
+.voucher-code {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin-bottom: 4px;
+}
+
+.voucher-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+/* Unique Voucher Badge Overrides if any */
+.voucher-icon-box {
+    background: var(--indigo-bg);
+    color: var(--indigo);
+}
+
+/* ══ VOUCHER IMPORT EXPORT ══ */
+.voucher-import-export {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.voucher-import-export .btn-import-export {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-weight: 500;
+}
+
+.voucher-import-export .btn-import-export svg {
+    width: 16px;
+    height: 16px;
+}
+
+.ie-form {
+    display: flex;
+    flex-direction: column;
+    min-width: 500px;
+    /* Make the modal wider */
+}
+
+.ie-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.ie-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100%;
+    padding: 16px 40px 16px 16px !important;
+    /* Larger padding */
+    cursor: pointer;
+    font-weight: 600;
+    /* Bolder text */
+    color: var(--text-main);
+    /* Better visibility */
+    background: var(--bg) !important;
+    border: 2px solid var(--border) !important;
+    /* Thicker border */
+    border-radius: 12px !important;
+    font-size: 16px;
+    /* Larger font */
+    transition: all 0.2s ease;
+}
+
+.ie-select:hover {
+    border-color: var(--indigo) !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+.ie-select:focus {
+    border-color: var(--indigo) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--indigo-bg);
+}
+
+.ie-select-caret {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+}
+
+.ie-form-body {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+}
+
+.ie-upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    /* Rounder corners */
+    padding: 60px 20px;
+    /* Much larger padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background: var(--bg-hover);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.ie-upload-area:hover {
+    border-color: var(--indigo);
+    background: var(--indigo-bg);
+    transform: translateY(-2px);
+}
+
+.ie-upload-icon {
+    width: 80px;
+    /* Bigger icon */
+    height: 80px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--indigo);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    /* Deeper shadow */
+    transition: transform 0.2s ease;
+}
+
+.ie-upload-area:hover .ie-upload-icon {
+    transform: scale(1.05);
+}
+
+.ie-upload-icon svg {
+    width: 40px;
+    /* Bigger SVG */
+    height: 40px;
+}
+
+.ie-upload-text,
+.ie-file-selected {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* More gap */
+}
+
+.ie-upload-text strong {
+    color: var(--text-main);
+    font-size: 18px;
+    /* Larger text */
+}
+
+.ie-upload-text span {
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+.ie-file-selected strong {
+    color: var(--indigo);
+    font-size: 18px;
+}
+
+.ie-file-selected span {
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+.ie-format-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    /* Larger gap */
+}
+
+.ie-format-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 16px;
+    /* Larger card padding */
+    border: 2px solid var(--border);
+    /* Thicker border */
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--bg);
+}
+
+.ie-format-card svg {
+    width: 48px;
+    height: 48px;
+    transition: all 0.2s ease;
+}
+
+/* Excel specialized colors */
+.ie-format-card.excel-card svg {
+    color: #1e8e3e;
+    /* Green */
+}
+
+.ie-format-card.excel-card:hover,
+.ie-format-card.excel-card.selected {
+    border-color: #1e8e3e;
+}
+
+.ie-format-card.excel-card.selected {
+    background: #e6f4ea;
+    box-shadow: 0 6px 20px rgba(30, 142, 62, 0.15);
+}
+
+/* CSV specialized colors */
+.ie-format-card.csv-card svg {
+    color: #1a73e8;
+    /* Blue */
+}
+
+.ie-format-card.csv-card:hover,
+.ie-format-card.csv-card.selected {
+    border-color: #1a73e8;
+}
+
+.ie-format-card.csv-card.selected {
+    background: #e8f0fe;
+    box-shadow: 0 6px 20px rgba(26, 115, 232, 0.15);
+}
+
+/* JSON specialized colors */
+.ie-format-card.json-card svg {
+    color: #f29900;
+    /* Yellow/Orange */
+}
+
+.ie-format-card.json-card:hover,
+.ie-format-card.json-card.selected {
+    border-color: #f29900;
+}
+
+.ie-format-card.json-card.selected {
+    background: #fef7e0;
+    box-shadow: 0 6px 20px rgba(242, 153, 0, 0.15);
+}
+
+.ie-format-card span {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 16px;
+}
+
+.ie-format-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.ie-format-card.selected {
+    transform: translateY(-2px);
+}
+
+.ie-input {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--text-main);
+    transition: all 0.2s ease;
+}
+
+.ie-input:focus {
+    border-color: var(--indigo);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--indigo-bg);
+}
+
+.ie-input::placeholder {
+    color: var(--text-muted);
+}

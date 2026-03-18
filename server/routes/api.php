@@ -44,7 +44,47 @@ Route::model('voucher', Voucher::class);
 Route::model('discount', GiamGiaSP::class);
 Route::model('account', TaiKhoan::class);
 
-// Auth routes
+Route::post('accounts/bulk', [TaiKhoanController::class, 'bulkStore']);
+Route::post('disposal-slips/bulk', [PhieuHuyController::class, 'bulkStore']);
+Route::post('discounts/bulk', [GiamGiaSPController::class, 'bulkStore']);
+Route::post('vouchers/bulk', [VoucherController::class, 'bulkStore']);
+
+// API Resources
+Route::apiResource('products', SanPhamController::class);
+Route::apiResource('categories', LoaiSanPhamController::class);
+Route::apiResource('suppliers', NhaCungCapController::class);
+Route::apiResource('customers', KhachHangController::class);
+Route::apiResource('employees', NhanVienController::class);
+Route::apiResource('positions', ChucVuController::class);
+Route::apiResource('invoices', HoaDonController::class);
+Route::apiResource('purchase-orders', PhieuNhapController::class);
+Route::apiResource('disposal-slips', PhieuHuyController::class);
+Route::apiResource('inventories', TonKhoController::class);
+Route::apiResource('vouchers', VoucherController::class);
+Route::apiResource('discounts', GiamGiaSPController::class);
+Route::apiResource('accounts', TaiKhoanController::class);
+
+// Chi tiết phiếu nhập (composite key)
+Route::get('ct-phieu-nhaps', [\App\Http\Controllers\CTPhieuNhapController::class, 'index']);
+Route::post('ct-phieu-nhaps', [\App\Http\Controllers\CTPhieuNhapController::class, 'store']);
+Route::get('ct-phieu-nhaps/{maphieu}/{masp}', [\App\Http\Controllers\CTPhieuNhapController::class, 'show']);
+Route::put('ct-phieu-nhaps/{maphieu}/{masp}', [\App\Http\Controllers\CTPhieuNhapController::class, 'update']);
+Route::delete('ct-phieu-nhaps/{maphieu}/{masp}', [\App\Http\Controllers\CTPhieuNhapController::class, 'destroy']);
+
+// Chi tiết phiếu hủy (composite key)
+Route::get('ct-phieu-huys', [CTPhieuHuyController::class, 'index']);
+Route::post('ct-phieu-huys', [CTPhieuHuyController::class, 'store']);
+Route::get('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'show']);
+Route::put('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'update']);
+Route::delete('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'destroy']);
+
+// Chi tiết hóa đơn (composite key)
+Route::get('ct-hoa-dons', [\App\Http\Controllers\CTHoaDonController::class, 'index']);
+Route::post('ct-hoa-dons', [\App\Http\Controllers\CTHoaDonController::class, 'store']);
+Route::get('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'show']);
+Route::put('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'update']);
+Route::delete('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'destroy']);
+
 Route::prefix('auth')->group(base_path('routes/auth.php'));
 require __DIR__.'/auth.php';
 

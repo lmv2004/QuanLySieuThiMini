@@ -1,71 +1,88 @@
 import React from 'react';
 import { SimplePage } from '../../components/Manage/SimplePage';
 import { Ico } from '../../components/Manage/Icons';
-import { fmtDate, avatarColor } from '../../components/Manage/Shared';
+import { fmtDate, fmtVND } from '../../components/Manage/Shared';
+import { PromotionForm, emptyPromotion } from './PromotionForm';
+import { PromotionGridItem } from './PromotionGridItem';
+import { PromotionActions } from './PromotionActions';
+import { PromotionImportExport } from './PromotionImportExport';
+import api from '../../services/api';
+import './Promotions.css';
 
 export const PromotionsPage = () => <SimplePage
-    title="Khuyến mãi / Giảm giá" icon={Ico.percent}
-    subtitle={(l) => `${l.length} chương trình`}
-    emptyTitle="Chưa có khuyến mãi" emptyDesc="Nhấn + Thêm để tạo chương trình KM"
-    cols={['Tên KM', 'Giảm giá', 'Từ ngày', 'Đến ngày', 'Trạng thái']}
-    emptyForm={{ TENKM: '', PHANTRAMGIAM: '', TUNGAY: '', DENNGAY: '', IS_ACTIVE: true }}
-    tabs={[
-        { id: 'all', label: 'Tất cả' },
-        { id: 'active', label: 'Đang chạy', filter: (x) => x.IS_ACTIVE },
-        { id: 'finished', label: 'Kết thúc', filter: (x) => !x.IS_ACTIVE },
-    ]}
-    renderRow={(item) => [
-        <td key="1"><span className="entity-name">{item.TENKM}</span></td>,
-        <td key="2"><span className="badge badge-info">{item.PHANTRAMGIAM}%</span></td>,
-        <td key="3" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{fmtDate(item.TUNGAY)}</td>,
-        <td key="4" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{fmtDate(item.DENNGAY)}</td>,
-        <td key="5"><span className={item.IS_ACTIVE ? 'badge badge-active' : 'badge badge-inactive'}>{item.IS_ACTIVE ? 'Đang chạy' : 'Kết thúc'}</span></td>,
-    ]}
-    renderActions={(item, openEdit, del, i, list, setList) => {
-        const toggle = () => setList(prev => prev.map(x => x._id === item._id ? { ...x, IS_ACTIVE: !x.IS_ACTIVE } : x));
-        return (
-            <>
-                <button className="btn-action-ico btn-toggle" title={item.IS_ACTIVE ? "Kết thúc KM" : "Kích hoạt KM"} onClick={toggle}>
-                    {item.IS_ACTIVE ? Ico.power : Ico.ban}
-                </button>
-                <button className="btn-action-ico btn-edit" title="Sửa" onClick={() => openEdit(item)}>{Ico.edit}</button>
-                <button className="btn-action-ico btn-del" title="Xóa" onClick={() => del(item._id)}>{Ico.trash}</button>
-            </>
-        );
-    }}
-    renderGridItem={(item, openEdit, del, i, list, setList) => {
-        const toggle = () => setList(prev => prev.map(x => x._id === item._id ? { ...x, IS_ACTIVE: !x.IS_ACTIVE } : x));
-        return (
-            <div key={item._id} className="voucher-card">
-                <div className="voucher-card-top">
-                    <div className="voucher-icon-box" style={{ background: avatarColor(i), color: '#fff', fontSize: 18, fontWeight: 800 }}>%</div>
-                    <span className={item.IS_ACTIVE ? 'badge badge-active' : 'badge badge-inactive'}>
-                        {item.IS_ACTIVE ? 'Đang chạy' : 'Kết thúc'}
-                    </span>
-                </div>
-                <div className="voucher-card-mid" style={{ flex: 1 }}>
-                    <div className="voucher-code" style={{ fontFamily: 'var(--font)', fontSize: 15 }}>{item.TENKM}</div>
-                    <div className="voucher-label">Chương trình giảm giá</div>
-                    <div style={{ marginTop: 12, display: 'flex', gap: 6 }}>
-                        <span className="badge badge-info" style={{ fontSize: 14 }}>Giảm {item.PHANTRAMGIAM}%</span>
-                    </div>
-                </div>
-                <div className="ticket-divider" />
-                <div className="voucher-card-bottom">
-                    <div className="voucher-label">Từ {fmtDate(item.TUNGAY)}</div>
-                    <div className="voucher-label">Đến {fmtDate(item.DENNGAY)}</div>
-                </div>
-                <div className="voucher-actions">
-                    <button className="btn-edit" style={{ background: 'var(--amber-bg)', color: 'var(--amber)', borderColor: 'var(--amber-bd)' }} onClick={toggle}>{item.IS_ACTIVE ? Ico.power : Ico.ban}</button>
-                    <button className="btn-edit" onClick={() => openEdit(item)}>{Ico.edit}</button>
-                    <button className="btn-del" onClick={() => del(item._id)}>{Ico.trash}</button>
-                </div>
-            </div>
-        );
-    }}
-    renderForm={(form, hc) => <>
-        <div className="form-group"><label className="form-label">Tên chương trình</label><input className="form-input" name="TENKM" value={form.TENKM} onChange={hc} placeholder="Khuyến mãi hè 2026" /></div>
-        <div className="form-group"><label className="form-label">Phần trăm giảm (%)</label><input className="form-input" type="number" name="PHANTRAMGIAM" value={form.PHANTRAMGIAM} onChange={hc} placeholder="20" /></div>
-        <div className="form-row"><div className="form-group"><label className="form-label">Từ ngày</label><input className="form-input" type="date" name="TUNGAY" value={form.TUNGAY} onChange={hc} /></div><div className="form-group"><label className="form-label">Đến ngày</label><input className="form-input" type="date" name="DENNGAY" value={form.DENNGAY} onChange={hc} /></div></div>
-    </>}
-/>;
+            title="Khuyến mãi / Giảm giá" icon={Ico.percent}
+            subtitle={(l) => `${l.length} chương trình`}
+            emptyTitle="Chưa có khuyến mãi" emptyDesc="Nhấn + Thêm để tạo chương trình KM"
+            cols={['Tên KM', 'Giảm giá', 'Từ ngày', 'Đến ngày', 'Trạng thái']}
+            apiEndpoint="/discounts"
+            primaryKey="ID"
+            emptyForm={emptyPromotion}
+            renderToolbarActions={(fetchData, addToast, list) => (
+                <PromotionImportExport onRefresh={fetchData} addToast={addToast} data={list} />
+            )}
+            tabs={[
+                { id: 'all', label: 'Tất cả' },
+                { id: 'active', label: 'Đang chạy', filter: (x) => x.TRANGTHAI },
+                { id: 'finished', label: 'Kết thúc', filter: (x) => !x.TRANGTHAI },
+            ]}
+            renderRow={(item) => [
+                <td key="1"><span className="entity-name">{item.TEN_CHUONG_TRINH}</span></td>,
+                <td key="2"><span className="badge badge-info">{item.LOAI_GIAM === 0 ? `${item.GIATRI_GIAM}%` : fmtVND(item.GIATRI_GIAM)}</span></td>,
+                <td key="3" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{fmtDate(item.NGAYBD)}</td>,
+                <td key="4" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{fmtDate(item.NGAYKT)}</td>,
+                <td key="5"><span className={item.TRANGTHAI ? 'badge badge-active' : 'badge badge-inactive'}>{item.TRANGTHAI ? 'Đang chạy' : 'Kết thúc'}</span></td>,
+            ]}
+            renderActions={(item, openEdit, del, i, list, setList, addToast, openView) => (
+                <PromotionActions item={item} openEdit={openEdit} del={del} list={list} setList={setList} addToast={addToast} openView={openView} />
+            )}
+            renderGridItem={(item, openEdit, del, idx) => (
+                <PromotionGridItem item={item} openEdit={openEdit} del={del} idx={idx} />
+            )}
+            renderForm={(form, hc, setForm) => (
+                <PromotionForm form={form} hc={hc} setForm={setForm} />
+            )}
+            customSave={async (form, isEdit, setList, addToast, onSuccess) => {
+                try {
+                    // Logic Thêm Mới với Chọn Nhiều Sản Phẩm (Multiple Selection)
+                    if (!isEdit && Array.isArray(form.MASP) && form.MASP.length > 0) {
+                        const payloadData = form.MASP.map(masp => ({
+                            ...form,
+                            MASP: masp
+                        }));
+
+                        // Gọi Bulk import API
+                        const res = await api.post('/discounts/bulk', { data: payloadData });
+                        addToast('success', res.data.message || `Đã tạo ${payloadData.length} Khuyến mãi thành công!`);
+
+                        // Do Backend xử lý bulk trả về message, gọi get List lại để load
+                        const freshList = await api.get('/discounts');
+                        setList(freshList.data.data || freshList.data);
+                        onSuccess();
+                        return;
+                    }
+
+                    // Logic Update (Sửa 1 Phiếu) hoặc Insert 1 Phiếu bình thường
+                    let singleMasp = form.MASP;
+                    if (Array.isArray(form.MASP)) singleMasp = form.MASP[0]; // Ràng buộc phòng hờ form đẩy mảng
+                    
+                    const singleData = { ...form, MASP: singleMasp };
+                    
+                    if (isEdit) {
+                        const res = await api.put(`/discounts/${form.ID}`, singleData);
+                        setList(prev => prev.map(x => x.ID === form.ID ? res.data.data || res.data : x));
+                        addToast('success', 'Cập nhật khuyến mãi thành công');
+                    } else {
+                        const res = await api.post('/discounts', singleData);
+                        setList(prev => [res.data.data || res.data, ...prev]);
+                        addToast('success', 'Thêm mới khuyến mãi thành công');
+                    }
+                    onSuccess();
+                    
+                } catch (error) {
+                    console.error('Lỗi lưu Khuyến Mãi:', error);
+                    addToast('error', error.response?.data?.message || 'Có lỗi xảy ra khi lưu dữ liệu');
+                }
+            }}
+        />;
+
+

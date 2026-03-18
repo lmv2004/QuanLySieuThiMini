@@ -1,0 +1,61 @@
+/* 
+   Tùy chỉnh CSS riêng cho Tài Khoản 
+   Giúp tách biệt code, không làm ảnh hưởng CSS chung của cả trang
+*/
+
+.account-card.account-locked {
+    opacity: 0.8;
+    background-color: var(--bg-hover) !important;
+}
+
+.account-email {
+    font-size: 13.5px;
+    color: var(--cyan);
+    margin-top: 4px;
+}
+
+/* Tùy chỉnh nút khóa trong Grid */
+.btn-account-toggle {
+    background: var(--amber-bg) !important; 
+    color: var(--amber) !important; 
+    border-color: var(--amber-bd) !important;
+    transition: all 0.2s;
+}
+
+.btn-account-toggle.is-locked {
+    background: var(--green-bg) !important;
+    color: var(--green) !important;
+    border-color: var(--green-bd) !important;
+}
+
+/* Tùy chỉnh nút khóa trong Table */
+.btn-action-ico.btn-lock {
+    background: var(--amber-bg);
+    color: var(--amber);
+}
+.btn-action-ico.btn-lock:hover {
+    background: var(--amber);
+    color: #fff;
+}
+.btn-action-ico.btn-unlock {
+    background: var(--green-bg);
+    color: var(--green);
+}
+.btn-action-ico.btn-unlock:hover {
+    background: var(--green);
+    color: #fff;
+}
+
+/* Sửa lỗi Layout Sidebar bị đẩy xuống */
+.simple-page {
+    /* Đảm bảo khung nội dung không bung width vô hạn */
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-x: hidden;
+}
+
+.data-table {
+    table-layout: fixed;
+    width: 100%;
+    word-break: break-word;
+}

@@ -1,0 +1,79 @@
+/* ══ ĐỒNG BỘ MÀU SẮC ICON THAO TÁC ══ */
+
+.actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* Đẩy sát về bên phải */
+    gap: 8px;
+}
+
+.btn-action-ico {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* THIẾT LẬP MÀU MẶC ĐỊNH (Không đợi hover mới có màu) */
+
+/* 1. XEM - Xám mặc định */
+.btn-view-action {
+    color: #9ca3af;
+    /* Gray-400 */
+}
+
+.btn-view-action:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* 2. KHÓA - Vàng/Cam (Y hệt Voucher) */
+.btn-lock-action {
+    color: #f59e0b;
+    /* Orange-500 */
+    border-color: #fef3c7;
+    background: #fffbeb;
+}
+
+.btn-lock-action:hover {
+    background: #fef3c7;
+    transform: translateY(-1px);
+}
+
+/* 3. SỬA - Xanh lá (Y hệt Voucher) */
+.btn-edit-action {
+    color: #10b981;
+    /* Emerald-500 */
+    border-color: #d1fae5;
+    background: #ecfdf5;
+}
+
+.btn-edit-action:hover {
+    background: #d1fae5;
+    transform: translateY(-1px);
+}
+
+/* 4. XÓA - Đỏ rực (Y hệt Voucher) */
+.btn-del-action {
+    color: #ef4444;
+    /* Red-500 */
+    border-color: #fee2e2;
+    background: #fef2f2;
+}
+
+.btn-del-action:hover {
+    background: #fee2e2;
+    transform: translateY(-1px);
+}
+
+/* Căn phải cho cột table */
+.simple-page-table td:last-child {
+    text-align: right !important;
+}

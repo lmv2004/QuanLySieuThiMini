@@ -1,52 +1,38 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { SimplePage } from '../../components/Manage/SimplePage';
 import { Ico } from '../../components/Manage/Icons';
-import { avatarColor } from '../../components/Manage/Shared';
-import { EmptyState } from '../../components/Manage/EmptyState';
-import { Modal } from '../../components/Manage/Modal';
+import { CategoryForm, emptyCategory } from './CategoryForm';
+import { CategoryActions } from './CategoryActions';
+import { CategoryGridItem } from './CategoryGridItem';
+import { CategoryImportExport } from './CategoryImportExport';
 
 export const CategoriesPage = () => <SimplePage
-    title="Loại sản phẩm" icon={Ico.tag}
-    subtitle={(l) => `${l.length} loại`}
+    title="Loại sản phẩm" icon={Ico.tag} apiPath="/loai-san-phams"
+    subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hoạt động · ${l.length} tổng`}
     emptyTitle="Chưa có loại sản phẩm" emptyDesc="Nhấn + Thêm để bắt đầu"
-    cols={['#', 'Tên loại', 'Mô tả']}
-    emptyForm={{ TENLOAI: '', MOTA: '' }}
+    cols={['#', 'Tên loại', 'Mô tả', 'Trạng thái', 'Hành động']}
+    emptyForm={emptyCategory}
+    tabs={[
+        { id: 'all', label: 'Tất cả' },
+        { id: 'active', label: 'Hoạt động', filter: (x) => !x.IS_DELETED },
+        { id: 'inactive', label: 'Bị khóa', filter: (x) => x.IS_DELETED },
+    ]}
+    renderToolbarActions={(fetchData, addToast, list) => (
+        <CategoryImportExport onRefresh={fetchData} addToast={addToast} data={list} />
+    )}
     renderRow={(l, i) => [
         <td key="1" style={{ color: 'var(--text-muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>{i + 1}</td>,
         <td key="2"><span className="badge badge-info">{l.TENLOAI}</span></td>,
         <td key="3" style={{ color: 'var(--text-muted)', fontSize: 12.5 }}>{l.MOTA || '—'}</td>,
+        <td key="4"><span className={l.IS_DELETED ? 'badge badge-inactive' : 'badge badge-active'}>{l.IS_DELETED ? 'Bị khóa' : 'Hoạt động'}</span></td>,
     ]}
-    renderActions={(l, openEdit, del) => (
-        <>
-            <button className="btn-action-ico btn-edit" title="Sửa" onClick={() => openEdit(l)}>{Ico.edit}</button>
-            <button className="btn-action-ico btn-del" title="Xóa" onClick={() => del(l._id || l.MALOAI)}>{Ico.trash}</button>
-        </>
+    renderActions={(item, openEdit, del, i, list, setList, addToast, openView) => (
+        <CategoryActions item={item} openEdit={openEdit} del={del} list={list} setList={setList} addToast={addToast} openView={openView} />
     )}
-    renderGridItem={(l, openEdit, del, i) => (
-        <div key={l._id || l.MALOAI} className="voucher-card">
-            <div className="voucher-card-top">
-                <div className="voucher-icon-box" style={{ background: avatarColor(i), color: '#fff', fontSize: 16, fontWeight: 800 }}>{(l.TENLOAI[0] || '?').toUpperCase()}</div>
-                <span className="badge badge-info">Loại hàng</span>
-            </div>
-            <div className="voucher-card-mid" style={{ flex: 1 }}>
-                <div className="voucher-code" style={{ fontFamily: 'var(--font)', fontSize: 15 }}>{l.TENLOAI}</div>
-                <div className="voucher-label" style={{ marginTop: 6, lineClamp: 2, display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {l.MOTA || 'Chưa có mô tả cho loại hàng này'}
-                </div>
-            </div>
-            <div className="ticket-divider" />
-            <div className="voucher-card-bottom">
-                <div className="voucher-label">Danh mục #{i + 1}</div>
-                <div className="voucher-label" style={{ color: 'var(--accent2)' }}>Xem sản phẩm →</div>
-            </div>
-            <div className="voucher-actions">
-                <button className="btn-edit" onClick={() => openEdit(l)}>{Ico.edit}</button>
-                <button className="btn-del" onClick={() => del(l._id || l.MALOAI)}>{Ico.trash}</button>
-            </div>
-        </div>
+    renderGridItem={(item, openEdit, del, i, list, setList, addToast, openView) => (
+        <CategoryGridItem item={item} openEdit={openEdit} del={del} idx={i} list={list} setList={setList} addToast={addToast} openView={openView} />
     )}
-    renderForm={(form, hc) => <>
-        <div className="form-group"><label className="form-label">Tên loại</label><input className="form-input" name="TENLOAI" value={form.TENLOAI} onChange={hc} placeholder="Đồ uống, Thực phẩm..." /></div>
-        <div className="form-group"><label className="form-label">Mô tả</label><input className="form-input" name="MOTA" value={form.MOTA} onChange={hc} placeholder="Mô tả (tùy chọn)" /></div>
-    </>}
+    renderForm={(form, hc, setForm) => (
+        <CategoryForm form={form} hc={hc} setForm={setForm} />
+    )}
 />;

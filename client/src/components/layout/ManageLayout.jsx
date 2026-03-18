@@ -48,20 +48,14 @@ export const ManageLayout = () => {
         navigate('/login');
     };
     
-    // Determine active menu item based on current path
-    const [page, setPage] = useState('dashboard');
-    
-    useEffect(() => {
-        let foundId = 'dashboard';
+    // Xác định active menu dựa trực tiếp vào pathname — không dùng state để tránh re-render sidebar
+    const page = React.useMemo(() => {
         for (const group of MENU) {
             for (const item of group.items) {
-                if (location.pathname.startsWith(item.path)) {
-                    foundId = item.id;
-                    break;
-                }
+                if (location.pathname.startsWith(item.path)) return item.id;
             }
         }
-        setPage(foundId);
+        return 'dashboard';
     }, [location.pathname]);
 
     const [dark, setDark] = useState(false);
@@ -94,7 +88,7 @@ export const ManageLayout = () => {
                                         data-label={item.label}
                                     >
                                         <span className="nav-icon">{Ico[item.icon]}</span>
-                                        <span className="nav-label">{item.label}</span>
+                                        <span className="nav-label" data-label={item.label}>{item.label}</span>
                                     </button>
                                 ))}
                             </React.Fragment>
