@@ -15,6 +15,7 @@ class StoreTaiKhoanRequest extends FormRequest
             'EMAIL'   => 'required|email|max:150|unique:tai_khoans,EMAIL',
             'MATKHAU' => 'required|string|min:6|max:255',
             'MANV'    => 'required|integer|exists:nhan_viens,MANV',
+            'KHOA_TK' => 'sometimes|boolean',
         ];
     }
 

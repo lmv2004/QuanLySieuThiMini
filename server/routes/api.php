@@ -44,6 +44,12 @@ Route::model('voucher', Voucher::class);
 Route::model('discount', GiamGiaSP::class);
 Route::model('account', TaiKhoan::class);
 
+// API Bulk Import Routes
+Route::post('accounts/bulk', [TaiKhoanController::class, 'bulkStore']);
+Route::post('disposal-slips/bulk', [PhieuHuyController::class, 'bulkStore']);
+Route::post('discounts/bulk', [GiamGiaSPController::class, 'bulkStore']);
+Route::post('vouchers/bulk', [VoucherController::class, 'bulkStore']);
+
 // API Resources
 Route::apiResource('products', SanPhamController::class);
 Route::apiResource('categories', LoaiSanPhamController::class);

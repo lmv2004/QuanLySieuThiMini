@@ -22,7 +22,8 @@ class Voucher extends Model
         'KMTOIDA',
         'PTGIAM',
         'SOLUOTSD',
-        'SOLUOTSD_DADUNG',
+        'DADUNG',
+        'TRANGTHAI',
         'IS_DELETED',
     ];
 
@@ -34,7 +35,8 @@ class Voucher extends Model
         'KMTOIDA' => 'decimal:0',
         'PTGIAM' => 'integer',
         'SOLUOTSD' => 'integer',
-        'SOLUOTSD_DADUNG' => 'integer',
+        'DADUNG' => 'integer',
+        'TRANGTHAI' => 'integer',
         'IS_DELETED' => 'boolean',
     ];
 
@@ -48,9 +50,10 @@ class Voucher extends Model
     public function isAvailable()
     {
         return $this->IS_DELETED == 0
+            && $this->TRANGTHAI == 1
             && $this->NGAYBD <= now()
             && $this->NGAYKT >= now()
-            && $this->SOLUOTSD_DADUNG < $this->SOLUOTSD;
+            && $this->DADUNG < $this->SOLUOTSD;
     }
 
     // Helper: Tính tiền giảm theo voucher
@@ -73,8 +76,9 @@ class Voucher extends Model
     public function scopeActive($query)
     {
         return $query->where('IS_DELETED', 0)
+            ->where('TRANGTHAI', 1)
             ->where('NGAYBD', '<=', now())
             ->where('NGAYKT', '>=', now())
-            ->whereRaw('SOLUOTSD_DADUNG < SOLUOTSD');
+            ->whereRaw('DADUNG < SOLUOTSD');
     }
 }

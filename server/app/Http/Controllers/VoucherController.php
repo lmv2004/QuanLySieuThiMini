@@ -12,7 +12,7 @@ class VoucherController extends Controller
     public function index()
     {
         return VoucherResource::collection(
-            Voucher::active()->get()
+            Voucher::where('IS_DELETED', 0)->get()
         );
     }
 
@@ -48,5 +48,25 @@ class VoucherController extends Controller
         $voucher->IS_DELETED = true;
         $voucher->save();
         return response()->noContent();
+    }
+
+    public function bulkStore(\Illuminate\Http\Request $request)
+    {
+        // Frontend voucher array duoc gui duoi key 'items'
+        $data = $request->input('items');
+        if (!is_array($data)) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ'], 400);
+        }
+
+        $count = 0;
+        foreach ($data as $item) {
+            if (!isset($item['MAVOUCHER']) || Voucher::where('MAVOUCHER', $item['MAVOUCHER'])->exists()) {
+                continue;
+            }
+            Voucher::create($item);
+            $count++;
+        }
+
+        return response()->json(['message' => "Thành công: Đã import $count Voucher", 'count' => $count]);
     }
 }

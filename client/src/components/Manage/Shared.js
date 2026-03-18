@@ -1,4 +1,10 @@
 export const fmtVND = (v) => Number(v).toLocaleString('vi-VN') + ' ₫';
+export const fmtInputNumber = (v) => {
+    if (v === null || v === undefined || v === '') return '';
+    const n = String(v).replace(/\D/g, '');
+    return n ? Number(n).toLocaleString('vi-VN') : '';
+};
+export const parseInputNumber = (v) => String(v).replace(/\D/g, '');
 export const fmtDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '—';
 export const totalStock = (t = []) => t.reduce((s, x) => s + (x.IS_ACTIVE !== false ? (x.SOLUONG_CON_LAI || 0) : 0), 0);
 export const earliestHSD = (t = []) => { const a = t.filter(x => x.IS_ACTIVE !== false && x.HANSUDUNG); return a.length ? a.sort((a, b) => new Date(a.HANSUDUNG) - new Date(b.HANSUDUNG))[0].HANSUDUNG : null; };
@@ -17,4 +23,12 @@ export const STATUS_MAP = {
 export const CURRENT_USER = {
     MANV: 1, TENNV: 'Nguyễn Minh Khoa', EMAIL: 'khoa.nm@minimart.vn',
     chucVu: { MACHUCVU: 1, TENCHUCVU: 'Quản lý hệ thống' },
+};
+
+export const removeAccents = (str) => {
+    if (!str) return '';
+    return str.normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/đ/g, 'd')
+              .replace(/Đ/g, 'D');
 };

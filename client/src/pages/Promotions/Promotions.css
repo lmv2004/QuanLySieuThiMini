@@ -1,0 +1,35 @@
+/* Cấu hình CSS dành riêng cho module Khuyến mãi (Promotions) */
+
+.promo-card {
+    transition: all 0.2s ease;
+    border-top: 4px solid var(--border);
+}
+
+.promo-card:hover {
+    border-top-color: var(--accent);
+}
+
+.promo-inactive {
+    opacity: 0.8;
+    filter: grayscale(40%);
+}
+
+.promo-type-label {
+    margin-top: 4px;
+    font-size: 13.5px;
+    color: var(--indigo);
+}
+
+/* Sửa lỗi Layout Sidebar bị đẩy xuống */
+.simple-page {
+    /* Đảm bảo khung nội dung không bung width vô hạn */
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-x: hidden;
+}
+
+.data-table {
+    table-layout: fixed;
+    width: 100%;
+    word-break: break-word;
+}

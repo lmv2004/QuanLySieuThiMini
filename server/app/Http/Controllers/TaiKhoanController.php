@@ -62,4 +62,26 @@ class TaiKhoanController extends Controller
         $account->save();
         return response()->noContent();
     }
+
+    public function bulkStore(\Illuminate\Http\Request $request)
+    {
+        $data = $request->input('data');
+        if (!is_array($data)) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ'], 400);
+        }
+
+        $count = 0;
+        foreach ($data as $item) {
+            if (!isset($item['TENTK']) || TaiKhoan::where('TENTK', $item['TENTK'])->exists()) {
+                continue;
+            }
+            if (!empty($item['MATKHAU'])) {
+                $item['MATKHAU'] = Hash::make($item['MATKHAU']);
+            }
+            TaiKhoan::create($item);
+            $count++;
+        }
+
+        return response()->json(['message' => "Thành công: Đã import $count tài khoản", 'count' => $count]);
+    }
 }
