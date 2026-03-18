@@ -9,6 +9,7 @@ class PermissionConstants
     const MANAGE_SUPPLIERS = 'manage_suppliers';
     const MANAGE_PRODUCTS = 'manage_products';
     const MANAGE_PURCHASE_ORDERS = 'manage_purchase_orders';
+    const MANAGE_VOUCHERS = 'manage_vouchers';
     const VIEW_REPORTS = 'view_reports';
 
     // Cashier Permissions
@@ -34,6 +35,7 @@ class PermissionConstants
                 self::MANAGE_SUPPLIERS,
                 self::MANAGE_PRODUCTS,
                 self::MANAGE_PURCHASE_ORDERS,
+                self::MANAGE_VOUCHERS,
                 self::VIEW_REPORTS,
                 self::VIEW_INVENTORY,
                 self::CREATE_INVOICE,

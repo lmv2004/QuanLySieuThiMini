@@ -91,11 +91,11 @@ export const API_ENDPOINTS = {
 
   // Vouchers
   VOUCHERS: {
-    LIST: '/voucher',
-    DETAIL: (id) => `/voucher/${id}`,
-    CREATE: '/voucher',
-    UPDATE: (id) => `/voucher/${id}`,
-    DELETE: (id) => `/voucher/${id}`,
+    LIST: '/vouchers',
+    DETAIL: (id) => `/vouchers/${id}`,
+    CREATE: '/vouchers',
+    UPDATE: (id) => `/vouchers/${id}`,
+    DELETE: (id) => `/vouchers/${id}`,
   },
 
   // Discounts
