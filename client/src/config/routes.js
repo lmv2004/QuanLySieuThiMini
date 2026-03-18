@@ -40,6 +40,9 @@ export const ROUTES = {
   EMPLOYEES: '/employees',
   EMPLOYEE_DETAIL: '/employees/:id',
 
+  // Positions
+  POSITIONS: '/positions',
+
   // Imports
   IMPORTS: '/imports',
   IMPORT_CREATE: '/imports/create',

@@ -6,6 +6,7 @@ import authService from '../services/authService.js';
  */
 export const useAuth = () => {
   const [user, setUser] = useState(null);
+  const [permissions, setPermissions] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -28,6 +29,11 @@ export const useAuth = () => {
           const userInfo = authService.getUserInfo();
           setUser(userInfo);
         }
+        
+        // Load permissions from localStorage
+        const perms = authService.getPermissions();
+        setPermissions(perms);
+        
         setIsAuthenticated(true);
       }
     } catch (error) {
@@ -44,6 +50,12 @@ export const useAuth = () => {
     try {
       const response = await authService.login(credentials);
       setUser(response.user);
+      
+      // Wait a bit for permissions to be saved, then load them
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const perms = authService.getPermissions();
+      setPermissions(perms);
+      
       setIsAuthenticated(true);
       return response;
     } finally {
@@ -56,6 +68,7 @@ export const useAuth = () => {
     try {
       await authService.logout();
       setUser(null);
+      setPermissions(null);
       setIsAuthenticated(false);
     } finally {
       setLoading(false);
@@ -64,6 +77,7 @@ export const useAuth = () => {
 
   return {
     user,
+    permissions,
     loading,
     isAuthenticated,
     login,
