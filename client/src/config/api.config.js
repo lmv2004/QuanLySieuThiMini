@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
     REGISTER: '/auth/register',
     REFRESH_TOKEN: '/auth/refresh',
     ME: '/auth/me',
+    PERMISSIONS: '/auth/permissions',
   },
 
   // Products
