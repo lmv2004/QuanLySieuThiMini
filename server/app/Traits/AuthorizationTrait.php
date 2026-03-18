@@ -2,14 +2,20 @@
 
 namespace App\Traits;
 
-use App\Constants\PermissionConstants;
-
 trait AuthorizationTrait
 {
     /**
-     * Get user role code
+     * Get user's role (ChucVu)
      */
     protected function getUserRole()
+    {
+        return auth()->user()?->nhanVien?->chucVu;
+    }
+
+    /**
+     * Get user's role code
+     */
+    protected function getUserRoleCode(): ?string
     {
         return auth()->user()?->nhanVien?->chucVu?->CODE;
     }
@@ -19,33 +25,56 @@ trait AuthorizationTrait
      */
     protected function hasRole(string $role): bool
     {
-        return $this->getUserRole() === $role;
+        return $this->getUserRoleCode() === $role;
     }
 
     /**
-     * Check if user has any of the roles
+     * Check if user is any of the roles
      */
     protected function hasAnyRole(...$roles): bool
     {
-        return in_array($this->getUserRole(), $roles);
+        $userRole = $this->getUserRoleCode();
+        return in_array($userRole, $roles);
     }
 
     /**
-     * Check if user has permission
+     * Check if user has specific permission
      */
     protected function hasPermission(string $permission): bool
     {
-        $role = $this->getUserRole();
-        return $role && PermissionConstants::hasPermission($role, $permission);
+        $chucVu = $this->getUserRole();
+        return $chucVu ? $chucVu->hasPermission($permission) : false;
     }
 
     /**
-     * Get user permissions
+     * Check if user has any of the permissions
      */
-    protected function getUserPermissions(): array
+    protected function hasAnyPermission(...$permissions): bool
     {
-        $role = $this->getUserRole();
-        return $role ? PermissionConstants::getPermissionsByRole($role) : [];
+        $chucVu = $this->getUserRole();
+        if (!$chucVu) return false;
+
+        return $chucVu->hasAnyPermission(...$permissions);
+    }
+
+    /**
+     * Check if user has all permissions
+     */
+    protected function hasAllPermissions(...$permissions): bool
+    {
+        $chucVu = $this->getUserRole();
+        if (!$chucVu) return false;
+
+        return $chucVu->hasAllPermissions(...$permissions);
+    }
+
+    /**
+     * Get all permissions of user
+     */
+    protected function getUserPermissions()
+    {
+        $chucVu = $this->getUserRole();
+        return $chucVu ? $chucVu->permissions()->pluck('CODE')->toArray() : [];
     }
 
     /**
@@ -70,5 +99,25 @@ trait AuthorizationTrait
     protected function isWarehouse(): bool
     {
         return $this->hasRole('warehouse');
+    }
+
+    /**
+     * Require specific role or throw 403
+     */
+    protected function requireRole(string $role): void
+    {
+        if (!$this->hasRole($role)) {
+            abort(403, "Require role: {$role}");
+        }
+    }
+
+    /**
+     * Require specific permission or throw 403
+     */
+    protected function requirePermission(string $permission): void
+    {
+        if (!$this->hasPermission($permission)) {
+            abort(403, "Require permission: {$permission}");
+        }
     }
 }

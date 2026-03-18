@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Constants\PermissionConstants;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,25 +11,47 @@ class CheckPermission
     /**
      * Handle an incoming request.
      *
+     * Usage: Route::middleware('permission:employees.create')->group(...)
+     *        Route::middleware('permission:employees.view,employees.create')->group(...)
+     *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $permission): Response
+    public function handle(Request $request, Closure $next, string $permissions): Response
     {
         if (!$request->user()) {
-            return response()->json(['message' => 'Chưa xác thực'], 401);
+            return response()->json([
+                'message' => 'Chưa xác thực',
+                'status' => 'unauthenticated'
+            ], 401);
         }
 
         $user = $request->user()->load('nhanVien.chucVu');
-        $userRole = $user->nhanVien?->chucVu?->CODE;
+        $chucVu = $user->nhanVien?->chucVu;
 
-        if (!$userRole) {
-            return response()->json(['message' => 'Không tìm thấy thông tin vai trò'], 403);
+        if (!$chucVu) {
+            return response()->json([
+                'message' => 'Không tìm thấy thông tin vai trò',
+                'status' => 'role_not_found'
+            ], 403);
         }
 
-        if (!PermissionConstants::hasPermission($userRole, $permission)) {
+        // Parse permissions từ parameter
+        $requiredPermissions = array_map('trim', explode(',', $permissions));
+
+        // Kiểm tra quyền - chỉ cần 1 quyền khớp là được
+        $hasPermission = false;
+        foreach ($requiredPermissions as $permission) {
+            if ($chucVu->hasPermission($permission)) {
+                $hasPermission = true;
+                break;
+            }
+        }
+
+        if (!$hasPermission) {
             return response()->json([
                 'message' => 'Bạn không có quyền thực hiện hành động này',
-                'required_permission' => $permission,
+                'required_permission' => count($requiredPermissions) === 1 ? $requiredPermissions[0] : $requiredPermissions,
+                'status' => 'permission_denied'
             ], 403);
         }
 
