@@ -33,6 +33,7 @@ const MENU = [
     {
         group: 'Hệ thống', items: [
             { id: 'accounts', label: 'Tài khoản', icon: 'account', path: '/manage/accounts' },
+            { id: 'permissions', label: 'Phân quyền', icon: 'userCheck', path: '/manage/permissions' },
             { id: 'reports', label: 'Báo cáo doanh thu', icon: 'chart', path: '/manage/reports' },
         ]
     },

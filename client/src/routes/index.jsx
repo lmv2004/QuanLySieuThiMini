@@ -19,6 +19,7 @@ import { ManageLayout } from '../components/layout/ManageLayout.jsx';
 import { DashboardPage } from '../pages/Dashboard/DashboardPage.jsx';
 import { EmployeesPage } from '../pages/Employees/EmployeesPage.jsx';
 import { PositionsPage } from '../pages/Positions/PositionsPage.jsx';
+import { PermissionsPage } from '../pages/Permissions/PermissionsPage.jsx';
 import { SuppliersPage } from '../pages/Suppliers/SuppliersPage.jsx';
 import { ProductsPage } from '../pages/Products/ProductsPage.jsx';
 import { CategoriesPage } from '../pages/Categories/CategoriesPage.jsx';
@@ -63,6 +64,7 @@ const AppRoutes = () => {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="employees" element={<EmployeesPage />} />
           <Route path="positions" element={<PositionsPage />} />
+          <Route path="permissions" element={<PermissionsPage />} />
           <Route path="suppliers" element={<SuppliersPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="categories" element={<CategoriesPage />} />

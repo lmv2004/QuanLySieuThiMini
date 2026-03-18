@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ChucVuController;
 use App\Http\Controllers\CTPhieuHuyController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\GiamGiaSPController;
 use App\Http\Controllers\HoaDonController;
 use App\Http\Controllers\KhachHangController;
@@ -49,6 +51,14 @@ Route::post('disposal-slips/bulk', [PhieuHuyController::class, 'bulkStore']);
 Route::post('discounts/bulk', [GiamGiaSPController::class, 'bulkStore']);
 Route::post('vouchers/bulk', [VoucherController::class, 'bulkStore']);
 
+// Permissions (public – no auth required for reading)
+Route::get('permissions', [PermissionController::class, 'index']);
+Route::get('permissions/{permission}', [PermissionController::class, 'show']);
+
+// Role-Permission management
+Route::get('positions/{position}/permissions', [RolePermissionController::class, 'index']);
+Route::put('positions/{position}/permissions', [RolePermissionController::class, 'sync']);
+
 // API Resources
 Route::apiResource('products', SanPhamController::class);
 Route::apiResource('categories', LoaiSanPhamController::class);
@@ -92,6 +102,8 @@ require __DIR__.'/auth.php';
 Route::middleware('auth:sanctum')->group(function () {
     // Manager Routes (Quản lý cửa hàng)
     Route::middleware('role:manager')->group(function () {
+        // Quản lý chức vụ
+        Route::apiResource('positions', ChucVuController::class);
         // Quản lý nhân viên
         Route::apiResource('employees', NhanVienController::class);
         // Quản lý nhà cung cấp
