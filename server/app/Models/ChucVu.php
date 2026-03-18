@@ -13,6 +13,7 @@ class ChucVu extends Model
     protected $primaryKey = 'MACHUCVU';
 
     protected $fillable = [
+        'CODE',
         'TENCHUCVU',
         'MOTA',
         'IS_DELETED',
