@@ -33,11 +33,9 @@ const calcVoucherDiscount = (subtotal, voucher) => {
 };
 
 export const InvoicesPage = () => {
-    const [products, setProducts] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [vouchers, setVouchers] = useState([]);
     const [cashier, setCashier] = useState(null);
-    const [search, setSearch] = useState('');
     const [barcode, setBarcode] = useState('');
     const [cart, setCart] = useState([]);
     const [customerId, setCustomerId] = useState('');
@@ -45,7 +43,7 @@ export const InvoicesPage = () => {
     const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
     const [cashGiven, setCashGiven] = useState('');
     const [toasts, setToasts] = useState([]);
-    const [loadingProducts, setLoadingProducts] = useState(true);
+    const [orderNumber] = useState(() => `#HD-${Math.floor(Math.random() * 9000) + 1000}`);
 
     const addToast = (type, message) => {
         const id = Date.now();
@@ -61,14 +59,6 @@ export const InvoicesPage = () => {
     }, []);
 
     useEffect(() => {
-        setLoadingProducts(true);
-        api.get('/products', { params: { per_page: 1000 } })
-            .then(res => setProducts(normalizeList(res)))
-            .catch(() => setProducts([]))
-            .finally(() => setLoadingProducts(false));
-    }, []);
-
-    useEffect(() => {
         api.get('/customers', { params: { per_page: 1000 } })
             .then(res => setCustomers(normalizeList(res)))
             .catch(() => setCustomers([]));
@@ -79,15 +69,6 @@ export const InvoicesPage = () => {
             .then(res => setVouchers(normalizeList(res)))
             .catch(() => setVouchers([]));
     }, []);
-
-    const filteredProducts = useMemo(() => {
-        const q = search.trim().toLowerCase();
-        if (!q) return products;
-        return products.filter(p =>
-            String(p.TENSP || '').toLowerCase().includes(q) ||
-            String(p.BARCODE || '').toLowerCase().includes(q)
-        );
-    }, [products, search]);
 
     const selectedVoucher = useMemo(
         () => vouchers.find(v => String(v.SOVOUCHER) === String(voucherCode)),
@@ -110,6 +91,15 @@ export const InvoicesPage = () => {
 
     const addToCart = (product) => {
         if (!product || product.IS_DELETED) return;
+        const activeLots = Array.isArray(product.tonKhos)
+            ? product.tonKhos.filter(t => t.IS_ACTIVE && Number(t.SOLUONG_CON_LAI) > 0)
+            : [];
+        const totalStock = activeLots.reduce((s, t) => s + Number(t.SOLUONG_CON_LAI || 0), 0);
+        if (totalStock <= 0) {
+            addToast('warning', `San pham ${product.TENSP} da het hang`);
+            return;
+        }
+        const lot = activeLots.sort((a, b) => String(a.HANSUDUNG || '').localeCompare(String(b.HANSUDUNG || '')))[0];
         setCart(prev => {
             const existing = prev.find(c => c.MASP === product.MASP);
             if (existing) {
@@ -128,6 +118,8 @@ export const InvoicesPage = () => {
                 GIABAN_THUCTE: price,
                 SOLUONG: 1,
                 THANHTIEN: price,
+                TONKHO_ID: lot?.ID ?? null,
+                TONKHO_TONG: totalStock,
             }];
         });
     };
@@ -137,6 +129,13 @@ export const InvoicesPage = () => {
             prev.map(c => {
                 if (c.MASP !== MASP) return c;
                 const qty = c.SOLUONG + delta;
+                
+                // Kiểm tra tồn kho khi tăng số lượng
+                if (delta > 0 && qty > c.TONKHO_TONG) {
+                    addToast('warning', `Sản phẩm ${c.TENSP} chỉ còn ${c.TONKHO_TONG} cái`);
+                    return c; // Giữ nguyên số lượng cũ
+                }
+                
                 if (qty <= 0) return null;
                 return { ...c, SOLUONG: qty, THANHTIEN: qty * c.GIABAN_THUCTE };
             }).filter(Boolean)
@@ -145,17 +144,22 @@ export const InvoicesPage = () => {
 
     const removeItem = (MASP) => setCart(prev => prev.filter(c => c.MASP !== MASP));
 
-    const handleBarcodeSubmit = (e) => {
+    const handleBarcodeSubmit = async (e) => {
         e.preventDefault();
         const code = barcode.trim();
         if (!code) return;
-        const found = products.find(p => String(p.BARCODE) === code);
-        if (!found) {
+        try {
+            const res = await api.get(`/products/barcode/${code}`);
+            const product = res?.data || res;
+            if (!product) {
+                addToast('warning', `Không tìm thấy sản phẩm với barcode ${code}`);
+                return;
+            }
+            addToCart(product);
+            setBarcode('');
+        } catch (err) {
             addToast('warning', `Không tìm thấy sản phẩm với barcode ${code}`);
-            return;
         }
-        addToCart(found);
-        setBarcode('');
     };
 
     const handleCheckout = async () => {
@@ -192,7 +196,8 @@ export const InvoicesPage = () => {
             setVoucherCode('');
             setCashGiven('');
         } catch (err) {
-            addToast('error', err?.message || 'Lỗi khi tạo hóa đơn');
+            console.error(err);
+            addToast('error', `Lỗi khi tạo hóa đơn: ${err.response?.data?.message || err.message}`);
         }
     };
 
@@ -202,178 +207,178 @@ export const InvoicesPage = () => {
 
     return (
         <div className="invoices-pos">
-            <div className="pos-toast">
+            <div className="toast-container">
                 {toasts.map(t => (
                     <Toast key={t.id} type={t.type} message={t.message} onClose={() => removeToast(t.id)} />
                 ))}
             </div>
 
-            <div className="pos-header">
-                <div className="pos-title">
-                    <div className="pos-title-icon">{Ico.receipt}</div>
+            {/* Header Card */}
+            <div className="pos-header-card">
+                <div className="pos-header-left">
+                    <div className="pos-receipt-icon">{Ico.receipt}</div>
                     <div>
-                        <div className="pos-title-text">Bán hàng / Tính tiền</div>
-                        <div className="pos-title-sub">Quét barcode hoặc chọn sản phẩm để tạo hóa đơn</div>
+                        <div className="pos-header-title">Tạo Hóa Đơn Bán Hàng</div>
+                        <div className="pos-header-sub">Quét barcode hoặc chọn sản phẩm để bán</div>
                     </div>
                 </div>
-                <div className="pos-cashier">
-                    <div className="pos-cashier-label">Thu ngân</div>
-                    <div className="pos-cashier-name">
-                        {cashier?.TENNV || '—'}
-                        <span>{cashier?.chucVu?.TENCHUCVU || 'Nhân viên'}</span>
+                <div className="pos-header-right">
+                    <div className="pos-cashier-info">
+                        <div className="pos-cashier-badge">{cashier?.TENNV || 'Chưa đăng nhập'}</div>
+                        <div className="pos-cashier-role">{cashier?.chucVu?.TENCHUCVU || 'Nhân viên'}</div>
                     </div>
+                    <div className="pos-order-num">{orderNumber}</div>
                 </div>
             </div>
 
-            <div className="pos-grid">
-                <section className="pos-panel">
-                    <div className="pos-panel-head">
-                        <div className="pos-panel-title">Sản phẩm</div>
-                        <form className="pos-barcode" onSubmit={handleBarcodeSubmit}>
-                            <span>{Ico.search}</span>
+            <div className="pos-container">
+                {/* Left: Products and Barcode */}
+                <div className="pos-left">
+                    <div className="pos-barcode-card">
+                        <div className="pos-barcode-label">📦 Thêm Sản Phẩm</div>
+                        <form className="pos-barcode-form" onSubmit={handleBarcodeSubmit}>
                             <input
                                 value={barcode}
                                 onChange={(e) => setBarcode(e.target.value)}
-                                placeholder="Quet/nhap barcode"
+                                placeholder="Quét hoặc nhập barcode..."
+                                className="pos-barcode-input"
                             />
-                            <button type="submit">Them</button>
+                            <button type="submit" className="pos-add-btn">Thêm</button>
                         </form>
                     </div>
 
-                    <div className="pos-search">
-                        <span>{Ico.search}</span>
-                        <input
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Tim san pham theo ten hoac barcode"
-                        />
-                    </div>
-
-                    <div className="pos-products">
-                        {loadingProducts ? (
-                            <div className="pos-empty">Dang tai san pham...</div>
-                        ) : filteredProducts.length === 0 ? (
-                            <div className="pos-empty">Khong tim thay san pham phu hop</div>
-                        ) : (
-                            <div className="pos-product-grid">
-                                {filteredProducts.map((sp) => (
-                                    <button key={sp.MASP} className="pos-product-card" onClick={() => addToCart(sp)}>
-                                        <div className="pos-product-name">{sp.TENSP}</div>
-                                        <div className="pos-product-barcode">{sp.BARCODE || '—'}</div>
-                                        <div className="pos-product-foot">
-                                            <span className="pos-product-price">{fmtVND(sp.GIABAN || 0)}</span>
-                                            <span className="pos-product-unit">{sp.DVT || '—'}</span>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </section>
-
-                <aside className="pos-panel pos-cart">
-                    <div className="pos-panel-head">
-                        <div className="pos-panel-title">Gio hang</div>
-                        <div className="pos-panel-sub">{cart.length} san pham</div>
-                    </div>
-
-                    <div className="pos-cart-items">
-                        {cart.length === 0 ? (
-                            <div className="pos-empty">Chua co san pham trong gio</div>
-                        ) : (
-                            cart.map(item => (
-                                <div key={item.MASP} className="pos-cart-item">
-                                    <div className="pos-cart-info">
-                                        <div className="pos-cart-name">{item.TENSP}</div>
-                                        <div className="pos-cart-sub">{fmtVND(item.GIABAN_THUCTE)} / {item.DVT}</div>
-                                    </div>
-                                    <div className="pos-cart-qty">
-                                        <button onClick={() => changeQty(item.MASP, -1)}>-</button>
-                                        <span>{item.SOLUONG}</span>
-                                        <button onClick={() => changeQty(item.MASP, 1)}>+</button>
-                                    </div>
-                                    <div className="pos-cart-total">{fmtVND(item.THANHTIEN)}</div>
-                                    <button className="pos-cart-remove" onClick={() => removeItem(item.MASP)}>{Ico.x}</button>
+                    {/* Cart Items */}
+                    <div className="pos-cart-card">
+                        <div className="pos-cart-header">
+                            <h3 className="pos-cart-title">🛒 Giỏ Hàng</h3>
+                            <span className="pos-cart-count">{cart.length} sản phẩm</span>
+                        </div>
+                        <div className="pos-cart-list">
+                            {cart.length === 0 ? (
+                                <div className="pos-empty-cart">
+                                    <div className="pos-empty-icon">📭</div>
+                                    <p>Giỏ hàng trống</p>
+                                    <span>Quét barcode để bắt đầu</span>
                                 </div>
-                            ))
-                        )}
+                            ) : (
+                                cart.map(item => (
+                                    <div key={item.MASP} className="pos-cart-row">
+                                        <div className="pos-item-info">
+                                            <div className="pos-item-name">{item.TENSP}</div>
+                                            <div className="pos-item-price">{fmtVND(item.GIABAN_THUCTE)}</div>
+                                        </div>
+                                        <div className="pos-item-qty">
+                                            <button onClick={() => changeQty(item.MASP, -1)}>−</button>
+                                            <span>{item.SOLUONG}</span>
+                                            <button onClick={() => changeQty(item.MASP, 1)}>+</button>
+                                        </div>
+                                        <div className="pos-item-total">{fmtVND(item.THANHTIEN)}</div>
+                                        <button className="pos-item-remove" onClick={() => removeItem(item.MASP)}>{Ico.x}</button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
+                </div>
 
-                    <div className="pos-form">
-                        <div className="pos-form-row">
-                            <label>Khach hang</label>
-                            <select value={customerId} onChange={(e) => setCustomerId(e.target.value)}>
-                                <option value="">Khach le</option>
+                {/* Right: Checkout Panel */}
+                <div className="pos-right">
+                    {/* Customer & Voucher */}
+                    <div className="pos-sidebar-card">
+                        <h3 className="pos-sidebar-title">👤 Thông Tin Giao Dịch</h3>
+                        <div className="pos-form-group">
+                            <label>Khách hàng</label>
+                            <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="pos-form-select">
+                                <option value="">👤 Khách lẻ</option>
                                 {customers.map(c => (
                                     <option key={c.MAKH} value={c.MAKH}>
-                                        #{c.MAKH} · {c.TENKH} ({c.DIEMTHUONG || 0} diem)
+                                        {c.TENKH} ({c.DIEMTHUONG || 0} điểm)
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        <div className="pos-form-row">
+                        <div className="pos-form-group">
                             <label>Voucher</label>
-                            <select value={voucherCode} onChange={(e) => setVoucherCode(e.target.value)}>
-                                <option value="">Khong ap dung</option>
+                            <select value={voucherCode} onChange={(e) => setVoucherCode(e.target.value)} className="pos-form-select">
+                                <option value="">— Không dùng</option>
                                 {vouchers.map(v => (
                                     <option key={v.SOVOUCHER} value={v.SOVOUCHER}>
-                                        {v.SOVOUCHER} · {v.MAVOUCHER || v.MOTA || 'Voucher'}
+                                        {v.SOVOUCHER} ({v.MOTA || 'Voucher'})
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        <div className="pos-form-row">
-                            <label>Hinh thuc thanh toan</label>
-                            <div className="pos-methods">
-                                {HINHTHUC_OPTIONS.map(opt => (
-                                    <button
-                                        key={opt.value}
-                                        type="button"
-                                        className={paymentMethod === opt.value ? 'active' : ''}
-                                        onClick={() => setPaymentMethod(opt.value)}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
-                            </div>
+                    </div>
+
+                    {/* Payment Method */}
+                    <div className="pos-sidebar-card">
+                        <h3 className="pos-sidebar-title">💳 Hình Thức Thanh Toán</h3>
+                        <div className="pos-payment-methods">
+                            {HINHTHUC_OPTIONS.map(opt => (
+                                <button
+                                    key={opt.value}
+                                    className={`pos-payment-btn ${paymentMethod === opt.value ? 'active' : ''}`}
+                                    onClick={() => setPaymentMethod(opt.value)}
+                                >
+                                    {opt.label === 'Tiền mặt' && '💵'}
+                                    {opt.label === 'Chuyển khoản' && '🏦'}
+                                    {opt.label === 'Thẻ' && '💳'}
+                                    {opt.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    <div className="pos-summary">
-                        <div className="pos-summary-row">
-                            <span>Tam tinh</span>
-                            <span>{fmtVND(subtotal)}</span>
+                    {/* Bill Summary */}
+                    <div className="pos-bill-card">
+                        <div className="pos-bill-item">
+                            <span>Tạm tính</span>
+                            <span className="pos-amount">{fmtVND(subtotal)}</span>
                         </div>
-                        <div className="pos-summary-row">
-                            <span>Giam voucher</span>
-                            <span>-{fmtVND(discount)}</span>
-                        </div>
-                        <div className="pos-summary-row total">
-                            <span>Tong thanh toan</span>
+                        {discount > 0 && (
+                            <div className="pos-bill-item discount">
+                                <span>Giảm giá</span>
+                                <span className="pos-discount-amt">-{fmtVND(discount)}</span>
+                            </div>
+                        )}
+                        <div className="pos-bill-divider" />
+                        <div className="pos-bill-total">
+                            <span>Tổng Cần Thanh Toán</span>
                             <span>{fmtVND(total)}</span>
                         </div>
-                        <div className="pos-summary-row">
-                            <span>Tien khach dua</span>
-                            <input
-                                type="number"
-                                value={cashGiven}
-                                onChange={(e) => setCashGiven(e.target.value)}
-                                placeholder="0"
-                                disabled={paymentMethod !== 'Tiền mặt'}
-                            />
-                        </div>
-                        <div className="pos-summary-row">
-                            <span>Tien thua</span>
-                            <span className="pos-change">{fmtVND(change)}</span>
-                        </div>
+                        {paymentMethod === 'Tiền mặt' && (
+                            <>
+                                <div className="pos-form-group" style={{ marginTop: '12px' }}>
+                                    <label>Tiền khách đưa</label>
+                                    <input
+                                        type="number"
+                                        value={cashGiven}
+                                        onChange={(e) => setCashGiven(e.target.value)}
+                                        placeholder="0"
+                                        className="pos-form-input"
+                                    />
+                                </div>
+                                <div className="pos-bill-item change">
+                                    <span>Tiền thừa</span>
+                                    <span className="pos-change-amt">{fmtVND(change)}</span>
+                                </div>
+                            </>
+                        )}
                     </div>
 
-                    <div className="pos-actions">
-                        <button className="btn-primary" onClick={handleCheckout}>Thanh toan</button>
-                        <button className="btn-secondary" onClick={handlePrint}>In hoa don</button>
-                        <button className="btn-ghost" onClick={() => setCart([])}>Xoa gio</button>
+                    {/* Action Buttons */}
+                    <div className="pos-actions-group">
+                        <button className="pos-btn pos-btn-primary" onClick={handleCheckout}>
+                            ✓ Thanh Toán
+                        </button>
+                        <button className="pos-btn pos-btn-secondary" onClick={handlePrint}>
+                            🖨️ In Hóa Đơn
+                        </button>
+                        <button className="pos-btn pos-btn-ghost" onClick={() => setCart([])}>
+                            🗑️ Xóa Giỏ
+                        </button>
                     </div>
-                </aside>
+                </div>
             </div>
         </div>
     );
