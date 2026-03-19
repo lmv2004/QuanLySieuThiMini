@@ -116,7 +116,7 @@ html[data-theme="dark"] {
 .manage-app {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
     background: var(--bg);
     color: var(--text);
     font-family: var(--font);
@@ -356,17 +356,15 @@ html[data-theme="dark"] {
 ══════════════════════════════════════════════ */
 .manage-sidebar {
     width: var(--sidebar-w);
-    height: calc(100vh - var(--header-h));
+    height: 100%; /* Fill manage-layout height */
     background: var(--sb-bg);
     border-right: 1px solid var(--sb-border);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    position: sticky;
-    top: var(--header-h);
     transition: width .25s cubic-bezier(.4, 0, .2, 1), background .3s, border-color .3s;
-    overflow-x: hidden; /* chỉ clip ngang để collapse animation đẹp */
-    overflow-y: auto;   /* cho phép scroll dọc khi có nhiều item */
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .manage-sidebar.collapsed {
@@ -418,7 +416,8 @@ html[data-theme="dark"] {
     padding: 10px 7px;
     gap: 1px;
     flex: 1;
-    overflow-y: auto; /* cho phép scroll khi nhiều item hơn viewport */
+    overflow-y: auto;
+    /* cho phép scroll khi nhiều item hơn viewport */
     overflow-x: hidden;
 }
 
@@ -2257,4 +2256,13 @@ html[data-theme="dark"] .chart-bar.hi {
 .btn-add-detail svg {
     width: 15px;
     height: 15px;
+}
+
+/* ══ GLOBAL PAGE & TABLE FIXES ══ */
+.manage-main, .manage-content, .simple-page {
+    min-width: 0 !important;
+}
+
+.data-table {
+    width: 100%;
 }

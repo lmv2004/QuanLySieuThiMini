@@ -8,7 +8,7 @@ import { ImportGridItem } from './ImportGridItem';
 import { ImportImportExport } from './ImportImportExport';
 
 export const ImportsPage = () => <SimplePage
-    title="Phiếu nhập hàng" icon={Ico.file} apiPath="/phieu-nhaps"
+    title="Phiếu nhập hàng" icon={Ico.file} apiEndpoint="/purchase-orders"
     subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hiệu lực · ${l.length} tổng`}
     emptyTitle="Chưa có phiếu nhập" emptyDesc="Nhấn + Tạo phiếu nhập để bắt đầu"
     cols={['Mã phiếu', 'Ngày lập', 'Tổng tiền', 'Trạng thái', 'Hành động']}

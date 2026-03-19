@@ -8,7 +8,7 @@ import { EmployeeGridItem } from './EmployeeGridItem';
 import { EmployeeImportExport } from './EmployeeImportExport';
 
 export const EmployeesPage = () => <SimplePage
-    title="Nhân viên" icon={Ico.users}
+    title="Nhân viên" icon={Ico.users} apiEndpoint="/employees"
     subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hoạt động · ${l.length} tổng`}
     emptyTitle="Chưa có nhân viên" emptyDesc="Nhấn + Thêm để bắt đầu"
     cols={['Nhân viên', 'Số điện thoại', 'Vai trò', 'Trạng thái', 'Hành động']}

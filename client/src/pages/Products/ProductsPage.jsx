@@ -8,7 +8,7 @@ import { ProductGridItem } from './ProductGridItem';
 import { ProductImportExport } from './ProductImportExport';
 
 export const ProductsPage = () => <SimplePage
-    title="Sản phẩm" icon={Ico.box}
+    title="Sản phẩm" icon={Ico.box} apiEndpoint="/products"
     subtitle={(l) => `${l.filter(s => !s.IS_DELETED).length} đang bán · ${l.length} tổng`}
     emptyTitle="Chưa có sản phẩm" emptyDesc="Nhấn + Thêm để bắt đầu"
     cols={['Sản phẩm', 'Giá bán', 'Giá vốn', 'Tồn kho', 'HSD', 'Trạng thái', 'Hành động']}
