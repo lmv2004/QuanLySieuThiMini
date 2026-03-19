@@ -3,7 +3,7 @@ import { Ico } from '../../components/Manage/Icons';
 import { avatarColor } from '../../components/Manage/Shared';
 import { accountService } from '../../services/accountService';
 
-export const AccountGridItem = ({ item, openEdit, del, idx, list, setList, addToast }) => {
+export const AccountGridItem = ({ item, openEdit, del, idx, list, setList, addToast, openView }) => {
     
     const toggleLock = async () => {
         try {
@@ -44,6 +44,9 @@ export const AccountGridItem = ({ item, openEdit, del, idx, list, setList, addTo
             </div>
             
             <div className="grid-item-actions">
+                <button className="btn-edit" title="Xem" onClick={() => openView(item)}>
+                    {Ico.eye}
+                </button>
                 <button 
                     className={`btn-edit btn-account-toggle ${item.KHOA_TK ? 'is-locked' : ''}`} 
                     title="Khóa/Mở Khóa"
@@ -54,7 +57,7 @@ export const AccountGridItem = ({ item, openEdit, del, idx, list, setList, addTo
                 <button className="btn-edit" title="Sửa" onClick={() => openEdit(item)}>
                     {Ico.edit}
                 </button>
-                <button className="btn-del" title="Xóa" onClick={() => del(item.SOTK)}>
+                <button className="btn-edit" title="Xóa" onClick={() => del(item.SOTK)}>
                     {Ico.trash}
                 </button>
             </div>

@@ -24,9 +24,13 @@ export const PositionGridItem = ({ item, openEdit, del, idx, openView }) => (
             <div className="grid-item-label">Ngày tạo</div>
         </div>
         <div className="grid-item-actions">
-            <button className="btn-action-ico" onClick={() => openView(item)}>{Ico.eye}</button>
-            <button className="btn-edit" onClick={() => openEdit(item)}>{Ico.edit}</button>
-            <button className="btn-del" onClick={() => del(item.MACHUCVU)}>{Ico.trash}</button>
+            <TableActions 
+                item={item}
+                primaryKey="MACHUCVU"
+                openEdit={openEdit}
+                del={del}
+                openView={openView}
+            />
         </div>
     </div>
 );

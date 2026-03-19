@@ -10,7 +10,7 @@ export const CategoriesPage = () => <SimplePage
     title="Loại sản phẩm" icon={Ico.tag} apiEndpoint="/categories"
     subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hoạt động · ${l.length} tổng`}
     emptyTitle="Chưa có loại sản phẩm" emptyDesc="Nhấn + Thêm để bắt đầu"
-    cols={['#', 'Tên loại', 'Mô tả', 'Trạng thái', 'Hành động']}
+    cols={['#', 'Tên loại', 'Mô tả', 'Trạng thái']}
     emptyForm={emptyCategory}
     tabs={[
         { id: 'all', label: 'Tất cả' },

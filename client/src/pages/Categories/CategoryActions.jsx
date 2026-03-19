@@ -26,6 +26,7 @@ export const CategoryActions = ({ item, openEdit, del, list, setList, addToast, 
             del={del}
             onLock={handleToggleLock}
             isLocked={item.IS_DELETED}
+            openView={openView}
         />
     );
 };

@@ -11,7 +11,7 @@ export const SuppliersPage = () => <SimplePage
     title="Nhà cung cấp" icon={Ico.truck} apiEndpoint="/suppliers"
     subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hợp tác · ${l.length} tổng`}
     emptyTitle="Chưa có nhà cung cấp" emptyDesc="Nhấn + Thêm để bắt đầu"
-    cols={['Công ty', 'SĐT', 'Email', 'Địa chỉ', 'Trạng thái', 'Hành động']}
+    cols={['Công ty', 'SĐT', 'Email', 'Địa chỉ', 'Trạng thái']}
     emptyForm={emptySupplier}
     tabs={[
         { id: 'all', label: 'Tất cả' },

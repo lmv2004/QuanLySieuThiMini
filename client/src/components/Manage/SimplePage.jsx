@@ -48,7 +48,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
 
     const filtered = useMemo(() => {
         const term = removeAccents(search.toLowerCase());
-        
+
         const checkValue = (val) => {
             if (val === null || val === undefined) return false;
             if (typeof val === 'object') {
@@ -58,7 +58,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
         };
 
         let res = [...list].filter(x => checkValue(x));
-        
+
         if (tabs && activeTab && activeTab !== 'all') {
             const currentTab = tabs.find(t => t.id === activeTab);
             if (currentTab?.filter) res = res.filter(currentTab.filter);
@@ -212,22 +212,26 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
                 <div className="page-content">
                     {viewMode === 'table' ? (
                         <table className="data-table">
-                            <thead><tr>{cols.map((c, i) => <th key={i}>{c}</th>)}<th style={{ width: 80 }}></th></tr></thead>
+                            <thead>
+                                <tr>
+                                    {cols.map((c, i) => <th key={i}>{c}</th>)}
+                                    {/* Chỉ thêm Hành động nếu cols chưa có và không rỗng */}
+                                    {cols.length > 0 && !cols.some(c => c === 'Hành động') && <th style={{ width: 170, textAlign: 'center', padding: '10px 0' }}>HÀNH ĐỘNG</th>}
+                                </tr>
+                            </thead>
                             <tbody>
                                 {filtered.length === 0 && <tr><td colSpan={cols.length + 1}><EmptyState icon={icon} title={emptyTitle} desc={emptyDesc} /></td></tr>}
                                 {paginated.map((item, i) => (
                                     <tr key={item[primaryKey] || i}>
                                         {renderRow(item, i, list, setList)}
-                                        <td>
-                                            <div className="actions-cell">
-                                                {renderActions ? renderActions(item, openEdit, del, i, list, setList, addToast, openView) : (
-                                                    <>
-                                                        <button className="btn-action-ico" title="Xem" onClick={() => openView(item)}>{Ico.eye}</button>
-                                                        <button className="btn-action-ico btn-edit" title="Sửa" onClick={() => openEdit(item)}>{Ico.edit}</button>
-                                                        <button className="btn-action-ico btn-del" title="Xóa" onClick={() => del(item[primaryKey])}>{Ico.trash}</button>
-                                                    </>
-                                                )}
-                                            </div>
+                                        <td className="actions-cell" style={{ width: 170 }}>
+                                            {renderActions ? renderActions(item, openEdit, del, i, list, setList, addToast, openView) : (
+                                                <>
+                                                    <button className="btn-action-ico" title="Xem" onClick={() => openView(item)}>{Ico.eye}</button>
+                                                    <button className="btn-action-ico btn-edit" title="Sửa" onClick={() => openEdit(item)}>{Ico.edit}</button>
+                                                    <button className="btn-action-ico btn-del" title="Xóa" onClick={() => del(item[primaryKey])}>{Ico.trash}</button>
+                                                </>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
@@ -267,9 +271,9 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
             )}
 
             {modal === 'delete' && (
-                <Modal 
-                    title="Xác nhận xóa" 
-                    onClose={close} 
+                <Modal
+                    title="Xác nhận xóa"
+                    onClose={close}
                     actions={
                         <>
                             <button className="btn-secondary" onClick={close}>Hủy bỏ</button>
@@ -282,7 +286,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
                             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         </div>
                         <h3 style={{ fontSize: '18px', color: 'var(--text-main)', marginBottom: '8px' }}>Bạn có chắc chắn muốn xóa bản ghi này?</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: '1.5' }}>Hành động này không thể hoàn tác.<br/>Dữ liệu sẽ bị xóa vĩnh viễn khỏi hệ thống.</p>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '15px', lineHeight: '1.5' }}>Hành động này không thể hoàn tác.<br />Dữ liệu sẽ bị xóa vĩnh viễn khỏi hệ thống.</p>
                     </div>
                 </Modal>
             )}

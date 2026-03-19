@@ -356,7 +356,8 @@ html[data-theme="dark"] {
 ══════════════════════════════════════════════ */
 .manage-sidebar {
     width: var(--sidebar-w);
-    height: 100%; /* Fill manage-layout height */
+    height: 100%;
+    /* Fill manage-layout height */
     background: var(--sb-bg);
     border-right: 1px solid var(--sb-border);
     display: flex;
@@ -2259,10 +2260,16 @@ html[data-theme="dark"] .chart-bar.hi {
 }
 
 /* ══ GLOBAL PAGE & TABLE FIXES ══ */
-.manage-main, .manage-content, .simple-page {
+.manage-main,
+.manage-content,
+.simple-page {
     min-width: 0 !important;
 }
 
 .data-table {
     width: 100%;
+}
+
+.data-table th:last-child {
+    text-align: center !important;
 }

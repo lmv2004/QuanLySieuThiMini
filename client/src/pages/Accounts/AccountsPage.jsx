@@ -39,16 +39,18 @@ export const AccountsPage = () => <SimplePage
                     </span>
                 </td>,
             ]}
-            renderActions={(item, openEdit, del, i, list, setList, addToast) => (
+            renderActions={(item, openEdit, del, i, list, setList, addToast, openView) => (
                 <AccountActions 
                     item={item} openEdit={openEdit} del={del} 
                     list={list} setList={setList} addToast={addToast} 
+                    openView={openView}
                 />
             )}
-            renderGridItem={(item, openEdit, del, i, list, setList, addToast) => (
+            renderGridItem={(item, openEdit, del, i, list, setList, addToast, openView) => (
                 <AccountGridItem 
                     item={item} openEdit={openEdit} del={del} idx={i} 
                     list={list} setList={setList} addToast={addToast} 
+                    openView={openView}
                 />
             )}
             renderForm={(form, hc, setForm) => <AccountForm form={form} hc={hc} setForm={setForm} />}
