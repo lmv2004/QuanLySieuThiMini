@@ -11,6 +11,7 @@ export const CategoriesPage = () => (
     <div className="categories-page">
         <SimplePage
             title="Loại sản phẩm" icon={Ico.tag} apiEndpoint="/categories"
+            primaryKey="MALOAI"
             subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hoạt động · ${l.length} tổng`}
             emptyTitle="Chưa có loại sản phẩm" emptyDesc="Nhấn + Thêm để bắt đầu"
             cols={['Mã', 'Tên loại', 'Mô tả']}
