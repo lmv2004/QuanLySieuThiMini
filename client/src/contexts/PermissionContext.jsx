@@ -15,42 +15,35 @@ import { STORAGE_KEYS } from '../config/constants';
 const PermissionContext = createContext(null);
 
 // ── Map module → permission code cần có để hiện menu ───────────────
-// Dựa theo PermissionConstants.php:
-//   manager:   manage_employees, manage_products, manage_suppliers,
-//              manage_purchase_orders, manage_vouchers, view_reports,
-//              view_inventory, create_invoice, create_disposal_slip, ...
-//   cashier:   create_invoice, view_inventory, cancel_invoice, process_payment, export_invoice
-//   warehouse: view_warehouse_inventory, create_purchase_order, create_disposal_slip
+// Dựa theo permissions DB (PermissionSeeder / RolePermissionSeeder).
 export const MODULE_PERMISSIONS = {
     dashboard:   null,                          // luôn hiển thị
 
     // Nhân sự — chỉ manager
-    employees:   'manage_employees',
-    positions:   'manage_employees',
-    permissions: 'manage_employees',
-    accounts:    'manage_employees',
+    employees:   'employees.view',
+    positions:   'positions.view',
+    permissions: 'positions.manage',
+    accounts:    'accounts.view',
 
-    // Hàng hóa — xem: cashier + warehouse (view_inventory); sửa/xóa: manager (manage_products)
-    // → hiện menu với ai có view_inventory (cashier, warehouse, manager đều có)
-    products:    'view_inventory',
-    categories:  'view_inventory',
-    suppliers:   'view_inventory',
+    // Hàng hóa
+    products:    'products.view',
+    categories:  'categories.view',
+    suppliers:   'suppliers.view',
 
-    // Phiếu nhập: manager + warehouse
-    imports:     'create_purchase_order',
-    // Phiếu hủy: manager + warehouse
-    disposals:   'create_disposal_slip',
+    // Phiếu nhập + Phiếu hủy
+    imports:     'purchase-orders.view',
+    disposals:   'disposal-slips.view',
 
-    // Bán hàng — cashier + manager
-    invoices:    'create_invoice',
-    customers:   'create_invoice',
+    // Bán hàng
+    invoices:    'invoices.view',
+    customers:   'customers.view',
 
-    // Voucher/Khuyến mãi — chỉ manager
-    vouchers:    'manage_vouchers',
-    promotions:  'manage_vouchers',
+    // Voucher/Khuyến mãi
+    vouchers:    'vouchers.view',
+    promotions:  'discounts.view',
 
-    // Hệ thống — chỉ manager
-    reports:     'view_reports',
+    // Hệ thống
+    reports:     'reports.view',
 };
 
 export const PermissionProvider = ({ children }) => {
