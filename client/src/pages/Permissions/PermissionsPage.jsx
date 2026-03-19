@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import { getPermissions, getRolePermissions, syncRolePermissions } from '../../services/permissionService';
+import './PermissionsPage.css';
 
 // ─── Module label mapping ──────────────────────────────────────────────────
 const MODULE_LABELS = {
@@ -38,16 +39,10 @@ const Toast = ({ type, message, onClose }) => {
         return () => clearTimeout(t);
     }, [onClose]);
     return (
-        <div style={{
-            position: 'fixed', top: 20, right: 20, zIndex: 9999,
-            background: type === 'success' ? '#10b981' : '#ef4444',
-            color: '#fff', borderRadius: 10, padding: '12px 20px',
-            fontWeight: 600, boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-            display: 'flex', gap: 10, alignItems: 'center', minWidth: 260,
-        }}>
-            <span>{type === 'success' ? '✓' : '✗'}</span>
-            <span>{message}</span>
-            <button onClick={onClose} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 16 }}>×</button>
+        <div className={`perm-toast perm-toast-${type}`}>
+            <span className="perm-toast-icon">{type === 'success' ? '✓' : '✗'}</span>
+            <span className="perm-toast-text">{message}</span>
+            <button className="perm-toast-close" onClick={onClose} aria-label="Đóng">×</button>
         </div>
     );
 };
@@ -145,13 +140,12 @@ export const PermissionsPage = () => {
     const allChecked = allPermIds.length > 0 && allPermIds.every(id => checkedIds.has(id));
 
     return (
-        <div className="simple-page">
+        <div className="simple-page permissions-page">
             {toast && <Toast key={toast.id} type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
 
-            {/* Header */}
-            <div className="page-header">
+            <div className="page-header perm-header">
                 <div className="page-title-block">
-                    <h1 className="page-title">🔐 Phân quyền chức vụ</h1>
+                    <h1 className="page-title">Phân quyền chức vụ</h1>
                     <p className="page-subtitle">
                         {selectedRole
                             ? `Đang chỉnh quyền: ${selectedRole.TENCHUCVU} · ${checkedIds.size} quyền được cấp`
@@ -159,163 +153,120 @@ export const PermissionsPage = () => {
                     </p>
                 </div>
                 {selectedRole && (
-                    <div className="page-actions">
-                        <button className="btn-secondary" onClick={() => { setCheckedIds(new Set(originalIds)); }}>Hoàn tác</button>
+                    <div className="page-actions perm-actions">
+                        <button className="btn-secondary" onClick={() => { setCheckedIds(new Set(originalIds)); }}>
+                            Hoàn tác
+                        </button>
                         <button
                             className="btn-primary"
                             onClick={handleSave}
                             disabled={saving || !isDirty}
                             style={{ opacity: (!isDirty || saving) ? 0.6 : 1 }}
                         >
-                            {saving ? 'Đang lưu...' : '💾 Lưu thay đổi'}
+                            {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                         </button>
                     </div>
                 )}
             </div>
 
-            {/* Main layout */}
-            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
-
-                {/* ─── Left panel: Role list ─── */}
-                <div style={{
-                    width: 250, flexShrink: 0,
-                    background: 'var(--surface)', borderRadius: 14,
-                    border: '1px solid var(--border)', overflow: 'hidden',
-                }}>
-                    <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 13, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
-                        CHỨC VỤ ({roles.length})
+            <div className="perm-layout">
+                <aside className="role-panel">
+                    <div className="role-panel-header">
+                        CHUC VU <span>{roles.length}</span>
                     </div>
-                    {roles.map(role => {
-                        const isSelected = selectedRole?.MACHUCVU === role.MACHUCVU;
-                        return (
-                            <button
-                                key={role.MACHUCVU}
-                                onClick={() => loadRolePerms(role)}
-                                style={{
-                                    width: '100%', textAlign: 'left', padding: '13px 18px',
-                                    background: isSelected ? 'var(--primary)' : 'transparent',
-                                    color: isSelected ? '#fff' : 'var(--text-main)',
-                                    border: 'none', cursor: 'pointer',
-                                    borderBottom: '1px solid var(--border)',
-                                    transition: 'all .15s', display: 'flex', flexDirection: 'column', gap: 3,
-                                }}
-                                onMouseEnter={e => !isSelected && (e.currentTarget.style.background = 'var(--surface-hover)')}
-                                onMouseLeave={e => !isSelected && (e.currentTarget.style.background = 'transparent')}
-                            >
-                                <span style={{ fontWeight: 600, fontSize: 14 }}>{role.TENCHUCVU}</span>
-                                <span style={{ fontSize: 11, opacity: 0.7 }}>#{role.MACHUCVU}</span>
-                            </button>
-                        );
-                    })}
-                </div>
+                    <div className="role-panel-body">
+                        {roles.map(role => {
+                            const isSelected = selectedRole?.MACHUCVU === role.MACHUCVU;
+                            return (
+                                <button
+                                    key={role.MACHUCVU}
+                                    onClick={() => loadRolePerms(role)}
+                                    className={`role-item ${isSelected ? 'is-selected' : ''}`}
+                                >
+                                    <span className="role-title">{role.TENCHUCVU}</span>
+                                    <span className="role-meta">#{role.MACHUCVU}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </aside>
 
-                {/* ─── Right panel: Permissions matrix ─── */}
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <section className="perm-main">
                     {!selectedRole ? (
-                        <div style={{
-                            background: 'var(--surface)', borderRadius: 14, border: '1px solid var(--border)',
-                            padding: '60px 40px', textAlign: 'center', color: 'var(--text-muted)',
-                        }}>
-                            <div style={{ fontSize: 52, marginBottom: 16 }}>🔐</div>
-                            <div style={{ fontSize: 18, fontWeight: 600 }}>Chọn chức vụ để quản lý quyền</div>
-                            <div style={{ fontSize: 14, marginTop: 6 }}>Danh sách chức vụ ở bên trái</div>
+                        <div className="perm-empty">
+                            <div className="perm-empty-icon">🔐</div>
+                            <div className="perm-empty-title">Chọn chức vụ để quản lý quyền</div>
+                            <div className="perm-empty-text">Danh sách chức vụ ở bên trái</div>
                         </div>
                     ) : loading ? (
-                        <div style={{ background: 'var(--surface)', borderRadius: 14, border: '1px solid var(--border)', padding: '60px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                            Đang tải...
-                        </div>
+                        <div className="perm-loading">Đang tải...</div>
                     ) : (
-                        <div style={{ background: 'var(--surface)', borderRadius: 14, border: '1px solid var(--border)', overflow: 'hidden' }}>
-                            {/* Toolbar */}
-                            <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>
+                        <div className="perm-panel">
+                            <div className="perm-toolbar">
+                                <label className="perm-toolbar-check">
                                     <input
                                         type="checkbox"
                                         checked={allChecked}
                                         onChange={handleSelectAll}
-                                        style={{ width: 16, height: 16, accentColor: 'var(--primary)', cursor: 'pointer' }}
+                                        className="perm-checkbox"
                                     />
-                                    {allChecked ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                                    <span>{allChecked ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}</span>
                                 </label>
-                                <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>
+                                <span className="perm-toolbar-count">
                                     {checkedIds.size} / {allPermIds.length} quyền được chọn
                                 </span>
                                 {isDirty && (
-                                    <span style={{ marginLeft: 'auto', background: '#f59e0b22', color: '#d97706', borderRadius: 6, padding: '3px 10px', fontSize: 12, fontWeight: 600 }}>
-                                        ⚠ Chưa lưu
-                                    </span>
+                                    <span className="perm-dirty">Chưa lưu</span>
                                 )}
                             </div>
 
-                            {/* Permission groups */}
-                            <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                                {allPermGroups.map(group => {
+                            <div className="perm-groups">
+                                {allPermGroups.map((group, gi) => {
                                     const groupIds = group.permissions.map(p => p.MAPERMISSION);
                                     const checkedCount = groupIds.filter(id => checkedIds.has(id)).length;
                                     const allGroupChecked = checkedCount === groupIds.length;
                                     const someChecked = checkedCount > 0 && !allGroupChecked;
 
                                     return (
-                                        <div key={group.module} style={{
-                                            border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden',
-                                        }}>
-                                            {/* Module header */}
-                                            <div style={{
-                                                background: 'var(--surface-hover)', padding: '12px 16px',
-                                                display: 'flex', alignItems: 'center', gap: 10,
-                                                borderBottom: '1px solid var(--border)',
-                                            }}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={allGroupChecked}
-                                                    ref={el => { if (el) el.indeterminate = someChecked; }}
-                                                    onChange={() => toggleModule(group)}
-                                                    style={{ width: 16, height: 16, accentColor: 'var(--primary)', cursor: 'pointer' }}
-                                                />
-                                                <span style={{ fontWeight: 700, fontSize: 14 }}>
+                                        <div key={group.module} className="perm-group" style={{ '--i': gi }}>
+                                            <div className="perm-group-header">
+                                                <label className="perm-group-check">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={allGroupChecked}
+                                                        ref={el => { if (el) el.indeterminate = someChecked; }}
+                                                        onChange={() => toggleModule(group)}
+                                                        className="perm-checkbox"
+                                                    />
+                                                </label>
+                                                <div className="perm-group-title">
                                                     {MODULE_LABELS[group.module] || group.module}
-                                                </span>
-                                                <span style={{
-                                                    marginLeft: 'auto', fontSize: 11, fontWeight: 600,
-                                                    color: allGroupChecked ? 'var(--primary)' : 'var(--text-muted)',
-                                                    background: allGroupChecked ? 'var(--primary-light, #6366f122)' : 'var(--surface)',
-                                                    padding: '2px 10px', borderRadius: 20,
-                                                }}>
+                                                </div>
+                                                <span className={`perm-group-count ${allGroupChecked ? 'is-full' : ''}`}>
                                                     {checkedCount} / {groupIds.length}
                                                 </span>
                                             </div>
 
-                                            {/* Permission items */}
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
-                                                {group.permissions.map((perm, idx) => {
+                                            <div className="perm-group-grid">
+                                                {group.permissions.map((perm) => {
                                                     const isChecked = checkedIds.has(perm.MAPERMISSION);
                                                     return (
                                                         <label
                                                             key={perm.MAPERMISSION}
-                                                            style={{
-                                                                display: 'flex', alignItems: 'flex-start', gap: 10,
-                                                                padding: '12px 16px', cursor: 'pointer',
-                                                                background: isChecked ? 'var(--primary-light, #6366f108)' : 'transparent',
-                                                                borderTop: idx >= 1 ? '1px solid var(--border)' : 'none',
-                                                                transition: 'background .15s',
-                                                            }}
+                                                            className={`perm-item ${isChecked ? 'is-checked' : ''}`}
                                                         >
                                                             <input
                                                                 type="checkbox"
                                                                 checked={isChecked}
                                                                 onChange={() => togglePerm(perm.MAPERMISSION)}
-                                                                style={{ marginTop: 2, width: 15, height: 15, accentColor: 'var(--primary)', cursor: 'pointer', flexShrink: 0 }}
+                                                                className="perm-checkbox"
                                                             />
-                                                            <div>
-                                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                                    <span style={{ fontSize: 14 }}>{ACTION_ICONS[perm.ACTION] || '🔑'}</span>
-                                                                    <span style={{ fontWeight: 600, fontSize: 13, color: isChecked ? 'var(--primary)' : 'var(--text-main)' }}>
-                                                                        {perm.NAME}
-                                                                    </span>
+                                                            <div className="perm-item-body">
+                                                                <div className="perm-item-title">
+                                                                    <span className="perm-item-icon">{ACTION_ICONS[perm.ACTION] || '🔑'}</span>
+                                                                    <span>{perm.NAME}</span>
                                                                 </div>
-                                                                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, fontFamily: 'var(--mono)' }}>
-                                                                    {perm.CODE}
-                                                                </div>
+                                                                <div className="perm-item-code">{perm.CODE}</div>
                                                             </div>
                                                         </label>
                                                     );
@@ -327,7 +278,7 @@ export const PermissionsPage = () => {
                             </div>
                         </div>
                     )}
-                </div>
+                </section>
             </div>
         </div>
     );
