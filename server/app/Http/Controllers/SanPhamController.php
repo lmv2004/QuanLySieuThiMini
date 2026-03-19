@@ -41,6 +41,23 @@ class SanPhamController extends Controller
         return new SanPhamResource($product);
     }
 
+    /**
+     * Find product by barcode.
+     */
+    public function findByBarcode(string $barcode)
+    {
+        $product = SanPham::where('BARCODE', $barcode)->firstOrFail();
+        abort_if($product->IS_DELETED, 404);
+        $product->load([
+            'loaiSanPham',
+            'nhaCungCap',
+            'tonKhos' => function ($query) {
+                $query->active();
+            },
+        ]);
+        return new SanPhamResource($product);
+    }
+
 
     /**
      * Update the specified resource in storage.

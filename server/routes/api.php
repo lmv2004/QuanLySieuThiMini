@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ── Products ──
     Route::get('products', [SanPhamController::class, 'index'])->middleware('permission:products.view');
+    Route::get('products/barcode/{barcode}', [SanPhamController::class, 'findByBarcode'])->middleware('permission:products.view');
     Route::get('products/{product}', [SanPhamController::class, 'show'])->middleware('permission:products.view');
     Route::post('products', [SanPhamController::class, 'store'])->middleware('permission:products.create');
     Route::put('products/{product}', [SanPhamController::class, 'update'])->middleware('permission:products.edit');
