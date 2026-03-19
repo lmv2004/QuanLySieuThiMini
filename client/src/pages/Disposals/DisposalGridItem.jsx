@@ -32,12 +32,12 @@ export const DisposalGridItem = ({ item, openEdit, del }) => {
             </div>
 
             <div className="grid-item-actions">
-                <button className="btn-edit" title="Sửa" onClick={() => openEdit(item)}>
-                    {Ico.edit}
-                </button>
-                <button className="btn-del" title="Xóa" onClick={() => del(item.MAPHIEU)}>
-                    {Ico.trash}
-                </button>
+                <TableActions 
+                    item={item}
+                    primaryKey="MAPHIEU"
+                    openEdit={openEdit}
+                    del={del}
+                />
             </div>
         </div>
     );

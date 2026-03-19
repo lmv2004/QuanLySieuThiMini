@@ -16,8 +16,8 @@ export const DisposalsPage = () => {
             subtitle={(l) => `${l.length} phiếu hủy`}
             emptyTitle="Chưa có phiếu hủy"
             emptyDesc="Nhấn + Tạo phiếu hủy để bắt đầu"
-            // THÊM 'Trạng thái' VÀO ĐÂY ĐỂ KHỚP VỚI CỘT ICON
-            cols={['Mã phiếu', 'Ngày lập', 'Nhân viên', 'Lý do', 'Trạng thái']}
+            // SimplePage sẽ tự thêm cột 'Hành động'
+            cols={['Mã phiếu', 'Ngày lập', 'Nhân viên', 'Lý do']}
             apiEndpoint="/disposal-slips"
             primaryKey="MAPHIEU"
             emptyForm={emptyDisposal}

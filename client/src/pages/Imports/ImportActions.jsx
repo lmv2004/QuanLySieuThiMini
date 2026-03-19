@@ -26,6 +26,7 @@ export const ImportActions = ({ item, openEdit, del, list, setList, addToast, op
             del={del}
             onLock={handleToggleLock}
             isLocked={item.IS_DELETED}
+            openView={openView}
         />
     );
 };

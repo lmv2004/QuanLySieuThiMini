@@ -11,7 +11,7 @@ export const TableActions = ({
     isLocked = false // Truyền trạng thái khóa từ bên ngoài vào
 }) => {
     return (
-        <div className="actions-cell flex items-center justify-end gap-2 pr-2">
+        <div className="actions-cell flex items-center justify-center gap-2">
             {/* 1. NÚT XEM */}
             {openView && (
                 <button className="btn-action-ico btn-view-action" title="Xem" onClick={() => openView(item)}>

@@ -11,7 +11,7 @@ export const InvoicesPage = () => <SimplePage
     title="Hóa đơn / Bán hàng" icon={Ico.receipt} apiEndpoint="/invoices"
     subtitle={(l) => `${l.length} hóa đơn`}
     emptyTitle="Chưa có hóa đơn" emptyDesc="Dữ liệu hóa đơn sẽ hiển thị ở đây"
-    cols={['Mã HD', 'Ngày', 'Khách hàng', 'Tổng tiền', 'Trạng thái', 'Hành động']}
+    cols={['Mã HD', 'Ngày', 'Khách hàng', 'Tổng tiền', 'Trạng thái']}
     emptyForm={emptyInvoice}
     tabs={[
         { id: 'all', label: 'Tất cả' },

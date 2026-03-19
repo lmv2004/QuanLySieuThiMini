@@ -11,7 +11,7 @@ export const CustomersPage = () => <SimplePage
     title="Khách hàng" icon={Ico.userGroup} apiEndpoint="/customers"
     subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hoạt động · ${l.length} tổng`}
     emptyTitle="Chưa có khách hàng" emptyDesc="Dữ liệu khách hàng sẽ hiển thị ở đây"
-    cols={['Khách hàng', 'Số điện thoại', 'Địa chỉ', 'Điểm thưởng', 'Trạng thái', 'Hành động']}
+    cols={['Khách hàng', 'Số điện thoại', 'Địa chỉ', 'Điểm thưởng', 'Trạng thái']}
     emptyForm={emptyCustomer}
     tabs={[
         { id: 'all', label: 'Tất cả' },

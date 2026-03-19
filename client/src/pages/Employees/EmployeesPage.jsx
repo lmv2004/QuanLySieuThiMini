@@ -11,7 +11,7 @@ export const EmployeesPage = () => <SimplePage
     title="Nhân viên" icon={Ico.users} apiEndpoint="/employees"
     subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hoạt động · ${l.length} tổng`}
     emptyTitle="Chưa có nhân viên" emptyDesc="Nhấn + Thêm để bắt đầu"
-    cols={['Nhân viên', 'Số điện thoại', 'Vai trò', 'Trạng thái', 'Hành động']}
+    cols={['Nhân viên', 'Số điện thoại', 'Vai trò', 'Trạng thái']}
     emptyForm={emptyEmployee}
     tabs={[
         { id: 'all', label: 'Tất cả' },
