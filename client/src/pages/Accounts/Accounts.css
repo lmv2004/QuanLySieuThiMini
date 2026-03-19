@@ -16,8 +16,8 @@
 
 /* Tùy chỉnh nút khóa trong Grid */
 .btn-account-toggle {
-    background: var(--amber-bg) !important; 
-    color: var(--amber) !important; 
+    background: var(--amber-bg) !important;
+    color: var(--amber) !important;
     border-color: var(--amber-bd) !important;
     transition: all 0.2s;
 }
@@ -33,14 +33,17 @@
     background: var(--amber-bg);
     color: var(--amber);
 }
+
 .btn-action-ico.btn-lock:hover {
     background: var(--amber);
     color: #fff;
 }
+
 .btn-action-ico.btn-unlock {
     background: var(--green-bg);
     color: var(--green);
 }
+
 .btn-action-ico.btn-unlock:hover {
     background: var(--green);
     color: #fff;
