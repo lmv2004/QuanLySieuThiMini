@@ -6,7 +6,7 @@ import api from '../../services/api';
 import { Toast } from './Toast';
 import { removeAccents } from './Shared';
 
-export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc, renderRow, emptyForm, renderForm, validate, initialData = [], tabs, renderGridItem, renderActions, stats: statsProp, apiEndpoint, primaryKey = '_id', renderExtraActions, renderToolbarActions }) => {
+export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc, renderRow, emptyForm, renderForm, validate, transformBeforeSave, initialData = [], tabs, renderGridItem, renderActions, stats: statsProp, apiEndpoint, primaryKey = '_id', renderExtraActions, renderToolbarActions }) => {
     const [list, setList] = useState(initialData);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -19,6 +19,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [toasts, setToasts] = useState([]);
+    const [formErrors, setFormErrors] = useState({});
 
     const addToast = (type, message) => {
         const id = Date.now();
@@ -31,8 +32,33 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
         if (!apiEndpoint) return;
         setLoading(true);
         try {
-            const res = await api.get(apiEndpoint);
-            setList(res.data.data || res.data);
+            // Gọi với per_page lớn để lấy toàn bộ dữ liệu (phân trang do client xử lý)
+            const res = await api.get(apiEndpoint, { params: { per_page: 1000 } });
+            const responseData = res.data ?? res;
+
+            // Hỗ trợ cả 2 dạng response: array thẳng hoặc Laravel paginator {data, meta}
+            let items = [];
+            if (Array.isArray(responseData)) {
+                items = responseData;
+            } else if (Array.isArray(responseData.data)) {
+                items = responseData.data;
+
+                // Nếu có nhiều hơn 1 trang (> 1000 records), fetch tiếp các trang còn lại
+                const lastPage = responseData.meta?.last_page ?? responseData.last_page ?? 1;
+                if (lastPage > 1) {
+                    const pageRequests = [];
+                    for (let p = 2; p <= lastPage; p++) {
+                        pageRequests.push(api.get(apiEndpoint, { params: { per_page: 1000, page: p } }));
+                    }
+                    const pages = await Promise.all(pageRequests);
+                    pages.forEach(pr => {
+                        const d = pr.data ?? pr;
+                        items = items.concat(Array.isArray(d) ? d : (d.data ?? []));
+                    });
+                }
+            }
+
+            setList(items);
             setError(null);
         } catch (err) {
             console.error('Fetch error:', err);
@@ -92,24 +118,36 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
         setForm(Object.fromEntries(Object.keys(emptyForm).map(k => [k, item[k] ?? emptyForm[k]])));
         setModal('view');
     };
-    const close = () => { setModal(null); setEditId(null); };
+    const close = () => { setModal(null); setEditId(null); setFormErrors({}); };
     const hc = (e) => {
         const { name, value, type, checked } = e.target;
         setForm(p => ({ ...p, [name]: type === 'checkbox' ? checked : value }));
+        if (formErrors[name]) setFormErrors(p => { const n = { ...p }; delete n[name]; return n; });
     };
 
     const save = async () => {
         if (validate) {
-            const errs = validate(form);
-            if (errs) { alert(errs); return; }
+            const errs = validate(form, modal);
+            if (errs && typeof errs === 'object' && Object.keys(errs).length > 0) {
+                setFormErrors(errs);
+                return;
+            }
+            if (errs && typeof errs === 'string') {
+                setFormErrors({ _global: errs });
+                return;
+            }
         }
+        setFormErrors({});
 
         try {
+            // Cho phép transform payload trước khi gửi
+            const payload = transformBeforeSave ? transformBeforeSave(form) : form;
+
             if (modal === 'add') {
-                const res = await api.post(apiEndpoint, form);
+                const res = await api.post(apiEndpoint, payload);
                 setList(p => [...p, res.data.data || res.data]);
             } else {
-                const res = await api.put(`${apiEndpoint}/${editId}`, form);
+                const res = await api.put(`${apiEndpoint}/${editId}`, payload);
                 const updated = res.data.data || res.data;
                 setList(p => p.map(x => x[primaryKey] === editId ? updated : x));
             }
@@ -117,7 +155,14 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
             addToast('success', `${modal === 'add' ? 'Thêm' : 'Cập nhật'} thành công!`);
         } catch (err) {
             console.error('Save error:', err);
-            addToast('error', 'Lỗi khi lưu dữ liệu');
+            const backendErrors = err?.errors;
+            if (backendErrors) {
+                const mapped = {};
+                Object.entries(backendErrors).forEach(([k, v]) => { mapped[k] = Array.isArray(v) ? v[0] : v; });
+                setFormErrors(mapped);
+            } else {
+                setFormErrors({ _global: err?.message || 'Lỗi khi lưu dữ liệu' });
+            }
         }
     };
 
@@ -266,7 +311,13 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
 
             {modal && modal !== 'delete' && (
                 <Modal title={modal === 'add' ? `Thêm ${title.toLowerCase()}` : modal === 'view' ? 'Chi tiết' : `Chỉnh sửa`} onClose={close} actions={<><button className="btn-secondary" onClick={close}>{modal === 'view' ? 'Đóng' : 'Hủy'}</button>{modal !== 'view' && <button className="btn-primary" onClick={save}>{modal === 'add' ? 'Thêm' : 'Lưu'}</button>}</>}>
-                    {renderForm(form, hc, setForm, modal === 'view')}
+                    {formErrors._global && (
+                        <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#dc2626', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            {formErrors._global}
+                        </div>
+                    )}
+                    {renderForm(form, hc, setForm, modal === 'view', formErrors, modal)}
                 </Modal>
             )}
 

@@ -1,70 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Topbar } from '../Manage/Topbar';
 import { Ico } from '../Manage/Icons';
 import { useAuth } from '../../hooks/useAuth';
+import { usePermission } from '../../contexts/PermissionContext';
+import Loading from '../common/Loading/index.js';
 import '../../pages/Manage/Manage.css';
 
-const MENU = [
-    { group: 'Tổng quan', items: [{ id: 'dashboard', label: 'Tổng quan', icon: 'dashboard', path: '/manage/dashboard' }] },
+// ── Toàn bộ menu definitions ─────────────────────────────────────
+const ALL_MENU = [
     {
-        group: 'Nhân sự', items: [
-            { id: 'employees', label: 'Nhân viên', icon: 'users', path: '/manage/employees' },
-            { id: 'positions', label: 'Chức vụ', icon: 'userCheck', path: '/manage/positions' },
+        group: 'Tổng quan',
+        items: [
+            { id: 'dashboard', label: 'Tổng quan', icon: 'dashboard', path: '/dashboard' },
         ]
     },
     {
-        group: 'Hàng hóa', items: [
-            { id: 'products', label: 'Sản phẩm', icon: 'box', path: '/manage/products' },
-            { id: 'categories', label: 'Loại sản phẩm', icon: 'tag', path: '/manage/categories' },
-            { id: 'suppliers', label: 'Nhà cung cấp', icon: 'truck', path: '/manage/suppliers' },
-            { id: 'imports', label: 'Phiếu nhập', icon: 'file', path: '/manage/imports' },
-            { id: 'disposals', label: 'Phiếu xuất hủy', icon: 'trash', path: '/manage/disposals' },
+        group: 'Nhân sự',
+        items: [
+            { id: 'employees', label: 'Nhân viên',  icon: 'users',     path: '/employees' },
+            { id: 'positions', label: 'Chức vụ',    icon: 'userCheck', path: '/positions' },
         ]
     },
     {
-        group: 'Bán hàng', items: [
-            { id: 'invoices', label: 'Hóa đơn / Bán hàng', icon: 'receipt', path: '/manage/invoices' },
-            { id: 'customers', label: 'Khách hàng', icon: 'userGroup', path: '/manage/customers' },
-            { id: 'vouchers', label: 'Voucher', icon: 'ticket', path: '/manage/vouchers' },
-            { id: 'promotions', label: 'Khuyến mãi / Giảm giá', icon: 'percent', path: '/manage/promotions' },
+        group: 'Hàng hóa',
+        items: [
+            { id: 'products',   label: 'Sản phẩm',        icon: 'box',   path: '/products' },
+            { id: 'categories', label: 'Loại sản phẩm',   icon: 'tag',   path: '/categories' },
+            { id: 'suppliers',  label: 'Nhà cung cấp',    icon: 'truck', path: '/suppliers' },
+            { id: 'imports',    label: 'Phiếu nhập',      icon: 'file',  path: '/imports' },
+            { id: 'disposals',  label: 'Phiếu xuất hủy', icon: 'trash', path: '/disposals' },
         ]
     },
     {
-        group: 'Hệ thống', items: [
-            { id: 'accounts', label: 'Tài khoản', icon: 'account', path: '/manage/accounts' },
-            { id: 'permissions', label: 'Phân quyền', icon: 'userCheck', path: '/manage/permissions' },
-            { id: 'reports', label: 'Báo cáo doanh thu', icon: 'chart', path: '/manage/reports' },
+        group: 'Bán hàng',
+        items: [
+            { id: 'invoices',   label: 'Hóa đơn / Bán hàng',    icon: 'receipt',   path: '/invoices' },
+            { id: 'customers',  label: 'Khách hàng',             icon: 'userGroup', path: '/customers' },
+            { id: 'vouchers',   label: 'Voucher',                icon: 'ticket',    path: '/vouchers' },
+            { id: 'promotions', label: 'Khuyến mãi / Giảm giá', icon: 'percent',   path: '/promotions' },
+        ]
+    },
+    {
+        group: 'Hệ thống',
+        items: [
+            { id: 'accounts',    label: 'Tài khoản',         icon: 'account',   path: '/accounts' },
+            { id: 'permissions', label: 'Phân quyền',        icon: 'userCheck', path: '/permissions' },
+            { id: 'reports',     label: 'Báo cáo doanh thu', icon: 'chart',     path: '/reports' },
         ]
     },
 ];
 
 export const ManageLayout = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { user, logout } = useAuth();
+    const navigate   = useNavigate();
+    const location   = useLocation();
+    const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
+    const { canSeeModule, loading: permLoading } = usePermission();
+
+    const [dark, setDark]           = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
+
+    // Theme effect — hooks phải ở trên cùng, trước mọi early return
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    }, [dark]);
+
+    // Filter menu theo permission — dùng useMemo (hooks trước early return)
+    const MENU = useMemo(() => {
+        return ALL_MENU.map(group => ({
+            ...group,
+            items: group.items.filter(item => canSeeModule(item.id)),
+        })).filter(group => group.items.length > 0);
+    }, [canSeeModule]);
+
+    // Active menu item
+    const page = useMemo(() => {
+        for (const group of MENU) {
+            for (const item of group.items) {
+                if (location.pathname === item.path || location.pathname.startsWith(item.path + '/')) {
+                    return item.id;
+                }
+            }
+        }
+        return 'dashboard';
+    }, [location.pathname, MENU]);
+
+    // ── Early returns SAU tất cả hooks ───────────────────────────
+    if (authLoading || permLoading) {
+        return <Loading size="large" text="Đang tải..." />;
+    }
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
 
     const handleLogout = async () => {
         await logout();
         navigate('/login');
     };
-    
-    // Xác định active menu dựa trực tiếp vào pathname — không dùng state để tránh re-render sidebar
-    const page = React.useMemo(() => {
-        for (const group of MENU) {
-            for (const item of group.items) {
-                if (location.pathname.startsWith(item.path)) return item.id;
-            }
-        }
-        return 'dashboard';
-    }, [location.pathname]);
-
-    const [dark, setDark] = useState(false);
-    const [collapsed, setCollapsed] = useState(false);
-
-    useEffect(() => {
-        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-    }, [dark]);
 
     return (
         <div className="manage-app">

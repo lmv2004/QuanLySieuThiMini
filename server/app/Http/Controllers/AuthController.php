@@ -46,16 +46,21 @@ class AuthController extends Controller
      */
     public function getPermissions(Request $request)
     {
-        $user = $request->user()->load('nhanVien.chucVu');
-        $role = $user->nhanVien?->chucVu?->CODE;
+        $user = $request->user()->load('nhanVien.chucVu.permissions');
+        $roleModel = $user->nhanVien?->chucVu;
+        $role = $roleModel?->CODE;
 
-        if (!$role) {
+        if (!$roleModel || !$role) {
             return response()->json([
                 'message' => 'Không tìm thấy thông tin vai trò',
             ], 403);
         }
 
-        $permissions = \App\Constants\PermissionConstants::getPermissionsByRole($role);
+        $permissions = $roleModel->permissions
+            ->pluck('CODE')
+            ->filter()
+            ->values()
+            ->toArray();
 
         return response()->json([
             'role' => $role,
@@ -81,7 +86,9 @@ class AuthController extends Controller
         }
 
         // Get role
-        $role = \App\Models\ChucVu::where('CODE', $roleCode)->first();
+        $role = \App\Models\ChucVu::where('CODE', $roleCode)
+            ->with('permissions')
+            ->first();
 
         if (!$role) {
             return response()->json([
@@ -89,7 +96,11 @@ class AuthController extends Controller
             ], 404);
         }
 
-        $permissions = \App\Constants\PermissionConstants::getPermissionsByRole($roleCode);
+        $permissions = $role->permissions
+            ->pluck('CODE')
+            ->filter()
+            ->values()
+            ->toArray();
 
         return response()->json([
             'role' => $roleCode,

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth.js';
-import { ROUTES } from '../../config/routes.js';
+import { usePermission } from '../../contexts/PermissionContext.jsx';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { refreshPermissions } = usePermission();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,11 +29,11 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await login(formData);
-      const chucVu = response?.user?.nhan_vien?.chuc_vu?.TENCHUCVU?.toLowerCase() || '';
-      if (chucVu.includes('thu')) navigate(ROUTES.CASHIER);
-      else if (chucVu.includes('kho')) navigate(ROUTES.WAREHOUSE);
-      else navigate(ROUTES.MANAGE);
+      await login(formData);
+      // Refresh permissions từ API sau khi login
+      await refreshPermissions();
+      // Tất cả vai trò đều vào dashboard chính — sidebar tự ẩn module theo permission
+      navigate('/');
     } catch (err) {
       setError(err.message || 'Tên đăng nhập hoặc mật khẩu không đúng');
     } finally {
