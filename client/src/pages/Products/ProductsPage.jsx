@@ -12,10 +12,15 @@ export const ProductsPage = () => (
     <div className="products-page">
         <SimplePage
             title="Sản phẩm" icon={Ico.box} apiEndpoint="/products"
+            primaryKey="MASP"
             subtitle={(l) => `${l.filter(s => !s.IS_DELETED).length} đang bán · ${l.length} tổng`}
             emptyTitle="Chưa có sản phẩm" emptyDesc="Nhấn + Thêm để bắt đầu"
             cols={['Mã SP', 'Hình ảnh', 'Barcode', 'Tên sản phẩm', 'Mô tả', 'ĐVT', 'Giá bán']}
             emptyForm={emptyProduct}
+            transformBeforeSave={(payload) => {
+                const { LOAISP, NHACC, ...rest } = payload;
+                return rest;
+            }}
             tabs={[
                 { id: 'all', label: 'Tất cả' },
                 { id: 'selling', label: 'Đang bán', filter: (x) => !x.IS_DELETED },
@@ -53,8 +58,8 @@ export const ProductsPage = () => (
             renderGridItem={(item, openEdit, del, i, list, setList, addToast, openView) => (
                 <ProductGridItem item={item} openEdit={openEdit} del={del} idx={i} list={list} setList={setList} addToast={addToast} openView={openView} />
             )}
-            renderForm={(form, hc, setForm) => (
-                <ProductForm form={form} hc={hc} setForm={setForm} />
+            renderForm={(form, hc, setForm, readOnly, errors, mode) => (
+                <ProductForm form={form} hc={hc} setForm={setForm} readOnly={readOnly} errors={errors} mode={mode} />
             )}
         />
     </div>

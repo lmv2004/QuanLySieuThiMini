@@ -15,7 +15,7 @@ class SanPhamController extends Controller
     public function index()
     {
         return SanPhamResource::collection(SanPham::active()
-            ->with(['loaiSanPham', 'nhaCungCap'])
+            // ->with(['loaiSanPham', 'nhaCungCap'])
             ->get()
         );
     }

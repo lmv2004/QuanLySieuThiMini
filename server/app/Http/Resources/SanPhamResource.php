@@ -26,6 +26,7 @@ class SanPhamResource extends JsonResource
             'NHACC' => new NhaCungCapResource($this->whenLoaded('nhaCungCap')),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+            'IS_DELETED' => $this->IS_DELETED
         ];
     }
 }

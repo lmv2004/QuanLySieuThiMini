@@ -6,15 +6,6 @@ export const ProductGridItem = ({ item, openEdit, del, idx, list, setList, addTo
     const stock = totalStock(item.tonKhos);
     const pct = Math.min(100, Math.round((stock / STOCK_MAX) * 100));
 
-    const handleLock = () => {
-        if (setList) {
-            setList(prev => prev.map(x => x.MASP === item.MASP ? { ...x, IS_DELETED: !x.IS_DELETED } : x));
-        }
-        if (addToast) {
-            addToast('success', `${item.IS_DELETED ? 'Mở bán' : 'Ngừng bán'} sản phẩm thành công`);
-        }
-    };
-
     return (
         <div key={item.MASP} className="grid-item-card">
             <div className="grid-item-card-top">
@@ -39,7 +30,6 @@ export const ProductGridItem = ({ item, openEdit, del, idx, list, setList, addTo
             </div>
             <div className="grid-item-actions">
                 {openView && <button className="btn-view-action" title="Xem" onClick={() => openView(item)}>{Ico.eye}</button>}
-                <button className="btn-lock-action" title="Khóa/Mở" onClick={handleLock}>{item.IS_DELETED ? Ico.unlock : Ico.lock}</button>
                 <button className="btn-edit-action" title="Sửa" onClick={() => openEdit(item)}>{Ico.edit}</button>
                 <button className="btn-del-action" title="Xóa" onClick={() => del(item.MASP)}>{Ico.trash}</button>
             </div>
