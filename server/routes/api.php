@@ -53,6 +53,9 @@ Route::post('vouchers/bulk', [VoucherController::class, 'bulkStore']);
 
 // Role-Permission management (Public routes removed, moved to auth group)
 
+// Auth Routes
+Route::prefix('auth')->group(base_path('routes/auth.php'));
+
 // Protected routes - require authentication
 Route::middleware('auth:sanctum')->group(function () {
     // Shared Routes (Routes accessible by multiple roles)
@@ -101,9 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'destroy']);
     });
 
-    // Manager Routes (Full management)
-    Route::prefix('auth')->group(base_path('routes/auth.php'));
-    require __DIR__.'/auth.php';
+
 
     // Manager Routes (Quản lý cửa hàng)
     Route::middleware('role:manager')->group(function () {
