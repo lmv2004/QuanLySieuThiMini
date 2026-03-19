@@ -10,16 +10,17 @@ export const PositionsPage = () => <SimplePage
     primaryKey="MACHUCVU"
     subtitle={(l) => `${l.length} chức vụ`}
     emptyTitle="Chưa có chức vụ" emptyDesc="Nhấn + Thêm để bắt đầu"
-    cols={['Mã CV', 'Tên chức vụ', 'Mô tả', 'Ngày tạo']}
+    cols={['Mã CV', 'Code', 'Tên chức vụ', 'Mô tả', 'Ngày tạo']}
     emptyForm={emptyPosition}
     tabs={[
         { id: 'all', label: 'Tất cả' },
     ]}
     renderRow={(cv, i) => [
         <td key="1" style={{ color: 'var(--text-muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>{cv.MACHUCVU}</td>,
-        <td key="2"><span className="entity-name">{cv.TENCHUCVU}</span></td>,
-        <td key="3" style={{ color: 'var(--text-muted)', fontSize: 12.5 }}>{cv.MOTA || '—'}</td>,
-        <td key="4" style={{ color: 'var(--text-muted)', fontSize: 12, fontFamily: 'var(--mono)' }}>
+        <td key="2" style={{ color: 'var(--accent)', fontFamily: 'var(--mono)', fontSize: 12.5 }}>{cv.CODE || '—'}</td>,
+        <td key="3"><span className="entity-name">{cv.TENCHUCVU}</span></td>,
+        <td key="4" style={{ color: 'var(--text-muted)', fontSize: 12.5 }}>{cv.MOTA || '—'}</td>,
+        <td key="5" style={{ color: 'var(--text-muted)', fontSize: 12, fontFamily: 'var(--mono)' }}>
             {cv.created_at ? new Date(cv.created_at).toLocaleDateString('vi-VN') : '—'}
         </td>,
     ]}

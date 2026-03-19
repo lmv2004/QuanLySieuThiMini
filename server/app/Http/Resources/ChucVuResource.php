@@ -16,6 +16,7 @@ class ChucVuResource extends JsonResource
     {
         return [
             'MACHUCVU'       => $this->MACHUCVU,
+            'CODE'           => $this->CODE,
             'TENCHUCVU'      => $this->TENCHUCVU,
             'MOTA'           => $this->MOTA,
             'created_at'     => $this->created_at?->format('Y-m-d H:i:s'),

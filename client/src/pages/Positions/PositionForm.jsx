@@ -1,12 +1,25 @@
 import React from 'react';
 
 export const emptyPosition = { 
+    CODE: '',
     TENCHUCVU: '', 
     MOTA: '',
 };
 
 export const PositionForm = ({ form, hc, setForm, readOnly }) => (
     <>
+        <div className="form-group">
+            <label className="form-label">Code</label>
+            <input 
+                className="form-input" 
+                name="CODE" 
+                value={form.CODE || ''} 
+                onChange={hc} 
+                placeholder="manager, cashier, warehouse..." 
+                readOnly={readOnly}
+                style={{ fontFamily: 'var(--mono)', letterSpacing: 0.5 }}
+            />
+        </div>
         <div className="form-group">
             <label className="form-label">Tên chức vụ</label>
             <input 

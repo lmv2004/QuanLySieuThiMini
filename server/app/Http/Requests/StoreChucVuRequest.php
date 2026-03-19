@@ -14,21 +14,27 @@ class StoreChucVuRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'CODE'      => 'nullable|string|max:50|unique:chuc_vus,CODE|regex:/^[a-z0-9_]+$/',
             'TENCHUCVU' => 'required|string|max:100|unique:chuc_vus,TENCHUCVU',
-            'MOTA' => 'nullable|string|max:100',
+            'MOTA'      => 'nullable|string|max:100',
         ];
     }
 
     public function messages(): array
     {
         return [
+            'CODE.string'   => 'Code phải là chuỗi ký tự.',
+            'CODE.max'      => 'Code không được vượt quá 50 ký tự.',
+            'CODE.unique'   => 'Code này đã được sử dụng.',
+            'CODE.regex'    => 'Code chỉ được chứa chữ thường, số và dấu gạch dưới (a-z, 0-9, _).',
+
             'TENCHUCVU.required' => 'Tên chức vụ là bắt buộc.',
-            'TENCHUCVU.string' => 'Tên chức vụ phải là chuỗi ký tự.',
-            'TENCHUCVU.max' => 'Tên chức vụ không được vượt quá 100 ký tự.',
-            'TENCHUCVU.unique' => 'Tên chức vụ đã tồn tại.',
+            'TENCHUCVU.string'   => 'Tên chức vụ phải là chuỗi ký tự.',
+            'TENCHUCVU.max'      => 'Tên chức vụ không được vượt quá 100 ký tự.',
+            'TENCHUCVU.unique'   => 'Tên chức vụ đã tồn tại.',
 
             'MOTA.string' => 'Mô tả phải là chuỗi ký tự.',
-            'MOTA.max' => 'Mô tả không được vượt quá 100 ký tự.',
+            'MOTA.max'    => 'Mô tả không được vượt quá 100 ký tự.',
         ];
     }
 }

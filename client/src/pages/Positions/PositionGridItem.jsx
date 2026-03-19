@@ -13,6 +13,11 @@ export const PositionGridItem = ({ item, openEdit, del, idx, openView }) => (
         <div className="grid-item-card-mid" style={{ flex: 1 }}>
             <div className="grid-item-title" style={{ fontFamily: 'var(--font)', fontSize: 15 }}>{item.TENCHUCVU}</div>
             <div className="grid-item-label">Mã: #{item.MACHUCVU}</div>
+            {item.CODE && (
+                <div className="grid-item-label" style={{ marginTop: 3, fontFamily: 'var(--mono)', color: 'var(--accent)', fontSize: 11.5 }}>
+                    {item.CODE}
+                </div>
+            )}
             {item.MOTA && (
                 <div className="grid-item-label" style={{ marginTop: 4, fontSize: 12 }}>{item.MOTA}</div>
             )}
