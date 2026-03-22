@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Ico } from '../../components/Manage/Icons';
 import { fmtVND } from '../../components/Manage/Shared';
 import api from '../../services/api';
@@ -7,10 +7,12 @@ import { Toast } from '../../components/Manage/Toast';
 import './InvoicesPage.css';
 
 const HINHTHUC_OPTIONS = [
-    { value: 'Tiền mặt', label: 'Tiền mặt' },
-    { value: 'Chuyển khoản', label: 'Chuyển khoản' },
-    { value: 'Thẻ', label: 'Thẻ' },
+    { value: 'Tiền mặt', label: 'Tiền mặt', icon: '💵' },
+    { value: 'Chuyển khoản', label: 'Chuyển khoản', icon: '🏦' },
+    { value: 'Thẻ', label: 'Thẻ', icon: '💳' },
 ];
+
+const QUICK_CASH = [50000, 100000, 200000, 500000, 1000000];
 
 const normalizeList = (res) => {
     if (Array.isArray(res)) return res;
@@ -44,6 +46,14 @@ export const InvoicesPage = () => {
     const [cashGiven, setCashGiven] = useState('');
     const [toasts, setToasts] = useState([]);
     const [orderNumber] = useState(() => `#HD-${Math.floor(Math.random() * 9000) + 1000}`);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [showSearchResults, setShowSearchResults] = useState(false);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const barcodeRef = useRef(null);
+    const searchRef = useRef(null);
+    const searchTimerRef = useRef(null);
+    const searchBlurTimerRef = useRef(null);
 
     const addToast = (type, message) => {
         const id = Date.now();
@@ -69,6 +79,51 @@ export const InvoicesPage = () => {
             .then(res => setVouchers(normalizeList(res)))
             .catch(() => setVouchers([]));
     }, []);
+
+    // Auto-focus barcode input on mount
+    useEffect(() => {
+        barcodeRef.current?.focus();
+        return () => {
+            clearTimeout(searchTimerRef.current);
+            clearTimeout(searchBlurTimerRef.current);
+        };
+    }, []);
+
+    // Product search by name (debounced)
+    const handleSearchChange = useCallback((e) => {
+        const q = e.target.value;
+        setSearchQuery(q);
+        if (!q.trim()) {
+            setSearchResults([]);
+            setShowSearchResults(false);
+            return;
+        }
+        setSearchLoading(true);
+        setShowSearchResults(true);
+        clearTimeout(searchTimerRef.current);
+        searchTimerRef.current = setTimeout(async () => {
+            try {
+                const res = await api.get('/products', { params: { search: q.trim(), per_page: 10 } });
+                const list = Array.isArray(res) ? res : (res?.data?.data || res?.data || []);
+                setSearchResults(list.filter(p => !p.IS_DELETED));
+            } catch {
+                setSearchResults([]);
+            } finally {
+                setSearchLoading(false);
+            }
+        }, 300);
+    }, []);
+
+    const handleClearSearch = () => {
+        setSearchQuery('');
+        setSearchResults([]);
+        setShowSearchResults(false);
+    };
+
+    const handleSelectSearchResult = (product) => {
+        addToCart(product);
+        handleClearSearch();
+    };
 
     const selectedVoucher = useMemo(
         () => vouchers.find(v => String(v.SOVOUCHER) === String(voucherCode)),
@@ -159,6 +214,16 @@ export const InvoicesPage = () => {
             setBarcode('');
         } catch (err) {
             addToast('warning', `Không tìm thấy sản phẩm với barcode ${code}`);
+        } finally {
+            barcodeRef.current?.focus();
+        }
+    };
+
+    const handleClearCart = () => {
+        if (cart.length === 0) return;
+        if (window.confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) {
+            setCart([]);
+            barcodeRef.current?.focus();
         }
     };
 
@@ -195,6 +260,7 @@ export const InvoicesPage = () => {
             setCustomerId('');
             setVoucherCode('');
             setCashGiven('');
+            barcodeRef.current?.focus();
         } catch (err) {
             console.error(err);
             addToast('error', `Lỗi khi tạo hóa đơn: ${err.response?.data?.message || err.message}`);
@@ -219,7 +285,7 @@ export const InvoicesPage = () => {
                     <div className="pos-receipt-icon">{Ico.receipt}</div>
                     <div>
                         <div className="pos-header-title">Tạo Hóa Đơn Bán Hàng</div>
-                        <div className="pos-header-sub">Quét barcode hoặc chọn sản phẩm để bán</div>
+                        <div className="pos-header-sub">Quét barcode hoặc tìm kiếm sản phẩm để bán</div>
                     </div>
                 </div>
                 <div className="pos-header-right">
@@ -238,13 +304,57 @@ export const InvoicesPage = () => {
                         <div className="pos-barcode-label">📦 Thêm Sản Phẩm</div>
                         <form className="pos-barcode-form" onSubmit={handleBarcodeSubmit}>
                             <input
+                                ref={barcodeRef}
                                 value={barcode}
                                 onChange={(e) => setBarcode(e.target.value)}
-                                placeholder="Quét hoặc nhập barcode..."
+                                placeholder="Quét hoặc nhập barcode rồi nhấn Enter..."
                                 className="pos-barcode-input"
                             />
-                            <button type="submit" className="pos-add-btn">Thêm</button>
+                            <button type="submit" className="pos-add-btn">+ Thêm</button>
                         </form>
+                        {/* Product name search */}
+                        <div className="pos-search-wrapper" ref={searchRef}>
+                            <div className="pos-search-row">
+                                <span className="pos-search-icon">🔍</span>
+                                <input
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    onFocus={() => searchQuery && setShowSearchResults(true)}
+                                onBlur={() => { searchBlurTimerRef.current = setTimeout(() => setShowSearchResults(false), 150); }}
+                                    placeholder="Tìm theo tên sản phẩm..."
+                                    className="pos-search-input"
+                                />
+                                {searchQuery && (
+                                    <button className="pos-search-clear" onClick={handleClearSearch}>✕</button>
+                                )}
+                            </div>
+                            {showSearchResults && (
+                                <div className="pos-search-results">
+                                    {searchLoading && <div className="pos-search-loading">Đang tìm...</div>}
+                                    {!searchLoading && searchResults.length === 0 && (
+                                        <div className="pos-search-empty">Không tìm thấy sản phẩm</div>
+                                    )}
+                                    {searchResults.map(p => {
+                                        const activeLots = Array.isArray(p.tonKhos) ? p.tonKhos.filter(t => t.IS_ACTIVE && Number(t.SOLUONG_CON_LAI) > 0) : [];
+                                        const stock = activeLots.reduce((s, t) => s + Number(t.SOLUONG_CON_LAI || 0), 0);
+                                        return (
+                                            <button key={p.MASP} className="pos-search-item" onMouseDown={() => handleSelectSearchResult(p)}>
+                                                <div className="pos-search-item-info">
+                                                    <span className="pos-search-item-name">{p.TENSP}</span>
+                                                    <span className="pos-search-item-meta">{p.BARCODE && <span className="pos-search-barcode">{p.BARCODE}</span>} · {p.DVT}</span>
+                                                </div>
+                                                <div className="pos-search-item-right">
+                                                    <span className="pos-search-item-price">{fmtVND(p.GIABAN)}</span>
+                                                    <span className={`pos-search-item-stock ${stock === 0 ? 'out' : stock < 5 ? 'low' : ''}`}>
+                                                        {stock === 0 ? 'Hết hàng' : `Còn: ${stock}`}
+                                                    </span>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Cart Items */}
@@ -258,24 +368,32 @@ export const InvoicesPage = () => {
                                 <div className="pos-empty-cart">
                                     <div className="pos-empty-icon">📭</div>
                                     <p>Giỏ hàng trống</p>
-                                    <span>Quét barcode để bắt đầu</span>
+                                    <span>Quét barcode hoặc tìm tên sản phẩm để bắt đầu</span>
                                 </div>
                             ) : (
-                                cart.map(item => (
-                                    <div key={item.MASP} className="pos-cart-row">
-                                        <div className="pos-item-info">
-                                            <div className="pos-item-name">{item.TENSP}</div>
-                                            <div className="pos-item-price">{fmtVND(item.GIABAN_THUCTE)}</div>
+                                cart.map(item => {
+                                    const atLimit = item.SOLUONG >= item.TONKHO_TONG;
+                                    return (
+                                        <div key={item.MASP} className={`pos-cart-row${atLimit ? ' at-limit' : ''}`}>
+                                            <div className="pos-item-info">
+                                                <div className="pos-item-name">{item.TENSP}</div>
+                                                <div className="pos-item-meta">
+                                                    <span className="pos-item-price">{fmtVND(item.GIABAN_THUCTE)}</span>
+                                                    <span className={`pos-item-stock ${atLimit ? 'low' : ''}`}>
+                                                        Còn: {item.TONKHO_TONG - item.SOLUONG}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="pos-item-qty">
+                                                <button onClick={() => changeQty(item.MASP, -1)}>−</button>
+                                                <span>{item.SOLUONG}</span>
+                                                <button onClick={() => changeQty(item.MASP, 1)} disabled={atLimit}>+</button>
+                                            </div>
+                                            <div className="pos-item-total">{fmtVND(item.THANHTIEN)}</div>
+                                            <button className="pos-item-remove" onClick={() => removeItem(item.MASP)}>{Ico.x}</button>
                                         </div>
-                                        <div className="pos-item-qty">
-                                            <button onClick={() => changeQty(item.MASP, -1)}>−</button>
-                                            <span>{item.SOLUONG}</span>
-                                            <button onClick={() => changeQty(item.MASP, 1)}>+</button>
-                                        </div>
-                                        <div className="pos-item-total">{fmtVND(item.THANHTIEN)}</div>
-                                        <button className="pos-item-remove" onClick={() => removeItem(item.MASP)}>{Ico.x}</button>
-                                    </div>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
                     </div>
@@ -320,10 +438,7 @@ export const InvoicesPage = () => {
                                     className={`pos-payment-btn ${paymentMethod === opt.value ? 'active' : ''}`}
                                     onClick={() => setPaymentMethod(opt.value)}
                                 >
-                                    {opt.label === 'Tiền mặt' && '💵'}
-                                    {opt.label === 'Chuyển khoản' && '🏦'}
-                                    {opt.label === 'Thẻ' && '💳'}
-                                    {opt.label}
+                                    {opt.icon} {opt.label}
                                 </button>
                             ))}
                         </div>
@@ -354,9 +469,21 @@ export const InvoicesPage = () => {
                                         type="number"
                                         value={cashGiven}
                                         onChange={(e) => setCashGiven(e.target.value)}
-                                        placeholder="0"
+                                        placeholder="Nhập số tiền..."
                                         className="pos-form-input"
                                     />
+                                    <div className="pos-quick-cash">
+                                        {QUICK_CASH.map(amt => (
+                                            <button key={amt} className="pos-quick-cash-btn" onClick={() => setCashGiven(String(amt))}>
+                                                {amt >= 1000000 ? `${amt / 1000000}M` : `${amt / 1000}k`}
+                                            </button>
+                                        ))}
+                                        {total > 0 && (
+                                            <button className="pos-quick-cash-btn exact" onClick={() => setCashGiven(String(total))}>
+                                                Đúng tiền
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="pos-bill-item change">
                                     <span>Tiền thừa</span>
@@ -368,13 +495,18 @@ export const InvoicesPage = () => {
 
                     {/* Action Buttons */}
                     <div className="pos-actions-group">
-                        <button className="pos-btn pos-btn-primary" onClick={handleCheckout}>
+                        <button
+                            className="pos-btn pos-btn-primary"
+                            onClick={handleCheckout}
+                            disabled={cart.length === 0 || (paymentMethod === 'Tiền mặt' && cashGivenNum < total && total > 0)}
+                            title={cart.length === 0 ? 'Giỏ hàng đang trống' : (paymentMethod === 'Tiền mặt' && cashGivenNum < total && total > 0) ? 'Tiền khách đưa chưa đủ' : ''}
+                        >
                             ✓ Thanh Toán
                         </button>
                         <button className="pos-btn pos-btn-secondary" onClick={handlePrint}>
                             🖨️ In Hóa Đơn
                         </button>
-                        <button className="pos-btn pos-btn-ghost" onClick={() => setCart([])}>
+                        <button className="pos-btn pos-btn-ghost" onClick={handleClearCart} disabled={cart.length === 0}>
                             🗑️ Xóa Giỏ
                         </button>
                     </div>
