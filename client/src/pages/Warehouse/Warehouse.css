@@ -24,7 +24,7 @@
 /* ── Sidebar ──────────────────────────────────────────────── */
 .warehouse-sidebar {
     width: 270px;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 62px);
     background: #000;
     border-right: 1px solid rgba(255, 255, 255, 0.07);
     display: flex;
