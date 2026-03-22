@@ -25,6 +25,7 @@ import { AccountsPage }   from '../pages/Accounts/AccountsPage.jsx';
 import { ImportsPage }    from '../pages/Imports/ImportsPage.jsx';
 import { DisposalsPage }  from '../pages/Disposals/DisposalsPage.jsx';
 import { ReportsPage }    from '../pages/Reports/ReportsPage.jsx';
+import StoreInfoPage      from '../pages/StoreInfoPage.jsx';
 
 const AppRoutes = () => {
   return (
@@ -62,6 +63,7 @@ const AppRoutes = () => {
             <Route path="imports"     element={<ImportsPage />} />
             <Route path="disposals"   element={<DisposalsPage />} />
             <Route path="reports"     element={<ReportsPage />} />
+            <Route path="store-info"  element={<StoreInfoPage />} />
           </Route>
 
           {/* ── Legacy redirects: /manage/* → /* ───── */}
@@ -81,6 +83,7 @@ const AppRoutes = () => {
           <Route path="/manage/imports"     element={<Navigate to="/imports"    replace />} />
           <Route path="/manage/disposals"   element={<Navigate to="/disposals"  replace />} />
           <Route path="/manage/reports"     element={<Navigate to="/reports"    replace />} />
+          <Route path="/manage/store-info"  element={<Navigate to="/store-info" replace />} />
 
           {/* ── Catch all ──────────────────────────── */}
           <Route path="*" element={<Navigate to="/" replace />} />

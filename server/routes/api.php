@@ -13,6 +13,7 @@ use App\Http\Controllers\NhanVienController;
 use App\Http\Controllers\PhieuHuyController;
 use App\Http\Controllers\PhieuNhapController;
 use App\Http\Controllers\SanPhamController;
+use App\Http\Controllers\StoreInfoController;
 use App\Http\Controllers\TaiKhoanController;
 use App\Http\Controllers\TonKhoController;
 use App\Http\Controllers\VoucherController;
@@ -26,6 +27,7 @@ use App\Models\NhanVien;
 use App\Models\PhieuHuy;
 use App\Models\PhieuNhap;
 use App\Models\SanPham;
+use App\Models\StoreInfo;
 use App\Models\TaiKhoan;
 use App\Models\TonKho;
 use App\Models\Voucher;
@@ -45,6 +47,7 @@ Route::model('inventory', TonKho::class);
 Route::model('voucher', Voucher::class);
 Route::model('discount', GiamGiaSP::class);
 Route::model('account', TaiKhoan::class);
+Route::model('storeInfo', StoreInfo::class);
 
 Route::post('accounts/bulk', [TaiKhoanController::class, 'bulkStore']);
 Route::post('disposal-slips/bulk', [PhieuHuyController::class, 'bulkStore']);
@@ -174,4 +177,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'show'])->middleware('permission:invoices.view');
     Route::put('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'update'])->middleware('permission:invoices.edit');
     Route::delete('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'destroy'])->middleware('permission:invoices.delete');
+
+    // ── Store Information ──
+    Route::get('store-info', [StoreInfoController::class, 'index'])->middleware('permission:invoices.view');
+    Route::post('store-info', [StoreInfoController::class, 'store'])->middleware('permission:invoices.edit');
+    Route::get('store-info/{storeInfo}', [StoreInfoController::class, 'show'])->middleware('permission:invoices.view');
+    Route::put('store-info/{storeInfo}', [StoreInfoController::class, 'update'])->middleware('permission:invoices.edit');
+    Route::delete('store-info/{storeInfo}', [StoreInfoController::class, 'destroy'])->middleware('permission:invoices.edit');
 });

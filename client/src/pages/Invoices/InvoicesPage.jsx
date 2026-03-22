@@ -34,6 +34,8 @@ const calcVoucherDiscount = (subtotal, voucher) => {
     return Math.max(0, Math.round(discount));
 };
 
+const generateOrderNumber = () => `#HD-${Math.floor(Math.random() * 9000) + 1000}`;
+
 export const InvoicesPage = () => {
     const [customers, setCustomers] = useState([]);
     const [vouchers, setVouchers] = useState([]);
@@ -45,11 +47,12 @@ export const InvoicesPage = () => {
     const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
     const [cashGiven, setCashGiven] = useState('');
     const [toasts, setToasts] = useState([]);
-    const [orderNumber] = useState(() => `#HD-${Math.floor(Math.random() * 9000) + 1000}`);
+    const [orderNumber, setOrderNumber] = useState(generateOrderNumber);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
+    const [printableInvoice, setPrintableInvoice] = useState(null);
     const barcodeRef = useRef(null);
     const searchRef = useRef(null);
     const searchTimerRef = useRef(null);
@@ -130,6 +133,11 @@ export const InvoicesPage = () => {
         [vouchers, voucherCode]
     );
 
+    const currentCustomer = useMemo(
+        () => customers.find(c => String(c.MAKH) === String(customerId)),
+        [customers, customerId]
+    );
+
     const subtotal = useMemo(
         () => cart.reduce((s, c) => s + c.THANHTIEN, 0),
         [cart]
@@ -143,6 +151,48 @@ export const InvoicesPage = () => {
     const total = Math.max(0, subtotal - discount);
     const cashGivenNum = Number(cashGiven || 0);
     const change = paymentMethod === 'Tiền mặt' ? Math.max(0, cashGivenNum - total) : 0;
+
+    const buildSnapshot = useCallback((itemsSource, issuedAt) => {
+        const items = (itemsSource || cart).map(item => ({ ...item }));
+        if (!items.length) return null;
+        const invoiceIssuedAt = issuedAt || new Date().toISOString();
+        const cashValue = paymentMethod === 'Tiền mặt' ? cashGivenNum : total;
+        const changeValue = paymentMethod === 'Tiền mặt' ? Math.max(0, cashGivenNum - total) : 0;
+        const defaultCompanyInfo = {
+            name: 'Siêu Thị Mini',
+            address: '123 Đường ABC, Quận 1, TP.HCM',
+            phone: 'Hotline: 0123 456 789',
+            taxCode: 'MST: 0123456789',
+            note: 'Cảm ơn quý khách và hẹn gặp lại!'
+        };
+        return {
+            orderNumber,
+            issuedAt: invoiceIssuedAt,
+            items,
+            paymentMethod,
+            subtotal,
+            discount,
+            total,
+            cashGiven: cashValue,
+            change: changeValue,
+            voucher: selectedVoucher,
+            customer: currentCustomer,
+            cashier,
+            companyInfo: defaultCompanyInfo,
+        };
+    }, [cart, paymentMethod, cashGivenNum, total, subtotal, discount, selectedVoucher, currentCustomer, cashier, orderNumber]);
+
+    const invoiceData = useMemo(() => {
+        if (cart.length > 0) return buildSnapshot(cart);
+        if (printableInvoice?.items?.length) return printableInvoice;
+        return null;
+    }, [cart, buildSnapshot, printableInvoice]);
+
+    const formatDateTime = useCallback((value) => {
+        if (!value) return '';
+        const date = value instanceof Date ? value : new Date(value);
+        return date.toLocaleString('vi-VN');
+    }, []);
 
     const addToCart = (product) => {
         if (!product || product.IS_DELETED) return;
@@ -255,7 +305,12 @@ export const InvoicesPage = () => {
             };
 
             await api.post('/invoices', payload);
-            addToast('success', 'Đã tạo hóa đơn thành công');
+            addToast('success', 'Đã tạo hóa đơn thành công. In hóa đơn...');
+
+            // Auto print invoice
+            const snapshot = buildSnapshot(cart, new Date().toISOString());
+            printInvoice(snapshot);
+
             setCart([]);
             setCustomerId('');
             setVoucherCode('');
@@ -267,9 +322,219 @@ export const InvoicesPage = () => {
         }
     };
 
-    const handlePrint = () => {
-        window.print();
+    const printInvoice = (snapshot) => {
+        if (!snapshot) return;
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="vi">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Hóa Đơn - ${snapshot.orderNumber}</title>
+                <style>
+                    body {
+                        font-family: 'Courier New', monospace;
+                        margin: 0;
+                        padding: 5px;
+                        background: #fff;
+                        color: #000;
+                        line-height: 1.2;
+                        font-size: 10px;
+                    }
+                    .invoice-paper {
+                        width: 58mm; /* 220px approx */
+                        max-width: 220px;
+                        margin: 0 auto;
+                        padding: 8px;
+                        background: #fff;
+                        border: none;
+                    }
+                    .invoice-header-line {
+                        text-align: center;
+                        border-bottom: 1px dashed #000;
+                        padding-bottom: 6px;
+                        margin-bottom: 8px;
+                    }
+                    .invoice-brand-name {
+                        font-weight: bold;
+                        font-size: 14px;
+                        margin-bottom: 2px;
+                        text-align: center;
+                    }
+                    .invoice-brand-line {
+                        font-size: 9px;
+                        margin-bottom: 1px;
+                        text-align: center;
+                    }
+                    .invoice-meta-block {
+                        text-align: center;
+                        font-size: 9px;
+                        margin-bottom: 8px;
+                        border-bottom: 1px dashed #000;
+                        padding-bottom: 4px;
+                    }
+                    .invoice-meta-line {
+                        margin-bottom: 2px;
+                    }
+                    .invoice-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 9px;
+                        margin-bottom: 8px;
+                    }
+                    .invoice-table th {
+                        border-bottom: 1px solid #000;
+                        padding: 4px 2px;
+                        text-align: left;
+                        font-weight: bold;
+                        font-size: 9px;
+                    }
+                    .invoice-table td {
+                        padding: 3px 2px;
+                        border-bottom: 1px solid #ccc;
+                    }
+                    .invoice-table td:nth-child(3),
+                    .invoice-table td:nth-child(4),
+                    .invoice-table td:nth-child(5) {
+                        text-align: right;
+                    }
+                    .invoice-item-name {
+                        font-weight: bold;
+                        font-size: 9px;
+                    }
+                    .invoice-item-sub {
+                        font-size: 8px;
+                        color: #666;
+                    }
+                    .invoice-summary {
+                        border-top: 1px dashed #000;
+                        padding-top: 6px;
+                        font-size: 10px;
+                        margin-bottom: 8px;
+                    }
+                    .invoice-summary-row {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        margin-bottom: 2px;
+                    }
+                    .invoice-summary-row.total {
+                        font-weight: bold;
+                        font-size: 11px;
+                        border-top: 1px solid #000;
+                        padding-top: 4px;
+                        margin-top: 4px;
+                    }
+                        font-size: 14px;
+                        border-top: 1px solid #000;
+                        padding-top: 8px;
+                    }
+                    .invoice-footer-note {
+                        margin-top: 8px;
+                        text-align: center;
+                        font-size: 9px;
+                        font-weight: bold;
+                        border-top: 1px dashed #000;
+                        padding-top: 6px;
+                    }
+                    @media print {
+                        body { margin: 0; padding: 0; }
+                        .invoice-paper { border: none; margin: 0; padding: 5px; }
+                        @page { margin: 0; size: 58mm auto; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="invoice-paper">
+                    <div class="invoice-header-line">
+                        <div class="invoice-brand">
+                            <div class="invoice-brand-name">${snapshot.companyInfo?.name || 'Tên công ty / cửa hàng'}</div>
+                            ${snapshot.companyInfo?.address ? `<div class="invoice-brand-line">${snapshot.companyInfo.address}</div>` : ''}
+                            ${snapshot.companyInfo?.phone ? `<div class="invoice-brand-line">${snapshot.companyInfo.phone}</div>` : ''}
+                            ${snapshot.companyInfo?.taxCode ? `<div class="invoice-brand-line">${snapshot.companyInfo.taxCode}</div>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="invoice-meta-block">
+                        <div class="invoice-meta-line">Mã HD: <strong>${snapshot.orderNumber}</strong></div>
+                        <div class="invoice-meta-line">Ngày: ${new Date(snapshot.issuedAt).toLocaleString('vi-VN')}</div>
+                        <div class="invoice-meta-line">Thu ngân: ${snapshot.cashier?.TENNV || '—'}</div>
+                        <div class="invoice-meta-line">Khách: ${snapshot.customer?.TENKH || 'Khách lẻ'}</div>
+                        ${snapshot.customer?.SDT ? `<div class="invoice-meta-line">SĐT: ${snapshot.customer.SDT}</div>` : ''}
+                        <div class="invoice-meta-line">Thanh toán: ${snapshot.paymentMethod}</div>
+                        ${snapshot.voucher ? `<div class="invoice-meta-line">Voucher: ${snapshot.voucher.SOVOUCHER}</div>` : ''}
+                    </div>
+
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên hàng</th>
+                                <th>SL</th>
+                                <th>Đơn giá</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${snapshot.items.map((item, idx) => `
+                                <tr>
+                                    <td>${idx + 1}</td>
+                                    <td>
+                                        <div class="invoice-item-name">${item.TENSP}</div>
+                                        ${item.BARCODE ? `<div class="invoice-item-sub">${item.BARCODE}</div>` : ''}
+                                    </td>
+                                    <td>${item.SOLUONG}</td>
+                                    <td>${fmtVND(item.GIABAN_THUCTE)}</td>
+                                    <td>${fmtVND(item.THANHTIEN)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="invoice-summary">
+                        <div class="invoice-summary-row">
+                            <span>Tạm tính</span>
+                            <span>${fmtVND(snapshot.subtotal)}</span>
+                        </div>
+                        <div class="invoice-summary-row">
+                            <span>Giảm giá</span>
+                            <span>${snapshot.discount > 0 ? `- ${fmtVND(snapshot.discount)}` : fmtVND(0)}</span>
+                        </div>
+                        <div class="invoice-summary-row total">
+                            <span>Tổng thanh toán</span>
+                            <span>${fmtVND(snapshot.total)}</span>
+                        </div>
+                        ${snapshot.paymentMethod === 'Tiền mặt' ? `
+                            <div class="invoice-summary-row">
+                                <span>Khách đưa</span>
+                                <span>${fmtVND(snapshot.cashGiven)}</span>
+                            </div>
+                            <div class="invoice-summary-row">
+                                <span>Tiền thừa</span>
+                                <span>${fmtVND(snapshot.change)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${snapshot.companyInfo?.note ? `<div class="invoice-footer-note">${snapshot.companyInfo.note}</div>` : ''}
+                </div>
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        setTimeout(function() { window.close(); }, 1000);
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        const printWindow = window.open('', '_blank', 'width=600,height=800');
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
     };
+
+
 
     return (
         <div className="invoices-pos">
@@ -502,9 +767,6 @@ export const InvoicesPage = () => {
                             title={cart.length === 0 ? 'Giỏ hàng đang trống' : (paymentMethod === 'Tiền mặt' && cashGivenNum < total && total > 0) ? 'Tiền khách đưa chưa đủ' : ''}
                         >
                             ✓ Thanh Toán
-                        </button>
-                        <button className="pos-btn pos-btn-secondary" onClick={handlePrint}>
-                            🖨️ In Hóa Đơn
                         </button>
                         <button className="pos-btn pos-btn-ghost" onClick={handleClearCart} disabled={cart.length === 0}>
                             🗑️ Xóa Giỏ

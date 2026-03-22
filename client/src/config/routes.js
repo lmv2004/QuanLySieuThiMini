@@ -28,6 +28,9 @@ export const ROUTES = {
   INVOICES: '/sales/invoices',
   INVOICE_DETAIL: '/sales/invoices/:id',
 
+  // Store Info
+  STORE_INFO: '/store-info',
+
   // Customers
   CUSTOMERS: '/customers',
   CUSTOMER_DETAIL: '/customers/:id',

@@ -46,6 +46,7 @@ const ALL_MENU = [
         items: [
             { id: 'accounts',    label: 'Tài khoản',         icon: 'account',   path: '/accounts' },
             { id: 'permissions', label: 'Phân quyền',        icon: 'userCheck', path: '/permissions' },
+            { id: 'store-info',  label: 'Thông tin cửa hàng', icon: 'store',     path: '/store-info' },
             { id: 'reports',     label: 'Báo cáo doanh thu', icon: 'chart',     path: '/reports' },
         ]
     },

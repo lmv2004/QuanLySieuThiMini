@@ -810,6 +810,7 @@
 
 .pos-search-item-stock.out {
   color: var(--red);
+}
   background: var(--red-bg);
 }
 

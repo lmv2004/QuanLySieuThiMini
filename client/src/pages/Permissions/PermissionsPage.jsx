@@ -19,6 +19,7 @@ const MODULE_LABELS = {
     accounts:        'Tài khoản',
     positions:       'Chức vụ',
     reports:         'Báo cáo',
+    'store-info':    'Thông tin cửa hàng',
 };
 
 const ACTION_ICONS = {
