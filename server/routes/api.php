@@ -45,22 +45,6 @@ Route::model('discount', GiamGiaSP::class);
 Route::model('account', TaiKhoan::class);
 
 // API Resources
-<<<<<<< HEAD
-Route::apiResource('products', SanPhamController::class);                    // Sản phẩm
-Route::apiResource('categories', LoaiSanPhamController::class);               // Loại sản phẩm
-Route::apiResource('suppliers', NhaCungCapController::class);                 // Nhà cung cấp
-Route::apiResource('customers', KhachHangController::class);                  // Khách hàng
-Route::apiResource('employees', NhanVienController::class);                   // Nhân viên
-Route::apiResource('positions', ChucVuController::class);                     // Chức vụ
-Route::apiResource('invoices', HoaDonController::class);                      // Hóa đơn
-Route::apiResource('purchase-orders', PhieuNhapController::class);            // Phiếu nhập
-Route::apiResource('disposal-slips', PhieuHuyController::class);              // Phiếu hủy
-Route::apiResource('inventories', TonKhoController::class);                   // Tồn kho
-Route::apiResource('vouchers', VoucherController::class);                     // Voucher
-Route::apiResource('discounts', GiamGiaSPController::class);                  // Giảm giá sản phẩm
-Route::apiResource('accounts', TaiKhoanController::class);                    // Tài khoản
-Route::prefix('auth')->group(base_path('routes/auth.php'));
-=======
 Route::apiResource('products', SanPhamController::class);
 Route::apiResource('categories', LoaiSanPhamController::class);
 Route::apiResource('suppliers', NhaCungCapController::class);
@@ -83,7 +67,6 @@ Route::put('ct-phieu-nhaps/{maphieu}/{masp}', [\App\Http\Controllers\CTPhieuNhap
 Route::delete('ct-phieu-nhaps/{maphieu}/{masp}', [\App\Http\Controllers\CTPhieuNhapController::class, 'destroy']);
 
 // Chi tiết phiếu hủy (composite key)
->>>>>>> 8da6f2b227f7d0d738a8d9fe1984f3faa6a9c7b9
 Route::get('ct-phieu-huys', [CTPhieuHuyController::class, 'index']);
 Route::post('ct-phieu-huys', [CTPhieuHuyController::class, 'store']);
 Route::get('ct-phieu-huys/{maphieu}/{masp}', [CTPhieuHuyController::class, 'show']);
@@ -97,9 +80,5 @@ Route::get('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoa
 Route::put('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'update']);
 Route::delete('ct-hoa-dons/{mahd}/{masp}/{id_tonkho}', [\App\Http\Controllers\CTHoaDonController::class, 'destroy']);
 
-<<<<<<< HEAD
-require __DIR__ . '/auth.php';
-=======
 Route::prefix('auth')->group(base_path('routes/auth.php'));
 require __DIR__.'/auth.php';
->>>>>>> 8da6f2b227f7d0d738a8d9fe1984f3faa6a9c7b9

@@ -844,12 +844,7 @@ const CURRENT_WAREHOUSE = {
 
 const Warehouse = () => {
     const [page, setPage] = useState('stock');
-    const user = CURRENT_WAREHOUSE;
-
-    const userInitials = (user.TENNV || '??').trim().split(' ').pop().slice(0, 2).toUpperCase();
-    const dateStr = new Date().toLocaleDateString('vi-VN', {
-        weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric',
-    });
+    const currentPageTitle = MENU_ITEMS.find(item => item.id === page)?.label || 'Warehouse';
 
     const renderPage = () => {
         switch (page) {
@@ -861,7 +856,7 @@ const Warehouse = () => {
 
     return (
         <div className="warehouse-app">
-            <Header />
+            <Header pageTitle={currentPageTitle} homeTo="/warehouse" />
             <div className="warehouse-layout">
                 {/* ── Sidebar ─────────────────────────────────────────────── */}
                 <aside className="warehouse-sidebar">
