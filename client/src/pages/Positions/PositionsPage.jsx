@@ -15,7 +15,7 @@ export const PositionsPage = () => <SimplePage
     tabs={[
         { id: 'all', label: 'Tất cả' },
     ]}
-    renderRow={(cv, i) => [
+    renderRow={(cv) => [
         <td key="1" style={{ color: 'var(--text-muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>{cv.MACHUCVU}</td>,
         <td key="2" style={{ color: 'var(--accent)', fontFamily: 'var(--mono)', fontSize: 12.5 }}>{cv.CODE || '—'}</td>,
         <td key="3"><span className="entity-name">{cv.TENCHUCVU}</span></td>,

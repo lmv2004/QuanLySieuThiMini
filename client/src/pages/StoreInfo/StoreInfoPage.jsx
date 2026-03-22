@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Ico } from '../components/Manage/Icons';
-import { Toast } from '../components/Manage/Toast';
-import api from '../services/api';
+import { Ico } from '../../components/Manage/Icons';
+import { Toast } from '../../components/Manage/Toast';
+import api from '../../services/api';
 import './StoreInfoPage.css';
 
 const StoreInfoPage = () => {

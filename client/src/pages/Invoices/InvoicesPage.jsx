@@ -47,12 +47,11 @@ export const InvoicesPage = () => {
     const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
     const [cashGiven, setCashGiven] = useState('');
     const [toasts, setToasts] = useState([]);
-    const [orderNumber, setOrderNumber] = useState(generateOrderNumber);
+    const [orderNumber] = useState(generateOrderNumber);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
-    const [printableInvoice, setPrintableInvoice] = useState(null);
     const barcodeRef = useRef(null);
     const searchRef = useRef(null);
     const searchTimerRef = useRef(null);
@@ -182,18 +181,6 @@ export const InvoicesPage = () => {
         };
     }, [cart, paymentMethod, cashGivenNum, total, subtotal, discount, selectedVoucher, currentCustomer, cashier, orderNumber]);
 
-    const invoiceData = useMemo(() => {
-        if (cart.length > 0) return buildSnapshot(cart);
-        if (printableInvoice?.items?.length) return printableInvoice;
-        return null;
-    }, [cart, buildSnapshot, printableInvoice]);
-
-    const formatDateTime = useCallback((value) => {
-        if (!value) return '';
-        const date = value instanceof Date ? value : new Date(value);
-        return date.toLocaleString('vi-VN');
-    }, []);
-
     const addToCart = (product) => {
         if (!product || product.IS_DELETED) return;
         const activeLots = Array.isArray(product.tonKhos)
@@ -262,7 +249,7 @@ export const InvoicesPage = () => {
             }
             addToCart(product);
             setBarcode('');
-        } catch (err) {
+        } catch {
             addToast('warning', `Không tìm thấy sản phẩm với barcode ${code}`);
         } finally {
             barcodeRef.current?.focus();

@@ -25,7 +25,7 @@ import { AccountsPage }   from '../pages/Accounts/AccountsPage.jsx';
 import { ImportsPage }    from '../pages/Imports/ImportsPage.jsx';
 import { DisposalsPage }  from '../pages/Disposals/DisposalsPage.jsx';
 import { ReportsPage }    from '../pages/Reports/ReportsPage.jsx';
-import StoreInfoPage      from '../pages/StoreInfoPage.jsx';
+import StoreInfoPage      from '../pages/StoreInfo/StoreInfoPage.jsx';
 
 const AppRoutes = () => {
   return (

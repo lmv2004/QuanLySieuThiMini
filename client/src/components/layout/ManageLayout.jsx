@@ -68,11 +68,18 @@ export const ManageLayout = () => {
 
     // Filter menu theo permission — dùng useMemo (hooks trước early return)
     const MENU = useMemo(() => {
+        const isManager = user?.chucVu?.TENCHUCVU === 'Quản lý' || user?.chucVu?.TENCHUCVU === 'Manager';
         return ALL_MENU.map(group => ({
             ...group,
-            items: group.items.filter(item => canSeeModule(item.id)),
+            items: group.items.filter(item => {
+                // store-info chỉ dành cho manager
+                if (item.id === 'store-info' && !isManager) {
+                    return false;
+                }
+                return canSeeModule(item.id);
+            }),
         })).filter(group => group.items.length > 0);
-    }, [canSeeModule]);
+    }, [canSeeModule, user?.chucVu?.TENCHUCVU]);
 
     // Active menu item
     const page = useMemo(() => {
