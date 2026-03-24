@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Ico } from '../../components/Manage/Icons';
 import api from '../../services/api';
+import { EliteSelect } from '../../components/Manage/EliteSelect';
 
 export const emptyDisposal = {
     NGAYLAP: new Date().toISOString().slice(0, 16),
@@ -9,168 +10,174 @@ export const emptyDisposal = {
     chiTiets: []
 };
 
-export const DisposalForm = ({ form, hc, setForm }) => {
+export const DisposalForm = ({ form, hc, setForm, isView, errors = {} }) => {
     const [employees, setEmployees] = useState([]);
     const [inventories, setInventories] = useState([]);
 
     useEffect(() => {
-        api.get('/employees')
-            .then(res => setEmployees(res.data.data || res.data))
-            .catch(console.error);
-        api.get('/inventories')
-            .then(res => setInventories(res.data.data || res.data))
-            .catch(console.error);
+        api.get('/employees?per_page=100').then(res => setEmployees(res.data.data || res.data || []));
+        api.get('/inventories?per_page=200').then(res => setInventories(res.data.data || res.data || []));
     }, []);
 
-    const addDetailRow = () => {
-        if ((form.chiTiets || []).length >= 20) return;
-        setForm(prev => ({
-            ...prev,
-            chiTiets: [...(prev.chiTiets || []), { MASP: '', ID_TONKHO: '', SOLUONG: 1 }]
-        }));
-    };
+    // 🛡️ Auto-Sync: Tự động đổ dữ liệu từ các trường phụ (NHANVIEN, CHI_TIETS) vào trường chính (MANV, chiTiets)
+    useEffect(() => {
+        if (!form.MANV && form.NHANVIEN?.MANV) {
+            setForm(p => ({ ...p, MANV: form.NHANVIEN.MANV }));
+        }
+    }, [form.NHANVIEN?.MANV]); 
 
-    const removeDetailRow = (index) => {
-        setForm(prev => ({
-            ...prev,
-            chiTiets: (prev.chiTiets || []).filter((_, i) => i !== index)
-        }));
-    };
+    useEffect(() => {
+        // Hỗ trợ cả 3 dạng tên trường chi tiết từ backend
+        const sourceDetails = form.CHI_TIET_PHIEU_HUY || form.chi_tiet_phieu_huys || form.CHI_TIETS || [];
+        if ((!form.chiTiets || form.chiTiets.length === 0) && sourceDetails.length > 0) {
+            setForm(p => ({ ...p, chiTiets: sourceDetails }));
+        }
+    }, [form.CHI_TIETS, form.chi_tiet_phieu_huys, form.CHI_TIET_PHIEU_HUY]);
+
+    const details = form.chiTiets || [];
+    const selectedInvIds = details.map(d => d.ID_TONKHO);
 
     const updateDetailRow = (index, field, value) => {
-        const newDetails = [...(form.chiTiets || [])];
+        if (isView) return;
+        const newDetails = [...details];
         if (field === 'ID_TONKHO') {
             const inv = inventories.find(x => x.ID == value);
             newDetails[index] = { ...newDetails[index], ID_TONKHO: value, MASP: inv ? inv.MASP : '' };
         } else {
             newDetails[index] = { ...newDetails[index], [field]: value };
         }
-        setForm(prev => ({ ...prev, chiTiets: newDetails }));
+        setForm(p => ({ ...p, chiTiets: newDetails }));
     };
 
-    const details = form.chiTiets || [];
-    const atLimit = details.length >= 20;
+    const addDetailRow = () => {
+        if (isView || details.length >= 20) return;
+        setForm(p => ({
+            ...p,
+            chiTiets: [...details, { ID_TONKHO: '', SOLUONG: 1 }]
+        }));
+    };
+
+    const removeDetailRow = (index) => {
+        if (isView) return;
+        setForm(p => ({
+            ...p,
+            chiTiets: details.filter((_, i) => i !== index)
+        }));
+    };
+
+    const inventoryOptions = inventories
+        .filter(inv => inv.SOLUONG_CON_LAI > 0 || selectedInvIds.includes(inv.ID))
+        .map(inv => ({
+            value: inv.ID,
+            label: `${inv.san_pham?.TENSP || `Mã ${inv.MASP}`} (Có: ${inv.SOLUONG_CON_LAI})`,
+            icon: Ico.package,
+            iconClass: inv.SOLUONG_CON_LAI <= 0 ? 'opt-icon-muted' : 'opt-icon-active'
+        }));
 
     return (
-        <div className="form-grid">
-            {/* ── Section: Thông tin phiếu ── */}
-            <div className="form-section-title">
-                {Ico.trash} Thông tin phiếu hủy
+        <div className="premium-disposal-box">
+            <div className="form-section-head">
+                {Ico.info} Thông tin phiếu xuất hủy
             </div>
 
-            <div className="form-row">
+            <div className="form-row-grid">
                 <div className="form-group">
                     <label className="form-label">Ngày lập phiếu *</label>
-                    <input
-                        className="form-input"
-                        type="datetime-local"
-                        name="NGAYLAP"
-                        value={form.NGAYLAP}
-                        onChange={hc}
-                    />
+                    <div className="input-with-icon">
+                        <span className="input-icon-left">{Ico.calendar}</span>
+                        <input
+                            className={`form-input has-icon-left ${errors.NGAYLAP ? 'has-error' : ''}`}
+                            type="datetime-local"
+                            name="NGAYLAP"
+                            value={form.NGAYLAP?.replace(' ', 'T') || ''}
+                            onChange={hc}
+                            disabled={isView}
+                        />
+                    </div>
+                    {errors.NGAYLAP && <span className="error-text">{errors.NGAYLAP}</span>}
                 </div>
                 <div className="form-group">
                     <label className="form-label">Nhân viên lập phiếu *</label>
-                    <select
-                        className="form-select"
-                        name="MANV"
-                        value={form.MANV}
+                    <EliteSelect
+                        options={employees.map(e => ({ value: e.MANV, label: e.TENNV, icon: Ico.user }))}
+                        value={form.MANV || form.NHANVIEN?.MANV || ''}
+                        onChange={(val) => setForm(p => ({ ...p, MANV: val }))}
+                        disabled={isView}
+                        placeholder="Chọn nhân viên..."
+                    />
+                    {errors.MANV && <span className="error-text">{errors.MANV}</span>}
+                </div>
+            </div>
+
+            <div className="form-group" style={{ marginTop: 15 }}>
+                <label className="form-label">Lý do tiêu hủy *</label>
+                <div className="input-with-icon">
+                    <span className="input-icon-left" style={{ top: 12 }}>{Ico.edit}</span>
+                    <textarea
+                        className={`form-input has-icon-left ${errors.LYDO ? 'has-error' : ''}`}
+                        name="LYDO"
+                        value={form.LYDO}
                         onChange={hc}
-                    >
-                        <option value="">-- Chọn nhân viên --</option>
-                        {employees.map(e => (
-                            <option key={e.MANV} value={e.MANV}>#{e.MANV} · {e.TENNV}</option>
-                        ))}
-                    </select>
+                        disabled={isView}
+                        placeholder="Mô tả lý do..."
+                        rows="2"
+                    />
                 </div>
+                {errors.LYDO && <span className="error-text">{errors.LYDO}</span>}
             </div>
 
-            <div className="form-group">
-                <label className="form-label">Lý do xuất hủy *</label>
-                <textarea
-                    className="form-input"
-                    name="LYDO"
-                    value={form.LYDO}
-                    onChange={hc}
-                    placeholder="VD: Sản phẩm cận date, hỏng hóc, không đạt tiêu chuẩn..."
-                    rows="2"
-                    style={{ resize: 'vertical', minHeight: 60 }}
-                />
+            <div className="form-section-head" style={{ marginTop: 20 }}>
+                {Ico.package} Chi tiết danh mục hàng hóa
+                <span className="badge-count">{details.length}/20</span>
             </div>
 
-            {/* ── Section: Danh sách hàng hủy ── */}
-            <div className="form-section-title" style={{ marginTop: 4 }}>
-                {Ico.package} Chi tiết hàng hóa cần hủy
-                <span className="form-section-badge">{details.length}/20 lô</span>
-            </div>
-
-            {details.length === 0 && (
-                <div className="form-empty-hint">
-                    Chưa có mặt hàng. Nhấn <strong>+ Thêm lô</strong> bên dưới để bắt đầu.
+            <div className="detail-table-container">
+                <div className="detail-header">
+                    <span>Lô hàng trong kho</span>
+                    <span style={{ textAlign: 'center' }}>Số lượng</span>
+                    <span style={{ width: 40 }}></span>
                 </div>
-            )}
 
-            {details.length > 0 && (
-                <div className="detail-list">
-                    {/* Header row */}
-                    <div className="detail-header-row">
-                        <span>Lô hàng trong kho</span>
-                        <span>SL hủy</span>
-                        <span></span>
-                    </div>
-
-                    <div className="detail-scroll">
-                        {details.map((row, index) => (
-                            <div key={index} className="detail-row">
-                                <select
-                                    className="form-select"
+                <div className="detail-rows-container">
+                    {details.length === 0 ? (
+                        <div className="empty-state">Chưa có hàng hóa nào được chọn.</div>
+                    ) : (
+                        details.map((row, index) => (
+                            <div key={index} className="detail-item-row">
+                                <EliteSelect
+                                    options={inventoryOptions}
                                     value={row.ID_TONKHO}
-                                    onChange={e => updateDetailRow(index, 'ID_TONKHO', parseInt(e.target.value))}
-                                >
-                                    <option value="">-- Chọn lô hàng --</option>
-                                    {inventories
-                                        .filter(inv => inv.SOLUONG_CON_LAI > 0)
-                                        .map(inv => (
-                                            <option key={inv.ID} value={inv.ID}>
-                                                Lô #{inv.ID} · {inv.san_pham?.TENSP || `SP ${inv.MASP}`} (Còn: {inv.SOLUONG_CON_LAI} {inv.san_pham?.DVT || ''})
-                                            </option>
-                                        ))
-                                    }
-                                </select>
-
+                                    onChange={(val) => updateDetailRow(index, 'ID_TONKHO', val)}
+                                    disabled={isView}
+                                    placeholder="Chọn lô hàng..."
+                                />
                                 <input
                                     type="number"
                                     className="form-input"
-                                    min="1"
                                     value={row.SOLUONG}
-                                    onChange={e => updateDetailRow(index, 'SOLUONG', parseInt(e.target.value) || 1)}
-                                    placeholder="SL"
+                                    onChange={(e) => updateDetailRow(index, 'SOLUONG', e.target.value)}
+                                    disabled={isView}
+                                    min="1"
                                     style={{ textAlign: 'center' }}
                                 />
-
-                                <button
-                                    type="button"
-                                    className="btn-action-ico btn-del"
-                                    title="Xóa dòng"
-                                    onClick={() => removeDetailRow(index)}
-                                >
-                                    {Ico.trash}
-                                </button>
+                                {!isView && (
+                                    <button type="button" className="btn-remove-item" onClick={() => removeDetailRow(index)}>
+                                        {Ico.trash}
+                                    </button>
+                                )}
                             </div>
-                        ))}
-                    </div>
+                        ))
+                    )}
                 </div>
-            )}
 
-            <button
-                type="button"
-                className={`btn-add-detail${atLimit ? ' disabled' : ''}`}
-                onClick={addDetailRow}
-                disabled={atLimit}
-            >
-                {Ico.plus}
-                {atLimit ? 'Đã đạt giới hạn 20 lô' : 'Thêm lô hàng'}
-            </button>
+                {!isView && (
+                    <button type="button" className="btn-append-row" onClick={addDetailRow}>
+                        {Ico.plus} Thêm mặt hàng mới
+                    </button>
+                )}
+            </div>
+
+            {errors._global && <div className="error-banner-fixed">{Ico.alertCircle} {errors._global}</div>}
         </div>
     );
 };

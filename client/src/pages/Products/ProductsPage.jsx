@@ -33,7 +33,7 @@ export const ProductsPage = () => (
             )}
             renderRow={(sp, i) => (
                 [
-                    <td key="1" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{sp.MASP ?? '—'}</td>,
+                    <td key="1" style={{ fontSize: 12 }}>{sp.MASP ?? '—'}</td>,
                     <td key="2">
                         <div className="cell-entity">
                             <div className="entity-avatar" style={{ background: avatarColor(i), borderRadius: 8, overflow: 'hidden' }}>
@@ -47,7 +47,7 @@ export const ProductsPage = () => (
                     </td>,
                     <td key="3" className="entity-sub">{sp.BARCODE || '—'}</td>,
                     <td key="4"><div className="entity-name">{sp.TENSP || '—'}</div></td>,
-                    <td key="5" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{sp.MOTA || '—'}</td>,
+                    <td key="5" style={{ fontSize: 12 }}>{sp.MOTA || '—'}</td>,
                     <td key="6" style={{ fontSize: 12 }}>{sp.DVT || '—'}</td>,
                     <td key="7" className="price-main">{fmtVND(sp.GIABAN)}</td>,
                 ]

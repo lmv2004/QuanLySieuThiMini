@@ -207,8 +207,8 @@ export const PromotionImportExport = ({ onRefresh, addToast, data }) => {
                                     <p className="form-help-text" style={{ marginBottom: '12px' }}>
                                         Dữ liệu tải lên cần tuân thủ cấu trúc của file mẫu. Lưu ý phân biệt Loại Giảm % hay Giảm Tiền Mặt.
                                     </p>
-                                    <button 
-                                        className="btn-secondary" 
+                                    <button
+                                        className="btn-secondary"
                                         onClick={downloadTemplate}
                                         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px', background: '#f8fafc', color: '#0f172a', borderColor: '#cbd5e1' }}
                                     >

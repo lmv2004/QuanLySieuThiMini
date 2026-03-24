@@ -42,7 +42,7 @@ export const ImportImportExport = ({ onRefresh, addToast, data }) => {
         const fileName = exportName.trim() || `imports_${new Date().getTime()}`;
         const finalFileName = `${fileName}.${exportType}`;
 
-        const exportData = data.map(v => ({'Mã phiếu': v.MAPHIEU, 'Ngày lập': v.NGAYLAP, 'Mã NV lập': v.MANV, 'Tổng tiền': v.TONGTIEN || 0, 'Ghi chú': v.GCHU || '', 'Trạng thái': v.IS_DELETED ? 'Đã hủy' : 'Hoàn thành'}));
+        const exportData = data.map(v => ({ 'Mã phiếu': v.MAPHIEU, 'Ngày lập': v.NGAYLAP, 'Mã NV lập': v.MANV, 'Tổng tiền': v.TONGTIEN || 0, 'Ghi chú': v.GCHU || '', 'Trạng thái': v.IS_DELETED ? 'Đã hủy' : 'Hoàn thành' }));
 
         if (exportType === 'json') {
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

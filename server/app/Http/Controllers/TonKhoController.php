@@ -11,7 +11,16 @@ class TonKhoController extends Controller
      */
     public function index()
     {
-        //
+        // PHẦN NÀY RẤT QUAN TRỌNG: Cung cấp dữ liệu cho "Chọn lô hàng"
+        $tonKhos = \App\Models\TonKho::with('sanPham')
+            ->where('SOLUONG_CON_LAI', '>', 0)
+            ->orderBy('HANSUDUNG', 'asc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $tonKhos
+        ]);
     }
 
     /**

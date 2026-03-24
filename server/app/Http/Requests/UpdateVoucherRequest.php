@@ -21,7 +21,8 @@ class UpdateVoucherRequest extends FormRequest
             'KMTOIDA'        => 'sometimes|numeric|min:0',
             'PTGIAM'         => 'sometimes|integer|min:0|max:100',
             'SOLUOTSD'       => 'sometimes|integer|min:1',
-            'TRANGTHAI'      => 'sometimes|integer|in:0,1',
+            'SOLUOTSD_DADUNG' => 'sometimes|integer|min:0',
+            'TRANGTHAI'      => 'sometimes|integer|in:0,1,2',
             'IS_DELETED'     => 'sometimes|boolean',
         ];
     }

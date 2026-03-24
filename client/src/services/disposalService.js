@@ -21,9 +21,25 @@ export const disposalService = {
         return response.data;
     },
 
-    // Duyệt Phiếu Xuất Hủy
+    // Duyệt Phiếu Xuất Hủy (Khóa)
     approve: async (id) => {
-        const response = await api.put(`/disposal-slips/${id}`, { TRANGTHAI: 'APPROVED' });
+        const response = await api.put(`/disposal-slips/${id}/approve`);
+        return response.data;
+    },
+
+    // Mở lại Phiếu Xuất Hủy (Mở khóa)
+    reopen: async (id) => {
+        const response = await api.put(`/disposal-slips/${id}/reopen`);
+        return response.data;
+    },
+
+    lock: async (id) => {
+        const response = await api.put(`/disposal-slips/${id}/lock`);
+        return response.data;
+    },
+
+    unlock: async (id) => {
+        const response = await api.put(`/disposal-slips/${id}/unlock`);
         return response.data;
     },
 

@@ -128,6 +128,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('disposal-slips/{disposal_slip}', [PhieuHuyController::class, 'show'])->middleware('permission:disposal-slips.view');
     Route::post('disposal-slips', [PhieuHuyController::class, 'store'])->middleware('permission:disposal-slips.create');
     Route::put('disposal-slips/{disposal_slip}', [PhieuHuyController::class, 'update'])->middleware('permission:disposal-slips.approve');
+    Route::put('disposal-slips/{disposal_slip}/approve', [PhieuHuyController::class, 'approve'])->middleware('permission:disposal-slips.approve');
+    Route::put('disposal-slips/{disposal_slip}/reopen', [PhieuHuyController::class, 'reopen'])->middleware('permission:disposal-slips.approve');
+    Route::put('disposal-slips/{disposal_slip}/lock', [PhieuHuyController::class, 'lock'])->middleware('permission:disposal-slips.approve');
+    Route::put('disposal-slips/{disposal_slip}/unlock', [PhieuHuyController::class, 'unlock'])->middleware('permission:disposal-slips.approve');
     Route::delete('disposal-slips/{disposal_slip}', [PhieuHuyController::class, 'destroy'])->middleware('permission:disposal-slips.approve');
 
     // Chi tiết phiếu hủy

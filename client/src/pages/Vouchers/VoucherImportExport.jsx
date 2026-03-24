@@ -56,7 +56,7 @@ export const VoucherImportExport = ({ onRefresh, addToast, data }) => {
                 'Giảm tối thiểu (VNĐ)': v.KMTOITHIEU || 0,
                 'Đơn tối thiểu (VNĐ)': v.GIATRITOITHIEU || 0,
                 'Tổng lượt sử dụng': v.SOLUOTSD || 0,
-                'Lượt đã dùng': v.DADUNG || 0,
+                'Lượt đã dùng': v.SOLUOTSD_DADUNG || 0,
                 'Ngày bắt đầu': v.NGAYBD,
                 'Ngày kết thúc': v.NGAYKT,
                 'Trạng thái': v.TRANGTHAI === 1 ? 'Hoạt động' : 'Đã khóa'
@@ -76,7 +76,7 @@ export const VoucherImportExport = ({ onRefresh, addToast, data }) => {
         }
 
         const ws = XLSX.utils.json_to_sheet(exportData);
-        
+
         // Tự động điều chỉnh độ rộng cột cho tệp xuất
         ws['!cols'] = [
             { wch: 18 }, // Mã Voucher

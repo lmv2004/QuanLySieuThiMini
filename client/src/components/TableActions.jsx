@@ -6,6 +6,8 @@ export const TableActions = ({
     primaryKey = 'id',
     openView,
     onLock,
+    onApprove,
+    onReopen,
     openEdit,
     del,
     isLocked = false // Truyền trạng thái khóa từ bên ngoài vào
@@ -23,6 +25,20 @@ export const TableActions = ({
             {onLock && (
                 <button className="btn-action-ico btn-lock-action" title="Khóa/Mở" onClick={() => onLock(item)}>
                     {isLocked ? Ico.unlock : Ico.lock}
+                </button>
+            )}
+
+            {/* 2b. NÚT DUYỆT (Dành cho phiếu/chứng từ) */}
+            {onApprove && (
+                <button className="btn-action-ico btn-approve-action" title="Duyệt phiếu" onClick={() => onApprove(item)}>
+                    {Ico.check}
+                </button>
+            )}
+
+            {/* 2c. NÚT MỞ LẠI (Dành cho phiếu đã duyệt) */}
+            {onReopen && (
+                <button className="btn-action-ico btn-reopen-action" title="Mở lại phiếu" onClick={() => onReopen(item)}>
+                    {Ico.undo}
                 </button>
             )}
 

@@ -6,8 +6,8 @@ export const PromotionGridItem = ({ item, openEdit, del, idx }) => {
     return (
         <div className={`grid-item-card promo-card ${!item.TRANGTHAI ? 'promo-inactive' : ''}`}>
             <div className="grid-item-card-top">
-                <div 
-                    className="grid-item-icon-box" 
+                <div
+                    className="grid-item-icon-box"
                     style={{ background: avatarColor(idx), color: '#fff', fontSize: 18, fontWeight: 800 }}
                 >
                     {(item.TEN_CHUONG_TRINH[0] || '?').toUpperCase()}
@@ -16,7 +16,7 @@ export const PromotionGridItem = ({ item, openEdit, del, idx }) => {
                     {item.TRANGTHAI ? 'Đang chạy' : 'Tạm dừng'}
                 </span>
             </div>
-            
+
             <div className="grid-item-card-mid" style={{ flex: 1 }}>
                 <div className="grid-item-title" style={{ fontFamily: 'var(--font)', fontSize: 15 }}>
                     {item.TEN_CHUONG_TRINH}
@@ -25,7 +25,7 @@ export const PromotionGridItem = ({ item, openEdit, del, idx }) => {
                     Chương trình giảm giá {item.LOAI_GIAM === 0 ? '(%)' : '(VNĐ)'}
                 </div>
             </div>
-            
+
             <div className="grid-item-card-bottom">
                 <div className="grid-item-value" style={{ fontSize: 18, color: 'var(--accent)' }}>
                     {item.LOAI_GIAM === 0 ? `${item.GIATRI_GIAM}%` : fmtVND(item.GIATRI_GIAM)}
@@ -34,7 +34,7 @@ export const PromotionGridItem = ({ item, openEdit, del, idx }) => {
                     HSD: {fmtDate(item.NGAYKT)}
                 </div>
             </div>
-            
+
             <div className="grid-item-actions">
                 <button className="btn-edit" title="Sửa" onClick={() => openEdit(item)}>
                     {Ico.edit}

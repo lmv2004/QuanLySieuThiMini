@@ -1,95 +1,165 @@
-import React, { useState } from 'react';
-import { Ico } from '../../components/Manage/Icons';
+import React, { useState, useEffect } from 'react';
 import { initials, CURRENT_USER } from '../../components/Manage/Shared';
+import { DashboardKpi } from './DashboardKpi';
+import { DashboardCharts, CategoryBreakdown } from './DashboardCharts';
+import { DashboardOperations, ModuleHub, DashboardAlerts, TopProducts } from './DashboardOperations';
+import './Dashboard.css';
 
-const CHART_DATA = {
-    week: [{ l: 'T2', v: 4.2 }, { l: 'T3', v: 5.8 }, { l: 'T4', v: 3.9 }, { l: 'T5', v: 7.1 }, { l: 'T6', v: 8.4 }, { l: 'T7', v: 9.2 }, { l: 'CN', v: 6.5, hi: true }],
-    month: [{ l: 'T1', v: 28 }, { l: 'T2', v: 32 }, { l: 'T3', v: 27 }, { l: 'T4', v: 35 }, { l: 'T5', v: 42 }, { l: 'T6', v: 38, hi: true }],
-    year: [{ l: 'Q1', v: 82 }, { l: 'Q2', v: 95 }, { l: 'Q3', v: 88 }, { l: 'Q4', v: 110, hi: true }],
+/* ── Static Data ──────────────────────── */
+const DATA = {
+    Day: {
+        kpis: [
+            { id: 'rev',   label: 'Doanh thu hôm nay',  val: '24,150,000 ₫', trend: '+12.5%', icon: '💰', bg: '#6366f1', up: true  },
+            { id: 'inv',   label: 'Hóa đơn mới',          val: '184',           trend: '+15',    icon: '🧾', bg: '#0ea5e9', up: true  },
+            { id: 'alert', label: 'Cảnh báo tồn kho',     val: '12 mặt hàng',   trend: 'Cần nhập', icon: '📦', bg: '#ef4444', up: false },
+        ],
+        chartData: [
+            { l: '08h', v: 1.2 }, { l: '10h', v: 4.5 }, { l: '12h', v: 12.8, hi: true },
+            { l: '14h', v: 8.4 }, { l: '16h', v: 10.2 }, { l: '18h', v: 15.6 }, { l: '20h', v: 9.5 },
+        ],
+        categories: [
+            { label: 'Thực phẩm & Đồ uống', perc: 48, color: '#6366f1' },
+            { label: 'Hóa phẩm & Gia dụng', perc: 29, color: '#f59e0b' },
+            { label: 'Chăm sóc sức khỏe',   perc: 23, color: '#10b981' },
+        ],
+    },
+    Month: {
+        kpis: [
+            { id: 'rev',   label: 'Doanh thu tháng này', val: '1,250,000,000 ₫', trend: '+5.2%', icon: '💰', bg: '#6366f1', up: true },
+            { id: 'inv',   label: 'Tổng hóa đơn',         val: '4,520',            trend: '+450',   icon: '🧾', bg: '#0ea5e9', up: true },
+            { id: 'cust',  label: 'Khách hàng mới',        val: '520 người',        trend: '+120',   icon: '💎', bg: '#10b981', up: true },
+        ],
+        chartData: [
+            { l: 'T1', v: 250 }, { l: 'T2', v: 320 }, { l: 'T3', v: 450, hi: true }, { l: 'T4', v: 230 },
+        ],
+        categories: [
+            { label: 'Thực phẩm & Đồ uống', perc: 40, color: '#6366f1' },
+            { label: 'Hóa phẩm & Gia dụng', perc: 35, color: '#f59e0b' },
+            { label: 'Chăm sóc sức khỏe',   perc: 25, color: '#10b981' },
+        ],
+    },
+    Year: {
+        kpis: [
+            { id: 'rev',  label: 'Doanh thu năm nay', val: '15,400,000,000 ₫', trend: '+18%', icon: '💰', bg: '#6366f1', up: true  },
+            { id: 'inv',  label: 'Tổng giao dịch',     val: '52,100',            trend: '+22%', icon: '🧾', bg: '#0ea5e9', up: true  },
+            { id: 'nv',   label: 'Biến động nhân sự',  val: '22 nghìn viên',     trend: '-2%',  icon: '👤', bg: '#f59e0b', up: false },
+        ],
+        chartData: [
+            { l: 'Q1', v: 3.2 }, { l: 'Q2', v: 4.5 }, { l: 'Q3', v: 5.8, hi: true }, { l: 'Q4', v: 1.9 },
+        ],
+        categories: [
+            { label: 'Thực phẩm & Đồ uống', perc: 52, color: '#6366f1' },
+            { label: 'Hóa phẩm & Gia dụng', perc: 30, color: '#f59e0b' },
+            { label: 'Chăm sóc sức khỏe',   perc: 18, color: '#10b981' },
+        ],
+    },
 };
 
-const ACTIVITIES = [
-    { id: 1, icon: '💰', bg: '#dcfce7', text: <>Hóa đơn <strong>#HD-4521</strong> — <strong>342.000 ₫</strong> thanh toán</>, time: '2 phút trước' },
-    { id: 2, icon: '📦', bg: '#e0f2fe', text: <>Phiếu nhập <strong>#IMP-088</strong> từ Vinamilk đã duyệt</>, time: '18 phút trước' },
-    { id: 3, icon: '👤', bg: '#ede9fe', text: <>Nhân viên <strong>Trần Thị Hoa</strong> đã đăng nhập</>, time: '1 giờ trước' },
-    { id: 4, icon: '⚠️', bg: '#fef3c7', text: <>Sản phẩm <strong>Xà bông Lifebuoy</strong> sắp hết hàng</>, time: '2 giờ trước' },
-    { id: 5, icon: '🗑️', bg: '#fee2e2', text: <>Phiếu hủy <strong>#DSP-012</strong> — 5 sp hết hạn</>, time: '3 giờ trước' },
+const MODULE_STATS = [
+    { label: 'Sản phẩm',      count: '1,240', icon: '🛍️', bg: '#6366f1' },
+    { label: 'Loại hàng',     count: '45',    icon: '📁',  bg: '#f59e0b' },
+    { label: 'Nhà cung cấp',  count: '12',    icon: '🚚',  bg: '#10b981' },
+    { label: 'Nhân viên',     count: '22',    icon: '👤',  bg: '#ec4899' },
+    { label: 'Voucher',       count: '08',    icon: '🎟️', bg: '#0ea5e9' },
+    { label: 'Khách hàng',    count: '5,200', icon: '💎',  bg: '#8b5cf6' },
 ];
 
+const ALERTS = [
+    { type: 'err',  icon: '📦', msg: '12 sản phẩm sắp hết hàng, cần liên hệ nhà cung cấp.' },
+    { type: 'warn', icon: '🎟️', msg: '03 voucher sẽ hết hạn trong 2 ngày tới.' },
+];
+
+const INVOICES = [
+    { id: '#HD-4524', time: '12:50', total: '450,000 ₫',   status: 'Xong'  },
+    { id: '#HD-4523', time: '12:42', total: '85,000 ₫',    status: 'Chờ'   },
+    { id: '#HD-4522', time: '12:35', total: '1,250,000 ₫', status: 'Xong'  },
+    { id: '#HD-4521', time: '12:30', total: '342,000 ₫',   status: 'Xong'  },
+];
+
+const TOP_PRODUCTS = [
+    { name: 'Sữa tươi Vinamilk 1L',    cat: 'Đồ uống',   sold: 124, price: '32,000 ₫', icon: '🥛' },
+    { name: 'Bánh mì sandwich',          cat: 'Thực phẩm', sold: 98,  price: '15,000 ₫', icon: '🍞' },
+    { name: 'Nước rửa chén Sunlight',   cat: 'Hóa phẩm',  sold: 76,  price: '28,000 ₫', icon: '🧼' },
+    { name: 'Mì Hảo Hảo tôm chua cay', cat: 'Thực phẩm', sold: 64,  price: '5,000 ₫',  icon: '🍜' },
+];
+
+/* ── Component ────────────────────────── */
 export const DashboardPage = () => {
     const user = CURRENT_USER;
-    const [period, setPeriod] = useState('week');
-    const bars = CHART_DATA[period];
-    const maxV = Math.max(...bars.map(b => b.v));
-    const kpis = [
-        { label: 'Doanh thu hôm nay', value: '9.2M ₫', sub: 'so với hôm qua', badge: '+12%', up: true, icon: '💰', bg: '#fef9c3' },
-        { label: 'Đơn hàng', value: '84', sub: 'hóa đơn hôm nay', badge: '+8%', up: true, icon: '🧾', bg: '#e0f2fe' },
-        { label: 'Nhân viên', value: '0', sub: 'chưa có dữ liệu', badge: '—', up: true, icon: '👥', bg: '#ede9fe' },
-        { label: 'Sản phẩm', value: '0', sub: 'chưa có dữ liệu', badge: '—', up: true, icon: '📦', bg: '#dcfce7' },
-    ];
+    const [activeTab, setActiveTab] = useState('Day');
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        setLoaded(false);
+        const t = setTimeout(() => setLoaded(true), 200);
+        return () => clearTimeout(t);
+    }, [activeTab]);
+
+    const d = DATA[activeTab];
+    const maxV = Math.max(...d.chartData.map(x => x.v));
+    const now = new Date();
+    const timeStr = now.toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
     return (
-        <>
-            <div className="dash-welcome">
-                <div className="dash-avatar-lg">{initials(user.TENNV)}</div>
-                <div>
-                    <div className="dash-welcome-name">Xin chào, {user.TENNV.split(' ').pop()}!</div>
-                    <div className="dash-welcome-sub">{user.chucVu?.TENCHUCVU} · {user.EMAIL}</div>
-                    <div className="dash-welcome-chip">Đang hoạt động</div>
-                </div>
-            </div>
-            <div className="kpi-grid">
-                {kpis.map((k, i) => (
-                    <div className="kpi-card" key={i}>
-                        <div className="kpi-top">
-                            <div className="kpi-icon" style={{ background: k.bg, fontSize: 16 }}>{k.icon}</div>
-                            <span className={`kpi-badge ${k.up ? 'up' : 'down'}`}>{Ico.trendUp}{k.badge}</span>
-                        </div>
+        <div className="dash-root">
+            {/* ── Topbar ── */}
+            <div className="dash-topbar">
+                <div className="dash-topbar-left">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div className="dash-avatar">{initials(user.TENNV)}</div>
                         <div>
-                            <div className="kpi-label">{k.label}</div>
-                            <div className="kpi-value">{k.value}</div>
-                            <div className="kpi-sub">{k.sub}</div>
+                            <div className="dash-topbar-title">Xin chào, {user.TENNV} 👋</div>
+                            <div className="dash-topbar-time">{timeStr}</div>
                         </div>
                     </div>
-                ))}
+                </div>
+                <div className="dash-time-tabs">
+                    {[['Day','Hôm nay'], ['Month','Tháng này'], ['Year','Năm nay']].map(([k, lbl]) => (
+                        <button
+                            key={k}
+                            className={`dash-time-tab ${activeTab === k ? 'active' : ''}`}
+                            onClick={() => setActiveTab(k)}
+                        >{lbl}</button>
+                    ))}
+                </div>
             </div>
-            <div className="dash-bottom">
-                <div className="chart-card">
-                    <div className="chart-header">
-                        <div className="chart-title">Doanh thu</div>
-                        <div className="chart-tabs">
-                            {['week', 'month', 'year'].map(p => (
-                                <button key={p} className={`chart-tab ${period === p ? 'active' : ''}`} onClick={() => setPeriod(p)}>
-                                    {p === 'week' ? 'Tuần' : p === 'month' ? 'Tháng' : 'Năm'}
-                                </button>
-                            ))}
+
+            {/* ── Body ── */}
+            <div className="dash-body">
+                {!loaded ? (
+                    <div style={{ display:'flex', justifyContent:'center', alignItems:'center', height:'60vh', gap: 12 }}>
+                        <div className="dash-spinner" />
+                        <span style={{ fontSize: 14, color: 'var(--d-text-muted)', fontWeight: 600 }}>Đang tải dữ liệu...</span>
+                    </div>
+                ) : (
+                    <>
+                        {/* ── KPI Row (3 thẻ chính) ── */}
+                        <div className="dash-section-title">Chỉ số chính</div>
+                        <DashboardKpi kpis={d.kpis} />
+
+                        {/* ── Main content + Sidebar ── */}
+                        <div className="dash-main-grid">
+                            {/* Cột chính */}
+                            <div>
+                                <DashboardCharts chartData={d.chartData} maxChartV={maxV} />
+                                <DashboardOperations recentInvoices={INVOICES} />
+                            </div>
+
+                            {/* Sidebar */}
+                            <div>
+                                <ModuleHub stats={MODULE_STATS} />
+                                <CategoryBreakdown categoryData={d.categories} />
+                            </div>
                         </div>
-                    </div>
-                    <div className="chart-bars">
-                        {bars.map((b, i) => (
-                            <div className="chart-bar-wrap" key={i}>
-                                <div className={`chart-bar ${b.hi ? 'hi' : ''}`} style={{ height: `${Math.round((b.v / maxV) * 112)}px` }} title={`${b.v}M ₫`} />
-                                <div className="chart-bar-label">{b.l}</div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="chart-legend">
-                        <div className="chart-legend-item"><div className="chart-legend-dot" style={{ background: '#c8fb4b' }} /> Cao nhất</div>
-                        <div className="chart-legend-item"><div className="chart-legend-dot" style={{ background: 'var(--accent2)' }} /> Các ngày còn lại</div>
-                    </div>
-                </div>
-                <div className="activity-card">
-                    <div className="activity-title">Hoạt động gần đây</div>
-                    <div className="activity-list">
-                        {ACTIVITIES.map(a => (
-                            <div className="activity-item" key={a.id}>
-                                <div className="activity-dot" style={{ background: a.bg }}>{a.icon}</div>
-                                <div><div className="activity-text">{a.text}</div><div className="activity-time">{a.time}</div></div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+
+                        {/* ── Bottom: Alerts + TopProducts ── */}
+                        <div className="dash-bottom-row">
+                            <TopProducts products={TOP_PRODUCTS} />
+                            <DashboardAlerts alerts={ALERTS} />
+                        </div>
+                    </>
+                )}
             </div>
-        </>
+        </div>
     );
 };

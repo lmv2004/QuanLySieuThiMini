@@ -621,13 +621,7 @@ const MENU_ITEMS = [
     { id: 'payment', label: 'Thanh toán' },
 ];
 
-// TODO: thay bằng dữ liệu từ auth context
-// NhanVien: MANV, TENNV, chucVu.TENCHUCVU
-const CURRENT_CASHIER = {
-    MANV: null,
-    TENNV: '...',
-    chucVu: { TENCHUCVU: 'Thu ngân' },
-};
+
 
 const Cashier = () => {
     const [page, setPage] = useState('create');

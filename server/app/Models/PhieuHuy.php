@@ -16,11 +16,14 @@ class PhieuHuy extends Model
         'NGAYLAP',
         'MANV',
         'LYDO',
+        'TRANGTHAI',
+        'DA_KHOA',
         'IS_DELETED',
     ];
 
     protected $casts = [
         'NGAYLAP' => 'datetime',
+        'DA_KHOA' => 'boolean',
         'IS_DELETED' => 'boolean',
     ];
 
