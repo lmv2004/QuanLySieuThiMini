@@ -23,9 +23,9 @@ export const SuppliersPage = () => <SimplePage
     )}
     renderRow={(n, i) => [
         <td key="1"><div className="cell-entity"><div className="entity-avatar" style={{ background: avatarColor(i) }}>{(n.TENNCC[0] || '?').toUpperCase()}</div><div className="entity-name">{n.TENNCC}</div></div></td>,
-        <td key="2" style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>{n.SDT}</td>,
-        <td key="3" style={{ color: 'var(--cyan)', fontSize: 12.5 }}>{n.EMAIL}</td>,
-        <td key="4" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{n.DIACHI}</td>,
+        <td key="2" style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>{n.SDT}</td>,
+        <td key="3" style={{ fontSize: 12.5 }}>{n.EMAIL}</td>,
+        <td key="4" style={{ fontSize: 13 }}>{n.DIACHI}</td>,
         <td key="5"><span className={n.IS_DELETED ? 'badge badge-inactive' : 'badge badge-active'}>{n.IS_DELETED ? 'Ngừng' : 'Hoạt động'}</span></td>,
     ]}
     renderActions={(n, openEdit, del, i, list, setList, addToast, openView) => (

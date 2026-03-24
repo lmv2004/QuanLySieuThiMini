@@ -162,16 +162,17 @@ export const DisposalImportExport = ({ onRefresh, addToast, data }) => {
     return (
         <div className="voucher-import-export">
             <button className="btn-secondary btn-import-export" onClick={handleOpen}>
-                {Ico.file} <span>Nhập/Xuất File Phiếu</span>
+                {Ico.file} <span>Nhập/Xuất Excel</span>
             </button>
 
             {isOpen && (
                 <Modal
-                    title="Công cụ Nhập / Xuất Phiếu Hủy"
+                    title="Công cụ Quản lý Dữ liệu Phiếu Hủy"
                     onClose={handleClose}
+                    width={550}
                     actions={
                         <>
-                            <button className="btn-secondary" onClick={handleClose}>Hủy</button>
+                            <button className="btn-secondary" onClick={handleClose}>Đóng</button>
                             <button className="btn-primary" onClick={handleSubmit}>
                                 {mode === 'import' ? 'Xác nhận Nhập' : 'Thực hiện Xuất'}
                             </button>
@@ -179,39 +180,35 @@ export const DisposalImportExport = ({ onRefresh, addToast, data }) => {
                     }
                 >
                     <div className="ie-form">
-                        <div className="form-group" style={{ marginBottom: '24px' }}>
-                            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                {mode === 'import' ? Ico.upload : Ico.download}
-                                Phương thức thao tác
-                            </label>
-                            <div className="ie-select-wrapper">
-                                <select className="form-control ie-select" value={mode} onChange={(e) => setMode(e.target.value)}>
-                                    <option value="import">Nhập Phiếu Hủy (Import từ file lên)</option>
-                                    <option value="export">Xuất Bảng Kê Phiếu Hủy (Export .xlsx)</option>
-                                </select>
-                                <span className="ie-select-caret">{Ico.caret}</span>
-                            </div>
+                        {/* Tab Switcher */}
+                        <div className="ie-tabs">
+                            <button className={`ie-tab-btn ${mode === 'import' ? 'active' : ''}`} onClick={() => setMode('import')}>
+                                {Ico.upload} <span>Nhập dữ liệu</span>
+                            </button>
+                            <button className={`ie-tab-btn ${mode === 'export' ? 'active' : ''}`} onClick={() => setMode('export')}>
+                                {Ico.download} <span>Xuất dữ liệu</span>
+                            </button>
                         </div>
 
                         <div className="ie-form-body">
                             {mode === 'import' ? (
-                                <div className="ie-form-section">
-                                    <label className="form-label">Tải xuống File Mẫu (Nên dùng)</label>
-                                    <p className="form-help-text" style={{ marginBottom: '12px' }}>
-                                        Dữ liệu nhập lên sẽ mặc định ở trạng thái Chờ Duyệt (PENDING) để đảm bảo an toàn quy trình kho.
+                                <div className="ie-section">
+                                    <div className="ie-section-title">{Ico.info} Bước 1: Chuẩn bị file mẫu</div>
+                                    <p className="form-help-text" style={{ marginBottom: '16px' }}>
+                                        Dữ liệu nhập lên sẽ ở trạng thái <b>Chờ Duyệt (PENDING)</b>. Vui lòng sử dụng file mẫu chuẩn.
                                     </p>
                                     <button 
                                         className="btn-secondary" 
                                         onClick={downloadTemplate}
-                                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px', background: '#f8fafc', color: '#0f172a', borderColor: '#cbd5e1' }}
+                                        style={{ gap: '8px', marginBottom: '24px', background: '#f8fafc', color: '#0f172a', borderColor: '#cbd5e1' }}
                                     >
-                                        <span style={{ color: 'var(--green)' }}>{Ico.fileExcel}</span> Tải File Mẫu (Template)
+                                        <span style={{ color: 'var(--green)' }}>{Ico.fileExcel}</span> Tải File Mẫu (.xlsx)
                                     </button>
 
-                                    <label className="form-label">Tải file Lên hệ thống</label>
+                                    <div className="ie-section-title">{Ico.upload} Bước 2: Tải file lên</div>
                                     <div className="ie-upload-area" onClick={() => fileRef.current?.click()}>
                                         <input type="file" ref={fileRef} style={{ display: 'none' }} onChange={handleFileSelect} accept=".xlsx, .xls, .csv, .json" />
-                                        <div className="ie-upload-icon">{Ico.upload}</div>
+                                        <div className="ie-upload-icon">{importFile ? Ico.fileCheck : Ico.upload}</div>
                                         {importFile ? (
                                             <div className="ie-file-selected">
                                                 <strong>{importFile.name}</strong>
@@ -219,41 +216,45 @@ export const DisposalImportExport = ({ onRefresh, addToast, data }) => {
                                             </div>
                                         ) : (
                                             <div className="ie-upload-text">
-                                                <strong>Nhấn để chọn hoặc kéo thả file vào đây</strong>
-                                                <span>Hỗ trợ định dạng: .xlsx, .csv, .json</span>
+                                                <strong>Chọn hoặc kéo thả file vào đây</strong>
+                                                <span>Hỗ trợ: Excel, CSV, JSON</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             ) : (
-                                <div className="ie-form-section">
-                                    <div className="form-group">
-                                        <label className="form-label" style={{ fontSize: '15px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Tên tệp xuất</label>
-                                        <input
-                                            type="text"
-                                            className="ie-input"
-                                            placeholder={`disposals_${new Date().getTime()}`}
-                                            value={exportName}
-                                            onChange={(e) => setExportName(e.target.value)}
+                                <div className="ie-section">
+                                    <div className="form-group" style={{ marginBottom: '20px' }}>
+                                        <label className="form-label" style={{ fontWeight: 700 }}>Tên file khi lưu</label>
+                                        <input 
+                                            type="text" 
+                                            className="ie-input" 
+                                            placeholder={`disposals_export_${new Date().getTime()}`} 
+                                            value={exportName} 
+                                            onChange={(e) => setExportName(e.target.value)} 
                                         />
-                                        <p className="form-help-text" style={{ marginTop: '8px' }}>Để trống hệ thống sẽ tự đặt tên ngẫu nhiên theo thời gian hiện tại.</p>
+                                        <p className="form-help-text" style={{ marginTop: '6px' }}>Mặc định: disposals_export_[Timestamp]</p>
                                     </div>
 
-                                    <div className="form-group" style={{ marginTop: '16px' }}>
-                                        <label className="form-label">Định dạng bảng kê file</label>
-                                        <div className="ie-format-grid">
-                                            <div className={`ie-format-card excel-card ${exportType === 'xlsx' ? 'selected' : ''}`} onClick={() => setExportType('xlsx')}>
-                                                {Ico.fileExcel}
-                                                <span>Excel (.xlsx)</span>
-                                            </div>
-                                            <div className={`ie-format-card csv-card ${exportType === 'csv' ? 'selected' : ''}`} onClick={() => setExportType('csv')}>
-                                                {Ico.fileCsv}
-                                                <span>CSV (.csv)</span>
-                                            </div>
-                                            <div className={`ie-format-card json-card ${exportType === 'json' ? 'selected' : ''}`} onClick={() => setExportType('json')}>
-                                                {Ico.fileJson}
-                                                <span>JSON (.json)</span>
-                                            </div>
+                                    <label className="form-label" style={{ fontWeight: 700 }}>Định dạng file xuất</label>
+                                    <div className="ie-format-grid">
+                                        <div className={`ie-format-card excel-card ${exportType === 'xlsx' ? 'selected' : ''}`} onClick={() => setExportType('xlsx')}>
+                                            {Ico.fileExcel} <span>MS Excel</span>
+                                        </div>
+                                        <div className={`ie-format-card csv-card ${exportType === 'csv' ? 'selected' : ''}`} onClick={() => setExportType('csv')}>
+                                            {Ico.fileCsv} <span>Dạng CSV</span>
+                                        </div>
+                                        <div className={`ie-format-card json-card ${exportType === 'json' ? 'selected' : ''}`} onClick={() => setExportType('json')}>
+                                            {Ico.fileJson} <span>Dạng JSON</span>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginTop: '24px', padding: '16px', background: 'var(--primary-bg)', borderRadius: '12px', border: '1px solid var(--primary-bd)' }}>
+                                        <div style={{ display: 'flex', gap: '10px', color: 'var(--primary)' }}>
+                                          <span style={{ marginTop: '2px' }}>{Ico.info}</span>
+                                          <span style={{ fontSize: '13.5px', lineHeight: '1.4' }}>
+                                            Dữ liệu xuất sẽ bao gồm đầy đủ thông tin: Mã phiếu, Ngày lập, Nhân viên thực hiện, Lý do và Trạng thái hiện tại.
+                                          </span>
                                         </div>
                                     </div>
                                 </div>

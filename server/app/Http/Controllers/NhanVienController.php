@@ -15,7 +15,7 @@ class NhanVienController extends Controller
      */
     public function index(Request $request)
     {
-        $query = NhanVien::active()->with('chucVu');
+        $query = NhanVien::active()->latest()->with('chucVu');
 
         // Tìm kiếm theo tên, CCCD, số điện thoại hoặc email
         if ($request->has('search')) {
@@ -25,6 +25,13 @@ class NhanVienController extends Controller
                   ->orWhere('CCCD', 'like', '%' . $search . '%')
                   ->orWhere('SODIENTHOAI', 'like', '%' . $search . '%')
                   ->orWhere('EMAIL', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Lọc nhân viên chưa có tài khoản (hoặc tài khoản cũ đã bị xóa)
+        if ($request->has('without_account')) {
+            $query->whereDoesntHave('taiKhoan', function ($q) {
+                $q->where('IS_DELETED', 0);
             });
         }
 

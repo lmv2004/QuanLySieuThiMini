@@ -14,6 +14,7 @@ class TaiKhoanController extends Controller
     {
         return TaiKhoanResource::collection(
             TaiKhoan::active()
+                ->orderBy('updated_at', 'desc')
                 ->with(['nhanVien'])
                 ->get()
         );
@@ -27,6 +28,15 @@ class TaiKhoanController extends Controller
     public function store(StoreTaiKhoanRequest $request)
     {
         $data = $request->validated();
+
+        // Xóa vĩnh viễn các bản ghi cũ đã bị "xóa mềm" để tránh xung đột khóa UNIQUE trong DB
+        TaiKhoan::where('IS_DELETED', 1)
+            ->where(function($q) use ($data) {
+                $q->where('MANV', $data['MANV'])
+                  ->orWhere('TENTK', $data['TENTK'])
+                  ->orWhere('EMAIL', $data['EMAIL']);
+            })->delete();
+
         $data['MATKHAU'] = Hash::make($data['MATKHAU']);
         $taiKhoan = TaiKhoan::create($data);
         $taiKhoan->load(['nhanVien']);
@@ -58,6 +68,13 @@ class TaiKhoanController extends Controller
 
     public function destroy(TaiKhoan $account)
     {
+        // Không cho phép tự xóa chính mình
+        if (auth()->id() === $account->SOTK) {
+            return response()->json([
+                'message' => 'Bạn không thể tự xóa tài khoản của chính mình!'
+            ], 403);
+        }
+
         $account->IS_DELETED = true;
         $account->save();
         return response()->noContent();
@@ -72,16 +89,50 @@ class TaiKhoanController extends Controller
 
         $count = 0;
         foreach ($data as $item) {
-            if (!isset($item['TENTK']) || TaiKhoan::where('TENTK', $item['TENTK'])->exists()) {
+            if (empty($item['TENTK']) || empty($item['MANV'])) {
                 continue;
             }
-            if (!empty($item['MATKHAU'])) {
-                $item['MATKHAU'] = Hash::make($item['MATKHAU']);
+
+            // 1. Xử lý các bản ghi đã bị "xóa mềm" để tránh xung đột
+            TaiKhoan::where('IS_DELETED', 1)
+                ->where(function($q) use ($item) {
+                    $q->where('MANV', $item['MANV'])
+                      ->orWhere('TENTK', $item['TENTK'])
+                      ->orWhere((isset($item['EMAIL']) ? 'EMAIL' : 'SOTK'), $item['EMAIL'] ?? '---');
+                })->delete();
+
+            // 2. Tìm tài khoản hiện có (active) dựa trên MANV hoặc TENTK
+            $existing = TaiKhoan::where('IS_DELETED', 0)
+                ->where(function($q) use ($item) {
+                    $q->where('MANV', $item['MANV'])
+                      ->orWhere('TENTK', $item['TENTK']);
+                })->first();
+
+            if ($existing) {
+                // Cập nhật thông tin nếu đã tồn tại
+                $updateData = [];
+                if (!empty($item['EMAIL'])) $updateData['EMAIL'] = $item['EMAIL'];
+                if (!empty($item['MATKHAU'])) $updateData['MATKHAU'] = Hash::make($item['MATKHAU']);
+                
+                // Ép buộc cập nhật updated_at để hiện lên đầu danh sách
+                $updateData['updated_at'] = now();
+                $existing->update($updateData);
+            } else {
+                // Tạo mới nếu chưa có
+                if (!empty($item['MATKHAU'])) {
+                    $item['MATKHAU'] = Hash::make($item['MATKHAU']);
+                } else {
+                    $item['MATKHAU'] = Hash::make('123456');
+                }
+                $item['IS_DELETED'] = 0;
+                $item['KHOA_TK'] = 0;
+                $item['created_at'] = now();
+                $item['updated_at'] = now();
+                TaiKhoan::create($item);
             }
-            TaiKhoan::create($item);
             $count++;
         }
 
-        return response()->json(['message' => "Thành công: Đã import $count tài khoản", 'count' => $count]);
+        return response()->json(['message' => "Đã xử lý thành công $count tài khoản (đã được đẩy lên đầu danh sách)", 'count' => $count]);
     }
 }

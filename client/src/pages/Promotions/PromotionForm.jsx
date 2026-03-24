@@ -104,45 +104,48 @@ export const PromotionForm = ({ form, hc, setForm }) => {
             </div>
 
             {/* ── Section: Chọn sản phẩm ── */}
-            <div className="form-section-title" style={{ marginTop: 4 }}>
-                {Ico.package} Sản phẩm áp dụng
-                {selected.length > 0 && (
-                    <span className="form-section-badge">{selected.length} đã chọn</span>
-                )}
-            </div>
+            <div style={{ width: '100%' }}>
+                <div className="form-section-title" style={{ marginTop: 4 }}>
+                    {Ico.package} Sản phẩm áp dụng
+                    {selected.length > 0 && (
+                        <span className="form-section-badge">{selected.length} đã chọn</span>
+                    )}
+                </div>
 
-            <div className="product-picker">
-                {products.length === 0 && (
-                    <div className="form-empty-hint">Đang tải danh sách sản phẩm...</div>
+                {selected.length === 0 && products.length > 0 && (
+                    <div className="form-help" style={{ color: 'var(--red)', marginBottom: 10, fontSize: 13, display: 'block', width: '100%' }}>
+                        Chọn ít nhất 1 sản phẩm để áp dụng khuyến mãi.
+                    </div>
                 )}
-                {products.map(p => {
-                    const isSelected = selected.includes(p.MASP);
-                    return (
-                        <label
-                            key={p.MASP}
-                            className={`product-pick-item${isSelected ? ' selected' : ''}`}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={() => toggleProduct(p.MASP)}
-                                className="product-pick-chk"
-                            />
-                            <div className="product-pick-info">
-                                <span className="product-pick-name">{p.TENSP}</span>
-                                <span className="product-pick-price">
-                                    {parseInt(p.GIABAN).toLocaleString('vi-VN')} ₫
-                                </span>
-                            </div>
-                        </label>
-                    );
-                })}
+
+                <div className="product-picker" style={{ width: '100%', display: 'grid' }}>
+                    {products.length === 0 && (
+                        <div className="form-empty-hint">Đang tải danh sách sản phẩm...</div>
+                    )}
+                    {products.map(p => {
+                        const isSelected = selected.includes(p.MASP);
+                        return (
+                            <label
+                                key={p.MASP}
+                                className={`product-pick-item${isSelected ? ' selected' : ''}`}
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => toggleProduct(p.MASP)}
+                                    className="product-pick-chk"
+                                />
+                                <div className="product-pick-info">
+                                    <span className="product-pick-name">{p.TENSP}</span>
+                                    <span className="product-pick-price">
+                                        {parseInt(p.GIABAN).toLocaleString('vi-VN')} ₫
+                                    </span>
+                                </div>
+                            </label>
+                        );
+                    })}
+                </div>
             </div>
-            {selected.length === 0 && products.length > 0 && (
-                <p className="form-help" style={{ color: 'var(--red)', marginTop: -8 }}>
-                    Chọn ít nhất 1 sản phẩm để áp dụng khuyến mãi.
-                </p>
-            )}
 
             {/* ── Toggle: Kích hoạt ngay ── */}
             <label className="form-toggle-row" htmlFor="chk-promo-status">

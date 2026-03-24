@@ -20,7 +20,7 @@ class VoucherResource extends JsonResource
             'KMTOIDA'         => $this->KMTOIDA,
             'PTGIAM'          => $this->PTGIAM,
             'SOLUOTSD'        => $this->SOLUOTSD,
-            'DADUNG'          => $this->DADUNG,
+            'SOLUOTSD_DADUNG' => $this->SOLUOTSD_DADUNG,
             'TRANGTHAI'       => $this->TRANGTHAI,
             'IS_AVAILABLE'    => $this->isAvailable(),
             'IS_DELETED'      => $this->IS_DELETED,

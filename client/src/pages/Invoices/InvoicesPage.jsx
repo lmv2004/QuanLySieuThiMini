@@ -138,7 +138,7 @@ export const InvoicesPage = () => {
     );
 
     const subtotal = useMemo(
-        () => cart.reduce((s, c) => s + c.THANHTIEN, 0),
+        () => cart.reduce((total, item) => total + item.THANHTIEN, 0),
         [cart]
     );
 
@@ -186,9 +186,9 @@ export const InvoicesPage = () => {
         const activeLots = Array.isArray(product.tonKhos)
             ? product.tonKhos.filter(t => t.IS_ACTIVE && Number(t.SOLUONG_CON_LAI) > 0)
             : [];
-        const totalStock = activeLots.reduce((s, t) => s + Number(t.SOLUONG_CON_LAI || 0), 0);
+        const totalStock = activeLots.reduce((total, lot) => total + Number(lot.SOLUONG_CON_LAI || 0), 0);
         if (totalStock <= 0) {
-            addToast('warning', `San pham ${product.TENSP} da het hang`);
+            addToast('warning', `Sản phẩm ${product.TENSP} đã hết hàng`);
             return;
         }
         const lot = activeLots.sort((a, b) => String(a.HANSUDUNG || '').localeCompare(String(b.HANSUDUNG || '')))[0];

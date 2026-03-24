@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../services/api';
+import { EliteSelect } from '../../components/Manage/EliteSelect';
+import { FaCheckCircle, FaBan } from 'react-icons/fa';
 
 export const emptyProduct = {
     MASP: '',
@@ -141,15 +143,15 @@ export const ProductForm = ({ form, hc, setForm, readOnly = false, errors = {}, 
                 {!readOnly && (
                     <div className="form-group">
                         <label className="form-label">Trạng thái</label>
-                        <select
-                            className="form-select"
-                            name="IS_DELETED"
+                        <EliteSelect
+                            options={[
+                                { value: 'false', label: 'Đang bán', icon: <FaCheckCircle />, iconClass: 'opt-icon-active' },
+                                { value: 'true', label: 'Ngừng bán', icon: <FaBan />, iconClass: 'opt-icon-locked' },
+                            ]}
                             value={form.IS_DELETED ? 'true' : 'false'}
-                            onChange={e => setForm(p => ({ ...p, IS_DELETED: e.target.value === 'true' }))}
-                        >
-                            <option value="false">Đang bán</option>
-                            <option value="true">Ngừng bán</option>
-                        </select>
+                            onChange={(val) => setForm(p => ({ ...p, IS_DELETED: val === 'true' }))}
+                            disabled={readOnly}
+                        />
                     </div>
                 )}
             </div>

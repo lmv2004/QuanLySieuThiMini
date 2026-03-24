@@ -11,13 +11,12 @@ export const TableActions = ({
     isLocked = false
 }) => {
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minWidth: '170px' }}>
+        <div className="actions-cell" style={{ minWidth: '170px', justifyContent: 'center' }}>
             {openView && (
                 <button
                     onClick={() => openView(item)}
                     title="Xem"
-                    className="btn-action-ico"
-                    style={{ color: '#10b981', backgroundColor: '#ecfdf5', borderColor: '#a7f3d0' }}
+                    className="btn-action-ico view"
                 >
                     <FaEye size={15} />
                 </button>
@@ -27,8 +26,7 @@ export const TableActions = ({
                 <button
                     onClick={() => openEdit(item)}
                     title="Sửa"
-                    className="btn-action-ico"
-                    style={{ color: '#f59e0b', backgroundColor: '#fffbeb', borderColor: '#fde68a' }}
+                    className="btn-action-ico edit"
                 >
                     <FaEdit size={15} />
                 </button>
@@ -38,8 +36,7 @@ export const TableActions = ({
                 <button
                     onClick={() => onLock(item)}
                     title={isLocked ? "Mở khóa" : "Khóa"}
-                    className="btn-action-ico"
-                    style={{ color: '#0ea5e9', backgroundColor: '#f0f9ff', borderColor: '#bae6fd' }}
+                    className="btn-action-ico lock"
                 >
                     {isLocked ? <FaUnlock size={15} /> : <FaLock size={15} />}
                 </button>
@@ -49,8 +46,7 @@ export const TableActions = ({
                 <button
                     onClick={() => del(item[primaryKey])}
                     title="Xóa"
-                    className="btn-action-ico"
-                    style={{ color: '#f43f5e', backgroundColor: '#fff1f2', borderColor: '#fecdd3' }}
+                    className="btn-action-ico delete"
                 >
                     <FaTrash size={15} />
                 </button>

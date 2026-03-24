@@ -47,13 +47,12 @@ class Voucher extends Model
     }
 
     // Helper: Kiểm tra voucher có còn dùng được không
-    public function isAvailable()
+    public function isAvailable(): bool
     {
-        return $this->IS_DELETED == 0
-            && $this->TRANGTHAI == 1
-            && $this->NGAYBD <= now()
-            && $this->NGAYKT >= now()
-            && $this->DADUNG < $this->SOLUOTSD;
+        $now = now();
+        return $this->TRANGTHAI === 1 &&
+               (!$this->NGAYKT || $this->NGAYKT >= $now) &&
+               ($this->SOLUOTSD > $this->DADUNG);
     }
 
     // Helper: Tính tiền giảm theo voucher

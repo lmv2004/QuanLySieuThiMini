@@ -19,8 +19,9 @@ class StoreVoucherRequest extends FormRequest
             'KMTOITHIEU'     => 'required|numeric|min:0',
             'KMTOIDA'        => 'required|numeric|min:0|gte:KMTOITHIEU',
             'PTGIAM'         => 'required|integer|min:0|max:100',
-            'SOLUOTSD'       => 'required|integer|min:1',
-            'TRANGTHAI'      => 'sometimes|boolean',
+            'SOLUOTSD'        => 'required|integer|min:1',
+            'SOLUOTSD_DADUNG' => 'sometimes|integer|min:0',
+            'TRANGTHAI'      => 'sometimes|integer|in:0,1,2',
         ];
     }
 

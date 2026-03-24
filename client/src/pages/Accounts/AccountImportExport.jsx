@@ -7,75 +7,92 @@ import { Modal } from '../../components/Manage/Modal';
 export const AccountImportExport = ({ onRefresh, addToast, data }) => {
     const fileRef = useRef(null);
     const [isOpen, setIsOpen] = useState(false);
-
-    // Form state
-    const [mode, setMode] = useState('import');
+    const [mode, setMode] = useState('import'); // 'import' | 'export'
     const [exportType, setExportType] = useState('xlsx');
     const [exportName, setExportName] = useState('');
     const [importFile, setImportFile] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const resetForm = () => {
         setMode('import');
         setExportType('xlsx');
         setExportName('');
         setImportFile(null);
+        setIsLoading(false);
     };
 
-    const handleOpen = () => {
-        resetForm();
-        setIsOpen(true);
-    };
-
-    const handleClose = () => {
-        setIsOpen(false);
-        setTimeout(resetForm, 300);
-    };
-
-    const handleFileSelect = (e) => {
-        const file = e.target.files[0];
-        if (file) setImportFile(file);
-    };
+    const handleOpen = () => { resetForm(); setIsOpen(true); };
+    const handleClose = () => { setIsOpen(false); setTimeout(resetForm, 300); };
+    const handleFileSelect = (e) => { const file = e.target.files[0]; if (file) setImportFile(file); };
 
     const downloadTemplate = () => {
         const templateData = [
             {
-                'Tên đăng nhập': 'nguyenvana',
-                'Email': 'nva@example.com',
-                'Mật khẩu': '123456',
-                'Mã nhân viên (Sở hữu)': '1',
+                'STT': 1,
+                'ID Hệ thống': '',
+                'Tên đăng nhập (*)': 'nv_banhang_01',
+                'Email liên kết (*)': 'nv01@sieuthi.vn',
+                'Mã nhân viên (*)': '1',
+                'Mật khẩu (*)': '123456',
+                'Họ tên nhân viên': 'Nguyễn Văn A',
+                'Chức vụ': 'Nhân viên',
+                'Số điện thoại': '0987654321',
+                'Trạng thái': '🟢 Đang hoạt động',
+                'Ngày tạo': ''
             },
             {
-                'Tên đăng nhập': 'tranthib',
-                'Email': 'ttb@example.com',
-                'Mật khẩu': 'password123',
-                'Mã nhân viên (Sở hữu)': '2',
+                'STT': 2,
+                'ID Hệ thống': '',
+                'Tên đăng nhập (*)': 'nv_kho_02',
+                'Email liên kết (*)': 'kho02@sieuthi.vn',
+                'Mã nhân viên (*)': '2',
+                'Mật khẩu (*)': 'password@123',
+                'Họ tên nhân viên': 'Trần Thị B',
+                'Chức vụ': 'Nhân viên',
+                'Số điện thoại': '0123456789',
+                'Trạng thái': '🟢 Đang hoạt động',
+                'Ngày tạo': ''
             }
         ];
 
         const ws = XLSX.utils.json_to_sheet(templateData);
-        ws['!cols'] = [{ wch: 20 }, { wch: 30 }, { wch: 15 }, { wch: 25 }];
+        // Tối ưu độ rộng cột giống file Xuất
+        ws['!cols'] = [
+            { wch: 6 }, { wch: 12 }, { wch: 20 }, { wch: 30 }, 
+            { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 18 }, 
+            { wch: 15 }, { wch: 20 }, { wch: 15 }
+        ];
+        
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Template');
-        XLSX.writeFile(wb, 'Accounts_Template.xlsx');
+        XLSX.utils.book_append_sheet(wb, ws, 'Mau_Nhap_Tai_Khoan');
+        XLSX.writeFile(wb, 'Mau_Nhap_Tai_Khoan.xlsx');
+        addToast('success', 'Đã tải file mẫu chuẩn thành công (Khớp hoàn toàn với định dạng Xuất)');
     };
 
     const submitExport = () => {
         if (!data || data.length === 0) {
-            addToast('error', 'Không có dữ liệu để xuất');
+            addToast('error', 'Không có danh sách tài khoản để xuất');
             return;
         }
 
-        const fileName = exportName.trim() || `accounts_${new Date().getTime()}`;
+        const fileName = exportName.trim() || `Danh_Sach_Tai_Khoan_${new Date().getTime()}`;
         const finalFileName = `${fileName}.${exportType}`;
 
-        const exportData = data.map(v => ({
-            'ID / Số TK': v.SOTK,
-            'Tên đăng nhập': v.TENTK,
-            'Email': v.EMAIL || '',
-            'Mã nhân viên (Sở hữu)': v.MANV || '',
-            'Tên nhân viên': v.NHANVIEN?.TENNV || '',
-            'Trạng thái': v.KHOA_TK ? 'Bị khóa' : 'Đang hoạt động'
-        }));
+        const exportData = data.map((v, i) => {
+            const emp = v.NHANVIEN || v.nhanVien || {};
+            return {
+                'STT': i + 1,
+                'ID Hệ thống': v.SOTK,
+                'Tên đăng nhập': v.TENTK,
+                'Email liên kết': v.EMAIL || '—',
+                'Mã nhân viên': v.MANV || '—',
+                'Họ tên nhân viên': emp.TENNV || '—',
+                'Chức vụ': emp.chucVu?.TENCHUCVU || emp.TENCHUCVU || 'Nhân viên',
+                'Số điện thoại': emp.SODIENTHOAI || '—',
+                'Trạng thái': v.KHOA_TK ? '🔴 Bị khóa' : '🟢 Đang hoạt động',
+                'Ngày tạo': v.CREATED_AT ? new Date(v.CREATED_AT).toLocaleDateString('vi-VN') : '—'
+            };
+        });
 
         if (exportType === 'json') {
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -84,18 +101,21 @@ export const AccountImportExport = ({ onRefresh, addToast, data }) => {
             a.href = url;
             a.download = finalFileName;
             a.click();
-            addToast('success', `Đã xuất file ${exportType.toUpperCase()}`);
+            addToast('success', 'Đã xuất dữ liệu JSON');
             handleClose();
             return;
         }
 
         const ws = XLSX.utils.json_to_sheet(exportData);
+        // Tối ưu độ rộng cột cho file xuất
         ws['!cols'] = [
-            { wch: 12 }, { wch: 20 }, { wch: 30 }, { wch: 25 }, { wch: 25 }, { wch: 18 }
+            { wch: 6 }, { wch: 12 }, { wch: 20 }, { wch: 30 }, 
+            { wch: 15 }, { wch: 25 }, { wch: 18 }, { wch: 15 }, 
+            { wch: 20 }, { wch: 15 }
         ];
 
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Accounts');
+        XLSX.utils.book_append_sheet(wb, ws, 'Danh sách Tài khoản');
 
         if (exportType === 'csv') {
             XLSX.writeFile(wb, finalFileName, { bookType: 'csv' });
@@ -103,15 +123,16 @@ export const AccountImportExport = ({ onRefresh, addToast, data }) => {
             XLSX.writeFile(wb, finalFileName);
         }
 
-        addToast('success', `Đã xuất file ${exportType.toUpperCase()}`);
+        addToast('success', `Đã xuất ${data.length} tài khoản ra file ${exportType.toUpperCase()}`);
         handleClose();
     };
 
     const submitImport = async () => {
         if (!importFile) {
-            addToast('error', 'Vui lòng chọn file dữ liệu!');
+            addToast('error', 'Vui lòng chọn file Excel hoặc JSON để nhập!');
             return;
         }
+        setIsLoading(true);
 
         const reader = new FileReader();
         reader.onload = async (evt) => {
@@ -128,22 +149,26 @@ export const AccountImportExport = ({ onRefresh, addToast, data }) => {
                     jsonData = XLSX.utils.sheet_to_json(ws);
                 }
 
-                // Map dữ liệu Excel về đúng cấu trúc DB
+                if (jsonData.length === 0) throw new Error('File không có dữ liệu hoặc sai định dạng');
+
                 const mappedData = jsonData.map(item => ({
-                    TENTK: item['Tên đăng nhập'] || item.TENTK,
-                    EMAIL: item['Email'] || item.EMAIL || '',
-                    MATKHAU: item['Mật khẩu'] || item.MATKHAU || '123456', // Mật khẩu mặc định nếu trống
-                    MANV: item['Mã nhân viên (Sở hữu)'] || item.MANV || null,
+                    // Mapping linh hoạt hỗ trợ cả file Export và file Template mới
+                    TENTK: item['Tên đăng nhập (*)'] || item['Tên đăng nhập'] || item.TENTK,
+                    EMAIL: item['Email liên kết (*)'] || item['Email liên kết'] || item.EMAIL || '',
+                    MATKHAU: item['Mật khẩu (*)'] || item['Mật khẩu'] || item.MATKHAU || '123456',
+                    MANV: item['Mã nhân viên (*)'] || item['Mã nhân viên'] || item.MANV || null,
                     KHOA_TK: 0
                 }));
 
                 await accountService.importBulk(mappedData);
-                addToast('success', `Đã thêm thành công ${mappedData.length} tài khoản`);
+                addToast('success', `Đã nhập thành công ${mappedData.length} tài khoản mới`);
                 if (onRefresh) onRefresh();
                 handleClose();
             } catch (err) {
                 console.error(err);
-                addToast('error', 'Lỗi khi xử lý file import. Vui lòng kiểm tra lại định dạng.');
+                addToast('error', err.response?.data?.message || err.message || 'Lỗi khi xử lý file. Kiểm tra lại dữ liệu.');
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -154,10 +179,7 @@ export const AccountImportExport = ({ onRefresh, addToast, data }) => {
         }
     };
 
-    const handleSubmit = () => {
-        if (mode === 'import') submitImport();
-        else submitExport();
-    };
+    const handleSubmit = () => { mode === 'import' ? submitImport() : submitExport(); };
 
     return (
         <div className="voucher-import-export">
@@ -167,51 +189,43 @@ export const AccountImportExport = ({ onRefresh, addToast, data }) => {
 
             {isOpen && (
                 <Modal
-                    title="Công cụ Nhập / Xuất Tài Khoản"
+                    title="Công cụ Quản lý Dữ liệu"
                     onClose={handleClose}
                     actions={
                         <>
-                            <button className="btn-secondary" onClick={handleClose}>Hủy</button>
-                            <button className="btn-primary" onClick={handleSubmit}>
-                                {mode === 'import' ? 'Xác nhận Nhập' : 'Thực hiện Xuất'}
+                            <button className="btn-secondary" onClick={handleClose} disabled={isLoading}>Đóng</button>
+                            <button className="btn-primary" onClick={handleSubmit} disabled={isLoading}>
+                                {isLoading ? <span className="spinner"></span> : (mode === 'import' ? 'Xác nhận Nhập' : 'Thực hiện Xuất')}
                             </button>
                         </>
                     }
                 >
                     <div className="ie-form">
-                        <div className="form-group" style={{ marginBottom: '24px' }}>
-                            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                {mode === 'import' ? Ico.upload : Ico.download}
-                                Phương thức thao tác
-                            </label>
-                            <div className="ie-select-wrapper">
-                                <select className="form-control ie-select" value={mode} onChange={(e) => setMode(e.target.value)}>
-                                    <option value="import">Nhập dữ liệu (Import từ file lên)</option>
-                                    <option value="export">Xuất dữ liệu (Export danh sách xuống máy)</option>
-                                </select>
-                                <span className="ie-select-caret">{Ico.caret}</span>
-                            </div>
+                        {/* Tab Switcher */}
+                        <div className="ie-tabs">
+                            <button className={`ie-tab-btn ${mode === 'import' ? 'active' : ''}`} onClick={() => setMode('import')}>
+                                {Ico.upload} <span>Nhập dữ liệu</span>
+                            </button>
+                            <button className={`ie-tab-btn ${mode === 'export' ? 'active' : ''}`} onClick={() => setMode('export')}>
+                                {Ico.download} <span>Xuất dữ liệu</span>
+                            </button>
                         </div>
 
                         <div className="ie-form-body">
                             {mode === 'import' ? (
-                                <div className="ie-form-section">
-                                    <label className="form-label">Tải xuống File Mẫu (Nên dùng)</label>
-                                    <p className="form-help-text" style={{ marginBottom: '12px' }}>
-                                        Để tránh lỗi sai cấu trúc các cột (Tên đăng nhập, Email, ...), vui lòng tải file mẫu dưới đây, điền dữ liệu của bạn rồi mới Upload lên hệ thống.
+                                <div className="ie-section">
+                                    <div className="ie-section-title">{Ico.info} Bước 1: Chuẩn bị file mẫu</div>
+                                    <p className="form-help-text" style={{ marginBottom: '16px' }}>
+                                        Để đảm bảo dữ liệu chính xác, hãy sử dụng file mẫu chuẩn của hệ thống.
                                     </p>
-                                    <button 
-                                        className="btn-secondary" 
-                                        onClick={downloadTemplate}
-                                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px', background: '#f8fafc', color: '#0f172a', borderColor: '#cbd5e1' }}
-                                    >
-                                        <span style={{ color: 'var(--green)' }}>{Ico.fileExcel}</span> Tải File Mẫu (Template)
+                                    <button className="btn-secondary" onClick={downloadTemplate} style={{ gap: '8px', marginBottom: '24px', background: '#f8fafc', color: '#0f172a', borderColor: '#cbd5e1' }}>
+                                        <span style={{ color: 'var(--green)' }}>{Ico.fileExcel}</span> Tải File Mẫu (.xlsx)
                                     </button>
 
-                                    <label className="form-label">Chọn tệp tải lên</label>
+                                    <div className="ie-section-title">{Ico.upload} Bước 2: Tải file lên</div>
                                     <div className="ie-upload-area" onClick={() => fileRef.current?.click()}>
                                         <input type="file" ref={fileRef} style={{ display: 'none' }} onChange={handleFileSelect} accept=".xlsx, .xls, .csv, .json" />
-                                        <div className="ie-upload-icon">{Ico.upload}</div>
+                                        <div className="ie-upload-icon">{importFile ? Ico.fileCheck : Ico.upload}</div>
                                         {importFile ? (
                                             <div className="ie-file-selected">
                                                 <strong>{importFile.name}</strong>
@@ -219,41 +233,39 @@ export const AccountImportExport = ({ onRefresh, addToast, data }) => {
                                             </div>
                                         ) : (
                                             <div className="ie-upload-text">
-                                                <strong>Nhấn để chọn hoặc kéo thả file vào đây</strong>
-                                                <span>Hỗ trợ định dạng: .xlsx, .csv, .json</span>
+                                                <strong>Chọn hoặc kéo thả file vào đây</strong>
+                                                <span>Hỗ trợ: Excel, CSV, JSON</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             ) : (
-                                <div className="ie-form-section">
-                                    <div className="form-group">
-                                        <label className="form-label" style={{ fontSize: '15px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Tên tệp xuất</label>
-                                        <input
-                                            type="text"
-                                            className="ie-input"
-                                            placeholder={`accounts_${new Date().getTime()}`}
-                                            value={exportName}
-                                            onChange={(e) => setExportName(e.target.value)}
-                                        />
-                                        <p className="form-help-text" style={{ marginTop: '8px' }}>Để trống hệ thống sẽ tự đặt tên ngẫu nhiên theo thời gian hiện tại.</p>
+                                <div className="ie-section">
+                                    <div className="form-group" style={{ marginBottom: '20px' }}>
+                                        <label className="form-label" style={{ fontWeight: 700 }}>Tên file khi lưu</label>
+                                        <input type="text" className="ie-input" placeholder={`Tên file ngẫu nhiên...`} value={exportName} onChange={(e) => setExportName(e.target.value)} />
+                                        <p className="form-help-text" style={{ marginTop: '6px' }}>Mặc định: Danh_Sach_Tai_Khoan_[Timestamp]</p>
                                     </div>
 
-                                    <div className="form-group" style={{ marginTop: '16px' }}>
-                                        <label className="form-label">Định dạng file</label>
-                                        <div className="ie-format-grid">
-                                            <div className={`ie-format-card excel-card ${exportType === 'xlsx' ? 'selected' : ''}`} onClick={() => setExportType('xlsx')}>
-                                                {Ico.fileExcel}
-                                                <span>Excel (.xlsx)</span>
-                                            </div>
-                                            <div className={`ie-format-card csv-card ${exportType === 'csv' ? 'selected' : ''}`} onClick={() => setExportType('csv')}>
-                                                {Ico.fileCsv}
-                                                <span>CSV (.csv)</span>
-                                            </div>
-                                            <div className={`ie-format-card json-card ${exportType === 'json' ? 'selected' : ''}`} onClick={() => setExportType('json')}>
-                                                {Ico.fileJson}
-                                                <span>JSON (.json)</span>
-                                            </div>
+                                    <label className="form-label" style={{ fontWeight: 700 }}>Định dạng file xuất</label>
+                                    <div className="ie-format-grid">
+                                        <div className={`ie-format-card excel-card ${exportType === 'xlsx' ? 'selected' : ''}`} onClick={() => setExportType('xlsx')}>
+                                            {Ico.fileExcel} <span>MS Excel</span>
+                                        </div>
+                                        <div className={`ie-format-card csv-card ${exportType === 'csv' ? 'selected' : ''}`} onClick={() => setExportType('csv')}>
+                                            {Ico.fileCsv} <span>Dạng CSV</span>
+                                        </div>
+                                        <div className={`ie-format-card json-card ${exportType === 'json' ? 'selected' : ''}`} onClick={() => setExportType('json')}>
+                                            {Ico.fileJson} <span>Dạng JSON</span>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginTop: '24px', padding: '16px', background: 'var(--primary-bg)', borderRadius: '12px', border: '1px solid var(--primary-bd)' }}>
+                                        <div style={{ display: 'flex', gap: '10px', color: 'var(--primary)' }}>
+                                          <span style={{ marginTop: '2px' }}>{Ico.info}</span>
+                                          <span style={{ fontSize: '13.5px', lineHeight: '1.4' }}>
+                                            Dữ liệu xuất sẽ bao gồm đầy đủ thông tin: Mã NV, Tên NV, Chức vụ, Số điện thoại và Trạng thái tài khoản hiện tại.
+                                          </span>
                                         </div>
                                     </div>
                                 </div>

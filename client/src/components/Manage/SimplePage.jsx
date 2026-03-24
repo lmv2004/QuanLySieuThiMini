@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Ico } from './Icons';
 import { EmptyState } from './EmptyState';
 import { Modal } from './Modal';
@@ -28,7 +28,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
 
     const removeToast = (id) => setToasts(p => p.filter(x => x.id !== id));
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         if (!apiEndpoint) return;
         setLoading(true);
         try {
@@ -66,11 +66,11 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
         } finally {
             setLoading(false);
         }
-    };
+    }, [apiEndpoint]);
 
     useEffect(() => {
-        if (apiEndpoint) fetchData();
-    }, [apiEndpoint]);
+        fetchData();
+    }, [fetchData]);
 
     const filtered = useMemo(() => {
         const term = removeAccents(search.toLowerCase());
@@ -145,7 +145,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
 
             if (modal === 'add') {
                 const res = await api.post(apiEndpoint, payload);
-                setList(p => [...p, res.data.data || res.data]);
+                setList(p => [res.data.data || res.data, ...p]);
             } else {
                 const res = await api.put(`${apiEndpoint}/${editId}`, payload);
                 const updated = res.data.data || res.data;
@@ -202,6 +202,20 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
                 </div>
             </div>
 
+            {loading && (
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <div className="spinner" style={{ margin: '0 auto 12px' }}></div>
+                    <p>Đang tải dữ liệu...</p>
+                </div>
+            )}
+
+            {error && !loading && (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#dc2626', background: '#fef2f2', borderRadius: '12px', margin: '20px 0' }}>
+                    <p>{error}</p>
+                    <button className="btn-secondary" onClick={fetchData} style={{ marginTop: '12px' }}>Thử lại</button>
+                </div>
+            )}
+
             {currentStats && (
                 <div className="kpi-grid">
                     {currentStats.map((s, i) => (
@@ -254,7 +268,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
                     </div>
                 )}
 
-                <div className="page-content">
+                <div className="data-card-content">
                     {viewMode === 'table' ? (
                         <table className="data-table">
                             <thead>
@@ -285,7 +299,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
                     ) : (
                         <div className="data-grid">
                             {filtered.length === 0 && <EmptyState icon={icon} title={emptyTitle} desc={emptyDesc} />}
-                            {paginated.map((item, i) => renderGridItem ? renderGridItem(item, openEdit, del, i, list, setList, addToast, openView) : <div key={item[primaryKey] || i} className="grid-item-placeholder">Grid view content here</div>)}
+                            {paginated.map((item, i) => renderGridItem ? renderGridItem(item, openEdit, del, i, list, setList, addToast, openView) : <div key={item[primaryKey] || i} className="grid-item-placeholder">Nội dung hiển thị dạng lưới ở đây</div>)}
                         </div>
                     )}
                 </div>
@@ -313,7 +327,7 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
                 <Modal title={modal === 'add' ? `Thêm ${title.toLowerCase()}` : modal === 'view' ? 'Chi tiết' : `Chỉnh sửa`} onClose={close} actions={<><button className="btn-secondary" onClick={close}>{modal === 'view' ? 'Đóng' : 'Hủy'}</button>{modal !== 'view' && <button className="btn-primary" onClick={save}>{modal === 'add' ? 'Thêm' : 'Lưu'}</button>}</>}>
                     {formErrors._global && (
                         <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#dc2626', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
                             {formErrors._global}
                         </div>
                     )}

@@ -25,8 +25,8 @@ export const EmployeesPage = () => <SimplePage
         <EmployeeImportExport onRefresh={fetchData} addToast={addToast} data={list} />
     )}
     renderRow={(nv, i) => [
-        <td key="1"><div className="cell-entity"><div className="entity-avatar" style={{ background: avatarColor(i) }}>{initials(nv.TENNV)}</div><div><div className="entity-name">{nv.TENNV}</div><div className="entity-sub">{nv.EMAIL}</div></div></div></td>,
-        <td key="2" style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>{nv.SODIENTHOAI}</td>,
+        <td key="1"><div className="cell-entity"><div className="entity-avatar" style={{ background: avatarColor(i) }}>{initials(nv.TENNV)}</div><div className="entity-name">{nv.TENNV}</div></div></td>,
+        <td key="2" style={{ fontFamily: 'var(--mono)', fontSize: 13 }}>{nv.SODIENTHOAI}</td>,
         <td key="3"><span className={roleBadge(nv.chucVu?.TENCHUCVU || '')}>{nv.chucVu?.TENCHUCVU || '—'}</span></td>,
         <td key="4"><span className={nv.IS_DELETED ? 'badge badge-inactive' : 'badge badge-active'}>{nv.IS_DELETED ? 'Ngừng' : 'Hoạt động'}</span></td>,
     ]}
