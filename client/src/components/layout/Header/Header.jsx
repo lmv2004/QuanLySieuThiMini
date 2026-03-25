@@ -1,13 +1,14 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth.js';
-import { APP_NAME } from '../../../config/constants.js';
 import { ROUTES } from '../../../config/routes.js';
-import './Header.css';
+import { Topbar } from '../../Manage/Topbar.jsx';
 
-const Header = () => {
-  const { user, logout } = useAuth();
+const Header = ({ pageTitle = '', homeTo = ROUTES.DASHBOARD, user: userProp = null }) => {
+  const { user: authUser, logout } = useAuth();
   const navigate = useNavigate();
+
+  const currentUser = userProp || authUser;
 
   const handleLogout = async () => {
     await logout();
@@ -15,26 +16,12 @@ const Header = () => {
   };
 
   return (
-    <header className="header">
-      <div className="header-container">
-        <div className="header-left">
-          <Link to={ROUTES.DASHBOARD} className="header-logo">
-            <h1>{APP_NAME}</h1>
-          </Link>
-        </div>
-
-        <div className="header-right">
-          {user && (
-            <div className="user-menu">
-              <span className="user-name">{user.TENTK || user.name}</span>
-              <button onClick={handleLogout} className="logout-btn">
-                Đăng xuất
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
+    <Topbar
+      pageTitle={pageTitle}
+      user={currentUser}
+      onLogout={handleLogout}
+      homeTo={homeTo}
+    />
   );
 };
 

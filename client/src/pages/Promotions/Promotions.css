@@ -1,0 +1,146 @@
+/* Cấu hình CSS dành riêng cho module Khuyến mãi (Promotions) */
+
+.promo-card {
+    transition: all 0.2s ease;
+    border-top: 4px solid var(--border);
+}
+
+.promo-card:hover {
+    border-top-color: var(--accent);
+}
+
+.promo-inactive {
+    opacity: 0.8;
+    filter: grayscale(40%);
+}
+
+.promo-type-label {
+    margin-top: 4px;
+    font-size: 13.5px;
+    color: var(--indigo);
+}
+
+/* --- Form Layout --- */
+.form-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+}
+
+.form-section-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--indigo);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-top: 10px;
+    width: 100% !important;
+}
+
+/* --- Product Picker --- */
+.product-picker {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* Luôn là 2 cột */
+    gap: 12px !important;
+    max-height: 280px !important;
+    overflow-y: auto !important;
+    padding: 12px !important;
+    background: var(--bg-soft) !important;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-top: 8px !important;
+}
+
+.product-pick-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px !important;
+    background: #fff !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    user-select: none !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+
+.product-pick-item:hover {
+    border-color: var(--indigo) !important;
+    background: var(--bg-soft) !important;
+}
+
+.product-pick-item.selected {
+    background: #f0f4ff !important;
+    border-color: var(--indigo) !important;
+    border-width: 2px !important;
+}
+
+.product-pick-chk {
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer !important;
+    accent-color: var(--indigo) !important;
+}
+
+.product-pick-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1px !important;
+    overflow: hidden !important;
+    flex: 1 !important;
+}
+
+.product-pick-name {
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: var(--text-main) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.product-pick-price {
+    font-size: 12px !important;
+    color: var(--indigo) !important;
+    font-weight: 500 !important;
+}
+
+.form-toggle-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 16px !important;
+    background: var(--bg-soft) !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-top: 15px !important;
+}
+
+/* Sửa lỗi Layout Sidebar bị đẩy xuống */
+.simple-page {
+    /* Đảm bảo khung nội dung không bung width vô hạn */
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-x: hidden;
+}
+
+.data-table {
+    table-layout: fixed;
+    width: 100%;
+    word-break: break-word;
+}
+
+.badge-info {
+    background: #e0f2fe;
+    color: #0369a1;
+}

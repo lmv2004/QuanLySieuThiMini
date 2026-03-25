@@ -12,7 +12,7 @@ class GiamGiaSPController extends Controller
     public function index()
     {
         return GiamGiaSPResource::collection(
-            GiamGiaSP::active()
+            GiamGiaSP::where('IS_DELETED', 0)
                 ->with(['sanPham'])
                 ->get()
         );
@@ -54,5 +54,21 @@ class GiamGiaSPController extends Controller
         $discount->IS_DELETED = true;
         $discount->save();
         return response()->noContent();
+    }
+
+    public function bulkStore(\Illuminate\Http\Request $request)
+    {
+        $data = $request->input('data');
+        if (!is_array($data)) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ'], 400);
+        }
+
+        $count = 0;
+        foreach ($data as $item) {
+            GiamGiaSP::create($item);
+            $count++;
+        }
+
+        return response()->json(['message' => "Thành công: Đã import $count Khuyến mãi", 'count' => $count]);
     }
 }

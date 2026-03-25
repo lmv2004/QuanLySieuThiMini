@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\TonKhoResource;
 
 class SanPhamResource extends JsonResource
 {
@@ -24,8 +25,10 @@ class SanPhamResource extends JsonResource
             'GIABAN' => $this->GIABAN,
             'LOAISP' => new LoaiSanPhamResource($this->whenLoaded('loaiSanPham')),
             'NHACC' => new NhaCungCapResource($this->whenLoaded('nhaCungCap')),
+            'tonKhos' => TonKhoResource::collection($this->whenLoaded('tonKhos')),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+            'IS_DELETED' => $this->IS_DELETED
         ];
     }
 }

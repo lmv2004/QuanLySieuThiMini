@@ -621,23 +621,11 @@ const MENU_ITEMS = [
     { id: 'payment', label: 'Thanh toán' },
 ];
 
-// TODO: thay bằng dữ liệu từ auth context
-// NhanVien: MANV, TENNV, chucVu.TENCHUCVU
-const CURRENT_CASHIER = {
-    MANV: null,
-    TENNV: '...',
-    chucVu: { TENCHUCVU: 'Thu ngân' },
-};
+
 
 const Cashier = () => {
     const [page, setPage] = useState('create');
-    const user = CURRENT_CASHIER;
-
-    const userInitials = (user.TENNV || '??').trim().split(' ').pop().slice(0, 2).toUpperCase();
-
-    const dateStr = new Date().toLocaleDateString('vi-VN', {
-        weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric',
-    });
+    const currentPageTitle = MENU_ITEMS.find(item => item.id === page)?.label || 'Cashier';
 
     const renderPage = () => {
         switch (page) {
@@ -650,7 +638,7 @@ const Cashier = () => {
 
     return (
         <div className="cashier-app">
-            <Header />
+            <Header pageTitle={currentPageTitle} homeTo="/cashier" />
             <div className="cashier-layout">
                 {/* ── Sidebar ─────────────────────────────────────────────── */}
                 <aside className="cashier-sidebar">

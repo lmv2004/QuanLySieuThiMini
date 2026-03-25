@@ -21,6 +21,7 @@ class VoucherResource extends JsonResource
             'PTGIAM'          => $this->PTGIAM,
             'SOLUOTSD'        => $this->SOLUOTSD,
             'SOLUOTSD_DADUNG' => $this->SOLUOTSD_DADUNG,
+            'TRANGTHAI'       => $this->TRANGTHAI,
             'IS_AVAILABLE'    => $this->isAvailable(),
             'IS_DELETED'      => $this->IS_DELETED,
             'created_at'      => $this->created_at?->format('Y-m-d H:i:s'),

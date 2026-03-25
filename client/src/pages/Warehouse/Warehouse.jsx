@@ -3,14 +3,29 @@ import Header from '../../components/layout/Header/Header.jsx';
 import './Warehouse.css';
 
 // ════════════════════════════════════════════════════════════
-// HELPERS
+// NEW HELPERS FOR PURITY
 // ════════════════════════════════════════════════════════════
+const getNow = () => Date.now();
+const generateId = () => Date.now();
+const hsdStatus = (hsdStr, now) => {
+    if (!hsdStr) return 'unknown';
+    const diff = Math.ceil((new Date(hsdStr) - now) / 86400000);
+    if (diff < 0) return 'expired';
+    if (diff <= HSD_WARN_DAYS) return 'soon';
+    return 'ok';
+};
+const hsdText = (hsdStr, now) => {
+    if (!hsdStr) return '—';
+    const diff = Math.ceil((new Date(hsdStr) - now) / 86400000);
+    return diff > 0 ? `Còn ${diff} ngày` : 'Đã hết hạn';
+};
 const fmtVND = (v) => Number(v || 0).toLocaleString('vi-VN') + ' ₫';
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '—';
 const STOCK_MAX = 300;
 const LOW_THRESHOLD = 10;   // dưới 10 = sắp hết
 // HSD sắp hết trong vòng 30 ngày
 const HSD_WARN_DAYS = 30;
+
 
 const totalStock = (tonKhos = []) =>
     tonKhos.filter(t => t.IS_ACTIVE !== false)
@@ -22,22 +37,7 @@ const earliestHSD = (tonKhos = []) => {
     return active.sort((a, b) => new Date(a.HANSUDUNG) - new Date(b.HANSUDUNG))[0].HANSUDUNG;
 };
 
-const hsdStatus = (hsdStr) => {
-    if (!hsdStr) return 'unknown';
-    const diff = Math.ceil((new Date(hsdStr) - Date.now()) / 86400000);
-    if (diff < 0) return 'expired';
-    if (diff <= HSD_WARN_DAYS) return 'soon';
-    return 'ok';
-};
 
-const hsdText = (hsdStr) => {
-    if (!hsdStr) return '—';
-    const diff = Math.ceil((new Date(hsdStr) - Date.now()) / 86400000);
-    const base = fmtDate(hsdStr);
-    if (diff < 0) return `${base} (${diff}d)`;
-    if (diff <= HSD_WARN_DAYS) return `${base} (+${diff}d)`;
-    return base;
-};
 
 // ════════════════════════════════════════════════════════════
 // PAGE 1: TRẠNG THÁI TỒN KHO
@@ -51,6 +51,8 @@ const TonKhoPage = () => {
     const [products] = useState([]);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');  // all | ok | low | out
+    const now = useMemo(() => getNow(), []);
+
 
     const filtered = useMemo(() => {
         const q = search.toLowerCase();
@@ -71,7 +73,7 @@ const TonKhoPage = () => {
     const hetHang = products.filter(p => totalStock(p.tonKhos) === 0 && !p.IS_DELETED).length;
     const sapHetHSD = products.filter(p => {
         const hsd = earliestHSD(p.tonKhos);
-        return hsd && hsdStatus(hsd) !== 'ok';
+        return hsd && hsdStatus(hsd, now) !== 'ok';
     }).length;
 
     const FILTERS = [
@@ -170,7 +172,7 @@ const TonKhoPage = () => {
                             const pct = Math.min(100, Math.round((stock / STOCK_MAX) * 100));
                             const st = stockStatus(stock);
                             const hsd = earliestHSD(sp.tonKhos);
-                            const hSt = hsdStatus(hsd);
+                            const hSt = hsdStatus(hsd, now);
                             return (
                                 <tr key={sp.MASP}>
                                     <td>
@@ -196,7 +198,7 @@ const TonKhoPage = () => {
                                             hSt === 'expired' ? 'hsd-expired' :
                                                 hSt === 'soon' ? 'hsd-soon' : 'hsd-ok'
                                         }>
-                                            {hsdText(hsd)}
+                                            {hsdText(hsd, now)}
                                         </span>
                                     </td>
                                     <td><span className={`badge ${st.cls}`}>{st.label}</span></td>
@@ -263,7 +265,7 @@ const PhieuNhapPage = () => {
         //     MASP: l.MASP, SOLUONG: l.SOLUONG,
         //     DONGIANHAP: l.DONGIANHAP, HANSUDUNG: l.HANSUDUNG })) }
         const newPhieu = {
-            MAPHIEU: Date.now(),
+            MAPHIEU: generateId(),
             NGAYLAP: form.NGAYLAP,
             MANV: null,
             TONGTIEN: totalTongtien,
@@ -572,7 +574,7 @@ const PhieuHuyPage = () => {
         //   chiTiets: ctLines.map(l => ({
         //     MASP: l.MASP, ID_TONKHO: l.ID_TONKHO, SOLUONG: l.SOLUONG })) }
         const newPhieu = {
-            MAPHIEU: Date.now(),
+            MAPHIEU: generateId(),
             NGAYLAP: form.NGAYLAP,
             MANV: null,
             LYDO: form.LYDO,
@@ -844,12 +846,7 @@ const CURRENT_WAREHOUSE = {
 
 const Warehouse = () => {
     const [page, setPage] = useState('stock');
-    const user = CURRENT_WAREHOUSE;
-
-    const userInitials = (user.TENNV || '??').trim().split(' ').pop().slice(0, 2).toUpperCase();
-    const dateStr = new Date().toLocaleDateString('vi-VN', {
-        weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric',
-    });
+    const currentPageTitle = MENU_ITEMS.find(item => item.id === page)?.label || 'Warehouse';
 
     const renderPage = () => {
         switch (page) {
@@ -861,7 +858,7 @@ const Warehouse = () => {
 
     return (
         <div className="warehouse-app">
-            <Header />
+            <Header pageTitle={currentPageTitle} homeTo="/warehouse" />
             <div className="warehouse-layout">
                 {/* ── Sidebar ─────────────────────────────────────────────── */}
                 <aside className="warehouse-sidebar">

@@ -15,7 +15,7 @@ class SanPhamController extends Controller
     public function index()
     {
         return SanPhamResource::collection(SanPham::active()
-            ->with(['loaiSanPham', 'nhaCungCap'])
+            // ->with(['loaiSanPham', 'nhaCungCap'])
             ->get()
         );
     }
@@ -38,6 +38,23 @@ class SanPhamController extends Controller
     {
         abort_if($product->IS_DELETED, 404);
         $product->load(['loaiSanPham', 'nhaCungCap']);
+        return new SanPhamResource($product);
+    }
+
+    /**
+     * Find product by barcode.
+     */
+    public function findByBarcode(string $barcode)
+    {
+        $product = SanPham::where('BARCODE', $barcode)->firstOrFail();
+        abort_if($product->IS_DELETED, 404);
+        $product->load([
+            'loaiSanPham',
+            'nhaCungCap',
+            'tonKhos' => function ($query) {
+                $query->active();
+            },
+        ]);
         return new SanPhamResource($product);
     }
 

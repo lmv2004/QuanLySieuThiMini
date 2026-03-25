@@ -1,0 +1,126 @@
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\components\Manage\SimplePage.jsx ---
+Line 11: 'loading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 12: 'error' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 47: React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\components\Manage\Topbar.jsx ---
+Line 13: 'collapsed' is defined but never used.
+Line 13: 'setCollapsed' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Accounts\AccountActions.jsx ---
+Line 5: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Accounts\AccountForm.jsx ---
+Line 5: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+Line 13: 'setForm' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Accounts\AccountGridItem.jsx ---
+Line 6: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Cashier\Cashier.jsx ---
+Line 163: 'idx' is defined but never used.
+Line 636: 'userInitials' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 638: 'dateStr' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Categories\CategoriesPage.jsx ---
+Line 1: 'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 1: 'useMemo' is defined but never used. Allowed unused vars must match /^[A-Z_]/u.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Disposals\DisposalForm.jsx ---
+Line 5: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Employees\EmployeeActions.jsx ---
+Line 4: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Employees\EmployeeForm.jsx ---
+Line 3: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+Line 9: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Employees\EmployeeGridItem.jsx ---
+Line 5: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Employees\EmployeeImportExport.jsx ---
+Line 5: 'columns' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Imports\ImportsPage.jsx ---
+Line 1: 'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 1: 'useMemo' is defined but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 41: 'st' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 42: 'app' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 43: 'can' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Invoices\InvoiceActions.jsx ---
+Line 4: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Invoices\InvoiceForm.jsx ---
+Line 3: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+Line 5: 'setForm' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Invoices\InvoiceGridItem.jsx ---
+Line 5: 'idx' is defined but never used.
+Line 5: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Invoices\InvoiceImportExport.jsx ---
+Line 5: 'columns' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Positions\PositionsPage.jsx ---
+Line 1: 'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 1: 'useMemo' is defined but never used. Allowed unused vars must match /^[A-Z_]/u.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Products\ProductActions.jsx ---
+Line 4: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Products\ProductForm.jsx ---
+Line 3: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Products\ProductGridItem.jsx ---
+Line 5: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Products\ProductImportExport.jsx ---
+Line 5: 'columns' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Promotions\PromotionActions.jsx ---
+Line 5: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Promotions\PromotionForm.jsx ---
+Line 5: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Suppliers\SupplierActions.jsx ---
+Line 4: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Suppliers\SupplierForm.jsx ---
+Line 3: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Suppliers\SupplierGridItem.jsx ---
+Line 5: 'list' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Suppliers\SupplierImportExport.jsx ---
+Line 5: 'columns' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Vouchers\VoucherActions.jsx ---
+Line 5: 'list' is defined but never used.
+Line 11: 'err' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Vouchers\VoucherForm.jsx ---
+Line 5: Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+Line 19: 'setForm' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Vouchers\VoucherGridItem.jsx ---
+Line 6: 'list' is defined but never used.
+Line 12: 'err' is defined but never used.
+
+--- E:\Dhsg-CNTT\Hk2-N4\WebRestFullAPI\QuanLySieuThiMini\client\src\pages\Warehouse\Warehouse.jsx ---
+Line 266: Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  264 |         //     DONGIANHAP: l.DONGIANHAP, HANSUDUNG: l.HANSUDUNG })) }
+  265 |         const newPhieu = {
+> 266 |             MAPHIEU: Date.now(),
+      |                      ^^^^^^^^^^ Cannot call impure function
+  267 |             NGAYLAP: form.NGAYLAP,
+  268 |             MANV: null,
+  269 |             TONGTIEN: totalTongtien,
+Line 849: 'userInitials' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.
+Line 850: 'dateStr' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u.

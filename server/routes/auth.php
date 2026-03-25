@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -35,3 +36,34 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
 Route::post('/logout', [LoginController::class, 'destroy'])
     ->middleware('auth:sanctum')
     ->name('logout');
+
+Route::get('/me', function (\Illuminate\Http\Request $request) {
+    $taikhoan = $request->user()->load('nhanVien.chucVu');
+    $nhanVien = $taikhoan->nhanVien;
+    return response()->json([
+        'user' => [
+            'SOTK'   => $taikhoan->SOTK,
+            'TENTK'  => $taikhoan->TENTK,
+            'EMAIL'  => $taikhoan->EMAIL,
+            'MANV'   => $taikhoan->MANV,
+            'TENNV'  => $nhanVien?->TENNV,
+            'chucVu' => [
+                'MACHUCVU' => $nhanVien?->chucVu?->MACHUCVU,
+                'CODE' => $nhanVien?->chucVu?->CODE,
+                'TENCHUCVU' => $nhanVien?->chucVu?->TENCHUCVU,
+                'MOTA' => $nhanVien?->chucVu?->MOTA,
+            ],
+            'role' => $nhanVien?->chucVu?->CODE, // For convenience
+        ],
+    ]);
+})->middleware('auth:sanctum')->name('auth.me');
+
+// Get permissions for current user
+Route::get('/permissions', [AuthController::class, 'getPermissions'])
+    ->middleware('auth:sanctum')
+    ->name('auth.permissions');
+
+// Get permissions for specific role (Manager only)
+Route::get('/roles/{roleCode}/permissions', [AuthController::class, 'getRolePermissions'])
+    ->middleware('auth:sanctum')
+    ->name('auth.role-permissions');

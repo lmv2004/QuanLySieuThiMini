@@ -1,0 +1,15 @@
+.categories-page .data-table th:nth-child(1),
+.categories-page .data-table td:nth-child(1) {
+  width: 90px;
+  min-width: 90px;
+}
+
+.categories-page .data-table th:nth-child(2),
+.categories-page .data-table td:nth-child(2) {
+  width: 32%;
+}
+
+.categories-page .data-table th:nth-child(3),
+.categories-page .data-table td:nth-child(3) {
+  width: 46%;
+}

@@ -15,11 +15,15 @@ class ChucVuResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'MACHUCVU' => $this->MACHUCVU,
-            'TENCHUCVU' => $this->TENCHUCVU,
-            'MOTA' => $this->MOTA,
-            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+            'MACHUCVU'       => $this->MACHUCVU,
+            'CODE'           => $this->CODE,
+            'TENCHUCVU'      => $this->TENCHUCVU,
+            'MOTA'           => $this->MOTA,
+            'created_at'     => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at'     => $this->updated_at?->format('Y-m-d H:i:s'),
+            'permission_ids' => $this->whenLoaded('permissions', fn() =>
+                $this->permissions->pluck('MAPERMISSION')->toArray()
+            ),
         ];
     }
 }

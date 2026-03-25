@@ -19,8 +19,10 @@ class UpdateVoucherRequest extends FormRequest
             'GIATRITOITHIEU' => 'sometimes|numeric|min:0',
             'KMTOITHIEU'     => 'sometimes|numeric|min:0',
             'KMTOIDA'        => 'sometimes|numeric|min:0',
-            'PTGIAM'         => 'sometimes|integer|min:1|max:100',
+            'PTGIAM'         => 'sometimes|integer|min:0|max:100',
             'SOLUOTSD'       => 'sometimes|integer|min:1',
+            'SOLUOTSD_DADUNG' => 'sometimes|integer|min:0',
+            'TRANGTHAI'      => 'sometimes|integer|in:0,1,2',
             'IS_DELETED'     => 'sometimes|boolean',
         ];
     }

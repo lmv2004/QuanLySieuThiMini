@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ChucVuSeeder::class,
             KhachHangSeeder::class,
             VoucherSeeder::class,
+            StoreInfoSeeder::class,
         ]);
 
         // NHÓM 2: Nhân viên và tài khoản

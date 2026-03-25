@@ -1,0 +1,5 @@
+.products-page .data-table th:nth-child(1),
+.products-page .data-table td:nth-child(1) {
+  width: 70px;
+  min-width: 70px;
+}

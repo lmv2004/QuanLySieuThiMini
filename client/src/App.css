@@ -9,3 +9,52 @@
   width: 100%;
   min-height: 100vh;
 }
+
+/* Style icon thao tác dùng chung cho toàn bộ Project */
+.actions-cell {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-action-ico {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* Màu sắc mặc định rực rỡ như Voucher */
+.btn-view-action {
+  color: #9ca3af;
+}
+
+.btn-lock-action {
+  color: #f59e0b;
+  border-color: #fef3c7;
+  background: #fffbeb;
+}
+
+.btn-edit-action {
+  color: #10b981;
+  border-color: #d1fae5;
+  background: #ecfdf5;
+}
+
+.btn-del-action {
+  color: #ef4444;
+  border-color: #fee2e2;
+  background: #fef2f2;
+}
+
+/* Hiệu ứng Hover */
+.btn-action-ico:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
