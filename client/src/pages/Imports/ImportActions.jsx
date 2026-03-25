@@ -5,7 +5,7 @@ import api from '../../services/api';
 export const ImportActions = ({ item, openEdit, del, list, setList, addToast, openView }) => {
     const handleToggleLock = async () => {
         try {
-            const endpoint = `/phieu-nhaps/${item.MAPHIEU}`; 
+            const endpoint = `/purchase-orders/${item.MAPHIEU}`;
             const updatedData = { ...item, IS_DELETED: item.IS_DELETED ? 0 : 1 };
             const res = await api.put(endpoint, updatedData);
             if (res.data) {

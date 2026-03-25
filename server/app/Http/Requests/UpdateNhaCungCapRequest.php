@@ -22,7 +22,7 @@ class UpdateNhaCungCapRequest extends FormRequest
     public function rules(): array
     {
         // Lấy ID từ route model binding
-        $nhaCungCap = $this->route('supplier');
+        $nhaCungCap = $this->route('supplier') ?? $this->route('nhaCungCap');
         $supplierId = $nhaCungCap ? $nhaCungCap->MANCC : null;
 
         return [

@@ -95,7 +95,7 @@ export const CustomerImportExport = ({ onRefresh, addToast, data }) => {
 
                 const mappedData = jsonData.map(item => ({ TENKH: item['Tên khách hàng'] || item.TENKH, SODIENTHOAI: String(item['Số điện thoại'] || item.SODIENTHOAI || ''), DIACHI: String(item['Địa chỉ'] || item.DIACHI || ''), DIEMTHUONG: Number(item['Điểm thưởng'] || item.DIEMTHUONG || 0) }));
 
-                const res = await api.post('/khach-hangs/bulk', { data: mappedData });
+                const res = await api.post('/customers/bulk', { data: mappedData });
                 addToast('success', `Đã nhập thành công ${res.data.count || mappedData.length} dòng`);
                 if (onRefresh) onRefresh();
                 handleClose();

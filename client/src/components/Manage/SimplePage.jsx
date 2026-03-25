@@ -62,7 +62,16 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
             setError(null);
         } catch (err) {
             console.error('Fetch error:', err);
-            setError('Không thể tải dữ liệu');
+            const backendMsg = err?.message || err?.response?.data?.message;
+            const permHint = err?.required_permission
+                ? ` (quyền: ${Array.isArray(err.required_permission) ? err.required_permission.join(', ') : err.required_permission})`
+                : '';
+            const statusHint = err?.status ? ` [${err.status}]` : '';
+            setError(
+                backendMsg
+                    ? `${backendMsg}${permHint}${statusHint}`
+                    : 'Không thể tải dữ liệu. Kiểm tra backend đang chạy (php artisan serve), đã đăng nhập và có quyền xem module này.'
+            );
         } finally {
             setLoading(false);
         }

@@ -22,7 +22,7 @@ class UpdateKhachHangRequest extends FormRequest
     public function rules(): array
     {
         // Lấy ID từ route model binding
-        $customer = $this->route('customer');
+        $customer = $this->route('khachHang') ?? $this->route('customer');
         $customerId = $customer ? $customer->MAKH : null;
 
         return [

@@ -13,7 +13,7 @@ class UpdateNhanVienRequest extends FormRequest
 
     public function rules(): array
     {
-        $nhanVien = $this->route('employee');
+        $nhanVien = $this->route('employee') ?? $this->route('nhanVien');
         $employeeId = $nhanVien ? $nhanVien->MANV : null;
 
         return [

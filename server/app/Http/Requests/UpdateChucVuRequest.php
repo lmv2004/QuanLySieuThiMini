@@ -13,7 +13,7 @@ class UpdateChucVuRequest extends FormRequest
 
     public function rules(): array
     {
-        $chucVu = $this->route('position');
+        $chucVu = $this->route('position') ?? $this->route('chucVu');
         $positionId = $chucVu ? $chucVu->MACHUCVU : null;
 
         return [

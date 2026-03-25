@@ -95,7 +95,7 @@ export const PositionImportExport = ({ onRefresh, addToast, data }) => {
 
                 const mappedData = jsonData.map(item => ({ TENCHUCVU: item['Tên chức vụ'] || item.TENCHUCVU, LUONGCOBAN: Number(item['Lương cơ bản'] || item.LUONGCOBAN || 0), MOTA: String(item['Mô tả'] || item.MOTA || '') }));
 
-                const res = await api.post('/chuc-vus/bulk', { data: mappedData });
+                const res = await api.post('/positions/bulk', { data: mappedData });
                 addToast('success', `Đã nhập thành công ${res.data.count || mappedData.length} dòng`);
                 if (onRefresh) onRefresh();
                 handleClose();

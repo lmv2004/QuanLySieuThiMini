@@ -8,7 +8,7 @@ import { CustomerGridItem } from './CustomerGridItem';
 import { CustomerImportExport } from './CustomerImportExport';
 
 export const CustomersPage = () => <SimplePage
-    title="Khách hàng" icon={Ico.userGroup} apiEndpoint="/customers"
+    title="Khách hàng" icon={Ico.userGroup} apiEndpoint="/customers" primaryKey="MAKH"
     subtitle={(l) => `${l.filter(x => !x.IS_DELETED).length} hoạt động · ${l.length} tổng`}
     emptyTitle="Chưa có khách hàng" emptyDesc="Dữ liệu khách hàng sẽ hiển thị ở đây"
     cols={['Khách hàng', 'Số điện thoại', 'Địa chỉ', 'Điểm thưởng', 'Trạng thái']}

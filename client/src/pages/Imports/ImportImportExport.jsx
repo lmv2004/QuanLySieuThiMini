@@ -95,7 +95,7 @@ export const ImportImportExport = ({ onRefresh, addToast, data }) => {
 
                 const mappedData = jsonData.map(item => ({ NGAYLAP: item['Ngày lập'] || item.NGAYLAP, MANV: Number(item['Mã NV lập'] || item.MANV || 1), TONGTIEN: Number(item['Tổng tiền'] || item.TONGTIEN || 0), GCHU: String(item['Ghi chú'] || item.GCHU || '') }));
 
-                const res = await api.post('/phieu-nhaps/bulk', { data: mappedData });
+                const res = await api.post('/purchase-orders/bulk', { data: mappedData });
                 addToast('success', `Đã nhập thành công ${res.data.count || mappedData.length} dòng`);
                 if (onRefresh) onRefresh();
                 handleClose();
