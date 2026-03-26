@@ -2,87 +2,214 @@ import React from 'react';
 import { SimplePage } from '../../components/Manage/SimplePage';
 import { Ico } from '../../components/Manage/Icons';
 import { fmtDate, fmtVND } from '../../components/Manage/Shared';
-import { PromotionForm, emptyPromotion } from './PromotionForm';
+import { PromotionForm, emptyPromotion, validatePromotion } from './PromotionForm';
 import { PromotionGridItem } from './PromotionGridItem';
 import { PromotionActions } from './PromotionActions';
 import { PromotionImportExport } from './PromotionImportExport';
 import api from '../../services/api';
 import './Promotions.css';
 
-export const PromotionsPage = () => <SimplePage
-    title="Khuyến mãi / Giảm giá" icon={Ico.percent}
-    subtitle={(l) => `${l.length} chương trình`}
-    emptyTitle="Chưa có khuyến mãi" emptyDesc="Nhấn + Thêm để tạo chương trình KM"
-    cols={['Tên KM', 'Giảm giá', 'Từ ngày', 'Đến ngày', 'Trạng thái']}
-    apiEndpoint="/discounts"
-    primaryKey="ID"
-    emptyForm={emptyPromotion}
-    renderToolbarActions={(fetchData, addToast, list) => (
-        <PromotionImportExport onRefresh={fetchData} addToast={addToast} data={list} />
-    )}
-    tabs={[
-        { id: 'all', label: 'Tất cả' },
-        { id: 'active', label: 'Đang chạy', filter: (x) => x.TRANGTHAI },
-        { id: 'finished', label: 'Kết thúc', filter: (x) => !x.TRANGTHAI },
-    ]}
-    renderRow={(item) => [
-        <td key="1"><span className="entity-name">{item.TEN_CHUONG_TRINH}</span></td>,
-        <td key="2"><span className="badge badge-info">{item.LOAI_GIAM === 0 ? `${item.GIATRI_GIAM}%` : fmtVND(item.GIATRI_GIAM)}</span></td>,
-        <td key="3" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{fmtDate(item.NGAYBD)}</td>,
-        <td key="4" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{fmtDate(item.NGAYKT)}</td>,
-        <td key="5"><span className={item.TRANGTHAI ? 'badge badge-active' : 'badge badge-inactive'}>{item.TRANGTHAI ? 'Đang chạy' : 'Kết thúc'}</span></td>,
-    ]}
-    renderActions={(item, openEdit, del, i, list, setList, addToast, openView) => (
-        <PromotionActions item={item} openEdit={openEdit} del={del} list={list} setList={setList} addToast={addToast} openView={openView} />
-    )}
-    renderGridItem={(item, openEdit, del, idx) => (
-        <PromotionGridItem item={item} openEdit={openEdit} del={del} idx={idx} />
-    )}
-    renderForm={(form, hc, setForm) => (
-        <PromotionForm form={form} hc={hc} setForm={setForm} />
-    )}
-    customSave={async (form, isEdit, setList, addToast, onSuccess) => {
-        try {
-            // Logic Thêm Mới với Chọn Nhiều Sản Phẩm (Multiple Selection)
-            if (!isEdit && Array.isArray(form.MASP) && form.MASP.length > 0) {
-                const payloadData = form.MASP.map(masp => ({
-                    ...form,
-                    MASP: masp
-                }));
+const PromotionStatusBadge = ({ item }) => {
+    const now = new Date();
+    const start = new Date(item.NGAYBD);
+    const end = new Date(item.NGAYKT);
+    const isFuture = start > now;
+    const isExpired = end < now;
+    const isLocked = !item.TRANGTHAI;
 
-                // Gọi Bulk import API
-                const res = await api.post('/discounts/bulk', { data: payloadData });
-                addToast('success', res.data.message || `Đã tạo ${payloadData.length} Khuyến mãi thành công!`);
+    const status = isLocked ? { t: 'Tạm dừng', c: 'badge-inactive' }
+        : (isExpired ? { t: 'Hết hạn', c: 'badge-warning' }
+            : (isFuture ? { t: 'Sắp diễn ra', c: 'badge-info' } : { t: 'Đang chạy', c: 'badge-active' }));
 
-                // Do Backend xử lý bulk trả về message, gọi get List lại để load
-                const freshList = await api.get('/discounts');
-                setList(freshList.data.data || freshList.data);
-                onSuccess();
-                return;
-            }
+    return <span className={`badge ${status.c}`}>{status.t}</span>;
+};
 
-            // Logic Update (Sửa 1 Phiếu) hoặc Insert 1 Phiếu bình thường
-            let singleMasp = form.MASP;
-            if (Array.isArray(form.MASP)) singleMasp = form.MASP[0]; // Ràng buộc phòng hờ form đẩy mảng
-
-            const singleData = { ...form, MASP: singleMasp };
-
-            if (isEdit) {
-                const res = await api.put(`/discounts/${form.ID}`, singleData);
-                setList(prev => prev.map(x => x.ID === form.ID ? res.data.data || res.data : x));
-                addToast('success', 'Cập nhật khuyến mãi thành công');
+export const PromotionsPage = () => {
+    // Hàm gộp nhóm dữ liệu
+    const groupPromotions = (list) => {
+        const groups = {};
+        list.forEach(item => {
+            const masp = item.MASP || item.SANPHAM?.MASP;
+            // Key gộp nhóm dựa trên các thuộc tính chung
+            const key = `${item.TEN_CHUONG_TRINH}_${item.LOAI_GIAM}_${item.GIATRI_GIAM}_${item.NGAYBD}_${item.NGAYKT}`;
+            if (!groups[key]) {
+                groups[key] = { ...item, _items: [item], MASP: masp ? [masp] : [] };
             } else {
-                const res = await api.post('/discounts', singleData);
-                setList(prev => [res.data.data || res.data, ...prev]);
-                addToast('success', 'Thêm mới khuyến mãi thành công');
+                groups[key]._items.push(item);
+                if (masp && !groups[key].MASP.includes(masp)) {
+                    groups[key].MASP.push(masp);
+                }
             }
-            onSuccess();
+        });
+        return Object.values(groups);
+    };
 
-        } catch (error) {
-            console.error('Lỗi lưu Khuyến Mãi:', error);
-            addToast('error', error.response?.data?.message || 'Có lỗi xảy ra khi lưu dữ liệu');
-        }
-    }}
-/>;
+    return (
+        <SimplePage
+            title="Khuyến mãi sản phẩm"
+            subtitle={(l) => `Hiện có ${l.length} chương trình`}
+            icon={Ico.percent}
+            apiEndpoint="/discounts"
+            primaryKey="ID"
+            cols={['Tên KM', 'Phạm vi', 'Giảm giá', 'Thời gian', 'Trạng thái']}
+            emptyForm={emptyPromotion}
+            validate={validatePromotion}
+            transformList={groupPromotions}
+            renderToolbarActions={(fetchData, addToast, list) => (
+                <PromotionImportExport onRefresh={fetchData} addToast={addToast} data={list} />
+            )}
+            tabs={[
+                { id: 'all', label: 'Tất cả' },
+                {
+                    id: 'active', label: 'Đang chạy', filter: (x) => {
+                        const now = new Date();
+                        const isLocked = !x.TRANGTHAI;
+                        const isExpired = new Date(x.NGAYKT) < now;
+                        const isFuture = new Date(x.NGAYBD) > now;
+                        return !isLocked && !isExpired && !isFuture;
+                    }
+                },
+                {
+                    id: 'future', label: 'Sắp diễn ra', filter: (x) => {
+                        const now = new Date();
+                        const isLocked = !x.TRANGTHAI;
+                        const isFuture = new Date(x.NGAYBD) > now;
+                        return !isLocked && isFuture;
+                    }
+                },
+                { id: 'locked', label: 'Tạm dừng', filter: (x) => !x.TRANGTHAI },
+                {
+                    id: 'expired', label: 'Hết hạn', filter: (x) => {
+                        const now = new Date();
+                        const isLocked = !x.TRANGTHAI;
+                        const isExpired = new Date(x.NGAYKT) < now;
+                        return !isLocked && isExpired;
+                    }
+                },
+            ]}
+            renderRow={(item) => {
+                const count = item._items?.length || 1;
+                return [
+                    <td key="1"><div className="fw-700">{item.TEN_CHUONG_TRINH}</div></td>,
+                    <td key="2">
+                        <div className="badge badge-info" style={{ fontSize: '11px' }}>
+                            {count} sản phẩm
+                        </div>
+                    </td>,
+                    <td key="3">
+                        <div className={`discount-val ${item.LOAI_GIAM === 0 ? 'pct' : 'amt'}`}>
+                            {item.LOAI_GIAM === 0 ? `${item.GIATRI_GIAM}%` : fmtVND(item.GIATRI_GIAM)}
+                        </div>
+                    </td>,
+                    <td key="4">
+                        <div className="text-muted" style={{ fontSize: '12px' }}>
+                            {fmtDate(item.NGAYBD)} - {fmtDate(item.NGAYKT)}
+                        </div>
+                    </td>,
+                    <td key="5"><PromotionStatusBadge item={item} /></td>
+                ];
+            }}
+            renderActions={(item, openEdit, del, i, list, setList, addToast, openView) => (
+                <PromotionActions
+                    item={item}
+                    openEdit={openEdit}
+                    del={async (id) => {
+                        // Xóa nhóm thông minh
+                        if (item._items && item._items.length > 1) {
+                            if (window.confirm(`Xóa toàn bộ ${item._items.length} bản ghi của chương trình này?`)) {
+                                try {
+                                    for (const sub of item._items) await api.delete(`/discounts/${sub.ID}`);
+                                    setList(prev => prev.filter(x => !item._items.some(si => si.ID === x.ID)));
+                                    addToast('success', 'Đã xóa nhóm chương trình');
+                                } catch (e) { addToast('error', 'Lỗi khi xóa'); }
+                            }
+                        } else { del(id); }
+                    }}
+                    list={list} setList={setList} addToast={addToast} openView={openView}
+                />
+            )}
+            renderGridItem={(item, openEdit, del, idx, list, setList, addToast, openView) => (
+                <PromotionGridItem
+                    item={item}
+                    openEdit={openEdit}
+                    del={async (id) => {
+                        if (item._items && item._items.length > 1) {
+                            if (window.confirm(`Xóa toàn bộ ${item._items.length} sản phẩm thuộc nhóm này?`)) {
+                                try {
+                                    for (const sub of item._items) await api.delete(`/discounts/${sub.ID}`);
+                                    setList(prev => prev.filter(x => !item._items.some(si => si.ID === x.ID)));
+                                    addToast('success', 'Đã xóa toàn bộ nhóm');
+                                } catch (e) { addToast('error', 'Lỗi khi xóa'); }
+                            }
+                        } else { del(id); }
+                    }}
+                    list={list} setList={setList} addToast={addToast} openView={openView}
+                />
+            )}
+            renderForm={(form, hc, setForm, readOnly, errors) => (
+                <PromotionForm form={form} hc={hc} setForm={setForm} readOnly={readOnly} errors={errors} />
+            )}
+            customSave={async (form, isEdit, setList, addToast, onSuccess) => {
+                try {
+                    const cleanForm = {
+                        ...form,
+                        LOAI_GIAM: parseInt(form.LOAI_GIAM),
+                        GIATRI_GIAM: parseFloat(form.GIATRI_GIAM),
+                        TRANGTHAI: form.TRANGTHAI ? 1 : 0
+                    };
 
+                    if (!isEdit) {
+                        const masps = Array.isArray(form.MASP) ? form.MASP : [form.MASP];
+                        const payloadData = masps.map(masp => ({ ...cleanForm, MASP: parseInt(masp) }));
+                        const res = await api.post('/discounts/bulk', { data: payloadData });
+                        addToast('success', res.message || `Đã tạo ${payloadData.length} khuyến mãi`);
+                        const resList = await api.get('/discounts');
+                        setList((resList.data || resList).sort((a, b) => b.ID - a.ID));
+                        onSuccess();
+                        return;
+                    }
 
+                    if (isEdit) {
+                        const itemsToUpdate = (form._items && form._items.length > 0) ? form._items : [form];
+                        const newMasps = (Array.isArray(form.MASP) ? form.MASP : [form.MASP]).map(m => parseInt(m));
+
+                        // 1. Xóa các bản ghi cho những sản phẩm đã bị bỏ chọn trong nhóm
+                        for (const item of itemsToUpdate) {
+                            const currentMasp = parseInt(item.MASP || item.SANPHAM?.MASP);
+                            if (!newMasps.includes(currentMasp)) {
+                                await api.delete(`/discounts/${parseInt(item.ID)}`);
+                            }
+                        }
+
+                        // 2. Cập nhật hoặc tạo mới các bản ghi dựa trên danh sách sản phẩm mới
+                        for (const masp of newMasps) {
+                            const existing = itemsToUpdate.find(it => parseInt(it.MASP || it.SANPHAM?.MASP) === masp);
+                            const payload = {
+                                TEN_CHUONG_TRINH: form.TEN_CHUONG_TRINH,
+                                LOAI_GIAM: parseInt(form.LOAI_GIAM),
+                                GIATRI_GIAM: parseFloat(form.GIATRI_GIAM),
+                                NGAYBD: form.NGAYBD,
+                                NGAYKT: form.NGAYKT,
+                                TRANGTHAI: form.TRANGTHAI ? 1 : 0,
+                                MASP: masp
+                            };
+
+                            if (existing) {
+                                await api.put(`/discounts/${parseInt(existing.ID)}`, payload);
+                            } else {
+                                await api.post('/discounts', payload);
+                            }
+                        }
+
+                        addToast('success', `Đã cập nhật nhóm chương trình`);
+                        const resList = await api.get('/discounts');
+                        setList((resList.data || resList).sort((a, b) => b.ID - a.ID));
+                        onSuccess();
+                    }
+                } catch (error) {
+                    addToast('error', error.message || 'Lỗi khi lưu');
+                }
+            }}
+        />
+    );
+};

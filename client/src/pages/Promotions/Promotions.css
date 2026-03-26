@@ -44,7 +44,8 @@
 /* --- Product Picker --- */
 .product-picker {
     display: grid !important;
-    grid-template-columns: 1fr 1fr !important; /* Luôn là 2 cột */
+    grid-template-columns: 1fr 1fr !important;
+    /* Luôn là 2 cột */
     gap: 12px !important;
     max-height: 280px !important;
     overflow-y: auto !important;
@@ -143,4 +144,11 @@
 .badge-info {
     background: #e0f2fe;
     color: #0369a1;
+}
+
+/* --- Form Layout Single Column --- */
+.promotion-form-single {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
 }
