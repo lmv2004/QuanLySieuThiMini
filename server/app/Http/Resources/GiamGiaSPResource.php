@@ -11,6 +11,7 @@ class GiamGiaSPResource extends JsonResource
     {
         return [
             'ID'               => $this->ID,
+            'MASP'             => $this->MASP,
             'TEN_CHUONG_TRINH' => $this->TEN_CHUONG_TRINH,
             'LOAI_GIAM'        => $this->LOAI_GIAM,
             'LOAI_GIAM_TEXT'   => $this->LOAI_GIAM == 0 ? 'Phần trăm (%)' : 'Tiền mặt (VNĐ)',

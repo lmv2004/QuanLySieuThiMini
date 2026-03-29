@@ -6,7 +6,7 @@ import api from '../../services/api';
 import { Toast } from './Toast';
 import { removeAccents } from './Shared';
 
-export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc, renderRow, emptyForm, renderForm, validate, transformBeforeSave, initialData = [], tabs, renderGridItem, renderActions, stats: statsProp, apiEndpoint, primaryKey = '_id', renderExtraActions, renderToolbarActions }) => {
+export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc, renderRow, emptyForm, renderForm, validate, transformBeforeSave, transformList, customSave, initialData = [], tabs, renderGridItem, renderActions, stats: statsProp, apiEndpoint, primaryKey = '_id', renderExtraActions, renderToolbarActions, modalSize }) => {
     const [list, setList] = useState(initialData);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -94,12 +94,16 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
 
         let res = [...list].filter(x => checkValue(x));
 
+        // Gộp nhóm TRƯỚC, rồi mới lọc theo Tab
+        if (transformList) res = transformList(res);
+
         if (tabs && activeTab && activeTab !== 'all') {
             const currentTab = tabs.find(t => t.id === activeTab);
             if (currentTab?.filter) res = res.filter(currentTab.filter);
         }
+
         return res;
-    }, [list, search, activeTab, tabs]);
+    }, [list, search, activeTab, tabs, transformList]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -149,12 +153,19 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
         setFormErrors({});
 
         try {
-            // Cho phép transform payload trước khi gửi
+            if (customSave) {
+                await customSave(form, modal === 'edit', setList, addToast, () => {
+                    close();
+                    if (modal === 'add') setCurrentPage(1);
+                });
+                return;
+            }
             const payload = transformBeforeSave ? transformBeforeSave(form) : form;
 
             if (modal === 'add') {
                 const res = await api.post(apiEndpoint, payload);
                 setList(p => [res.data.data || res.data, ...p]);
+                setCurrentPage(1); // Quay về trang đầu để thấy bản ghi mới
             } else {
                 const res = await api.put(`${apiEndpoint}/${editId}`, payload);
                 const updated = res.data.data || res.data;
@@ -333,7 +344,12 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
             </div>
 
             {modal && modal !== 'delete' && (
-                <Modal title={modal === 'add' ? `Thêm ${title.toLowerCase()}` : modal === 'view' ? 'Chi tiết' : `Chỉnh sửa`} onClose={close} actions={<><button className="btn-secondary" onClick={close}>{modal === 'view' ? 'Đóng' : 'Hủy'}</button>{modal !== 'view' && <button className="btn-primary" onClick={save}>{modal === 'add' ? 'Thêm' : 'Lưu'}</button>}</>}>
+                <Modal
+                    title={modal === 'add' ? `Thêm ${title.toLowerCase()}` : modal === 'view' ? 'Chi tiết' : `Chỉnh sửa`}
+                    onClose={close}
+                    size={modalSize}
+                    actions={<><button className="btn-secondary" onClick={close}>{modal === 'view' ? 'Đóng' : 'Hủy'}</button>{modal !== 'view' && <button className="btn-primary" onClick={save}>{modal === 'add' ? 'Thêm' : 'Lưu'}</button>}</>}
+                >
                     {formErrors._global && (
                         <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#dc2626', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
