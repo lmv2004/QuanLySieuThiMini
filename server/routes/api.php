@@ -42,6 +42,10 @@ Route::model('employee', NhanVien::class);
 Route::model('position', ChucVu::class);
 Route::model('invoice', HoaDon::class);
 Route::model('purchase_order', PhieuNhap::class);
+Route::model('nhanVien', NhanVien::class);
+Route::model('chucVu', ChucVu::class);
+Route::model('nhaCungCap', NhaCungCap::class);
+Route::model('phieuNhap', PhieuNhap::class);
 Route::model('disposal_slip', PhieuHuy::class);
 Route::model('inventory', TonKho::class);
 Route::model('voucher', Voucher::class);
@@ -104,6 +108,53 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('customers', [KhachHangController::class, 'store'])->middleware('permission:customers.create');
     Route::put('customers/{khachHang}', [KhachHangController::class, 'update'])->middleware('permission:customers.edit');
     Route::delete('customers/{khachHang}', [KhachHangController::class, 'destroy'])->middleware('permission:customers.edit');
+
+    // ── Vietnamese aliases (spec-compatible) ──
+    Route::apiResource('nhan-vien', NhanVienController::class)
+        ->parameters(['nhan-vien' => 'nhanVien'])
+        ->middleware([
+            'index' => 'permission:employees.view',
+            'show' => 'permission:employees.view',
+            'store' => 'permission:employees.create',
+            'update' => 'permission:employees.edit',
+            'destroy' => 'permission:employees.delete',
+        ]);
+    Route::apiResource('chuc-vu', ChucVuController::class)
+        ->parameters(['chuc-vu' => 'chucVu'])
+        ->middleware([
+            'index' => 'permission:positions.view',
+            'show' => 'permission:positions.view',
+            'store' => 'permission:positions.manage',
+            'update' => 'permission:positions.manage',
+            'destroy' => 'permission:positions.manage',
+        ]);
+    Route::apiResource('nha-cung-cap', NhaCungCapController::class)
+        ->parameters(['nha-cung-cap' => 'nhaCungCap'])
+        ->middleware([
+            'index' => 'permission:suppliers.view',
+            'show' => 'permission:suppliers.view',
+            'store' => 'permission:suppliers.create',
+            'update' => 'permission:suppliers.edit',
+            'destroy' => 'permission:suppliers.delete',
+        ]);
+    Route::apiResource('phieu-nhap', PhieuNhapController::class)
+        ->parameters(['phieu-nhap' => 'phieuNhap'])
+        ->middleware([
+            'index' => 'permission:purchase-orders.view',
+            'show' => 'permission:purchase-orders.view',
+            'store' => 'permission:purchase-orders.create',
+            'update' => 'permission:purchase-orders.approve',
+            'destroy' => 'permission:purchase-orders.delete',
+        ]);
+    Route::apiResource('khach-hang', KhachHangController::class)
+        ->parameters(['khach-hang' => 'khachHang'])
+        ->middleware([
+            'index' => 'permission:customers.view',
+            'show' => 'permission:customers.view',
+            'store' => 'permission:customers.create',
+            'update' => 'permission:customers.edit',
+            'destroy' => 'permission:customers.edit',
+        ]);
 
     // ── Inventories ──
     Route::get('inventories', [TonKhoController::class, 'index'])->middleware('permission:inventories.view');

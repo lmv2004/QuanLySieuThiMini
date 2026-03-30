@@ -13,80 +13,80 @@ export const API_ENDPOINTS = {
 
   // Products
   PRODUCTS: {
-    LIST: '/san-pham',
-    DETAIL: (id) => `/san-pham/${id}`,
-    CREATE: '/san-pham',
-    UPDATE: (id) => `/san-pham/${id}`,
-    DELETE: (id) => `/san-pham/${id}`,
+    LIST: '/products',
+    DETAIL: (id) => `/products/${id}`,
+    CREATE: '/products',
+    UPDATE: (id) => `/products/${id}`,
+    DELETE: (id) => `/products/${id}`,
   },
 
   // Categories
   CATEGORIES: {
-    LIST: '/loai-san-pham',
-    DETAIL: (id) => `/loai-san-pham/${id}`,
-    CREATE: '/loai-san-pham',
-    UPDATE: (id) => `/loai-san-pham/${id}`,
-    DELETE: (id) => `/loai-san-pham/${id}`,
+    LIST: '/categories',
+    DETAIL: (id) => `/categories/${id}`,
+    CREATE: '/categories',
+    UPDATE: (id) => `/categories/${id}`,
+    DELETE: (id) => `/categories/${id}`,
   },
 
   // Customers
   CUSTOMERS: {
-    LIST: '/khach-hang',
-    DETAIL: (id) => `/khach-hang/${id}`,
-    CREATE: '/khach-hang',
-    UPDATE: (id) => `/khach-hang/${id}`,
-    DELETE: (id) => `/khach-hang/${id}`,
+    LIST: '/customers',
+    DETAIL: (id) => `/customers/${id}`,
+    CREATE: '/customers',
+    UPDATE: (id) => `/customers/${id}`,
+    DELETE: (id) => `/customers/${id}`,
   },
 
   // Employees
   EMPLOYEES: {
-    LIST: '/nhan-vien',
-    DETAIL: (id) => `/nhan-vien/${id}`,
-    CREATE: '/nhan-vien',
-    UPDATE: (id) => `/nhan-vien/${id}`,
-    DELETE: (id) => `/nhan-vien/${id}`,
+    LIST: '/employees',
+    DETAIL: (id) => `/employees/${id}`,
+    CREATE: '/employees',
+    UPDATE: (id) => `/employees/${id}`,
+    DELETE: (id) => `/employees/${id}`,
   },
 
   // Suppliers
   SUPPLIERS: {
-    LIST: '/nha-cung-cap',
-    DETAIL: (id) => `/nha-cung-cap/${id}`,
-    CREATE: '/nha-cung-cap',
-    UPDATE: (id) => `/nha-cung-cap/${id}`,
-    DELETE: (id) => `/nha-cung-cap/${id}`,
+    LIST: '/suppliers',
+    DETAIL: (id) => `/suppliers/${id}`,
+    CREATE: '/suppliers',
+    UPDATE: (id) => `/suppliers/${id}`,
+    DELETE: (id) => `/suppliers/${id}`,
   },
 
   // Invoices
   INVOICES: {
-    LIST: '/hoa-don',
-    DETAIL: (id) => `/hoa-don/${id}`,
-    CREATE: '/hoa-don',
-    UPDATE: (id) => `/hoa-don/${id}`,
-    DELETE: (id) => `/hoa-don/${id}`,
+    LIST: '/invoices',
+    DETAIL: (id) => `/invoices/${id}`,
+    CREATE: '/invoices',
+    UPDATE: (id) => `/invoices/${id}`,
+    DELETE: (id) => `/invoices/${id}`,
   },
 
   // Import Receipts
   IMPORTS: {
-    LIST: '/phieu-nhap',
-    DETAIL: (id) => `/phieu-nhap/${id}`,
-    CREATE: '/phieu-nhap',
-    UPDATE: (id) => `/phieu-nhap/${id}`,
-    DELETE: (id) => `/phieu-nhap/${id}`,
+    LIST: '/purchase-orders',
+    DETAIL: (id) => `/purchase-orders/${id}`,
+    CREATE: '/purchase-orders',
+    UPDATE: (id) => `/purchase-orders/${id}`,
+    DELETE: (id) => `/purchase-orders/${id}`,
   },
 
   // Disposal Receipts
   DISPOSAL: {
-    LIST: '/phieu-huy',
-    DETAIL: (id) => `/phieu-huy/${id}`,
-    CREATE: '/phieu-huy',
-    UPDATE: (id) => `/phieu-huy/${id}`,
-    DELETE: (id) => `/phieu-huy/${id}`,
+    LIST: '/disposal-slips',
+    DETAIL: (id) => `/disposal-slips/${id}`,
+    CREATE: '/disposal-slips',
+    UPDATE: (id) => `/disposal-slips/${id}`,
+    DELETE: (id) => `/disposal-slips/${id}`,
   },
 
   // Inventory
   INVENTORY: {
-    LIST: '/ton-kho',
-    DETAIL: (id) => `/ton-kho/${id}`,
+    LIST: '/inventories',
+    DETAIL: (id) => `/inventories/${id}`,
   },
 
   // Vouchers
@@ -100,11 +100,11 @@ export const API_ENDPOINTS = {
 
   // Discounts
   DISCOUNTS: {
-    LIST: '/giam-gia-sp',
-    DETAIL: (id) => `/giam-gia-sp/${id}`,
-    CREATE: '/giam-gia-sp',
-    UPDATE: (id) => `/giam-gia-sp/${id}`,
-    DELETE: (id) => `/giam-gia-sp/${id}`,
+    LIST: '/discounts',
+    DETAIL: (id) => `/discounts/${id}`,
+    CREATE: '/discounts',
+    UPDATE: (id) => `/discounts/${id}`,
+    DELETE: (id) => `/discounts/${id}`,
   },
 
   // Reports

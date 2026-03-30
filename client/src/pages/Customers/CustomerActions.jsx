@@ -5,7 +5,7 @@ import api from '../../services/api';
 export const CustomerActions = ({ item, openEdit, del, list, setList, addToast, openView }) => {
     const handleToggleLock = async () => {
         try {
-            const endpoint = `/khach-hangs/${item.MAKH}`; 
+            const endpoint = `/customers/${item.MAKH}`;
             // In the backend, we should use a toggle-lock API or just update the object
             // Assuming we just send PUT with toggled IS_DELETED
             const updatedData = { ...item, IS_DELETED: item.IS_DELETED ? 0 : 1 };

@@ -95,7 +95,7 @@ export const CategoryImportExport = ({ onRefresh, addToast, data }) => {
 
                 const mappedData = jsonData.map(item => ({ TENLOAI: item['Tên loại SP'] || item.TENLOAI, MOTA: String(item['Mô tả'] || item.MOTA || '') }));
 
-                const res = await api.post('/loai-san-phams/bulk', { data: mappedData });
+                const res = await api.post('/categories/bulk', { data: mappedData });
                 addToast('success', `Đã nhập thành công ${res.data.count || mappedData.length} dòng`);
                 if (onRefresh) onRefresh();
                 handleClose();
