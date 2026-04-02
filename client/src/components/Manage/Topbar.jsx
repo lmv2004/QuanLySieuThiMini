@@ -5,7 +5,7 @@ import { initials } from './Shared';
 const PAGE_LABELS = {
     dashboard: 'Tổng quan', employees: 'Nhân viên', positions: 'Chức vụ',
     suppliers: 'Nhà cung cấp', products: 'Sản phẩm', categories: 'Loại sản phẩm',
-    invoices: 'Hóa đơn / Bán hàng', vouchers: 'Phiếu nhập / Hủy',
+    sales: 'Bán hàng', invoices: 'Hóa đơn', vouchers: 'Phiếu nhập / Hủy',
     customers: 'Khách hàng', voucher_promo: 'Voucher', promotions: 'Khuyến mãi / Giảm giá',
     accounts: 'Tài khoản', reports: 'Báo cáo doanh thu',
 };

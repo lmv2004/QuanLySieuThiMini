@@ -18,6 +18,7 @@ import { SuppliersPage }  from '../pages/Suppliers/SuppliersPage.jsx';
 import { ProductsPage }   from '../pages/Products/ProductsPage.jsx';
 import { CategoriesPage } from '../pages/Categories/CategoriesPage.jsx';
 import { InvoicesPage }   from '../pages/Invoices/InvoicesPage.jsx';
+import { InvoicesListPage } from '../pages/Invoices/InvoicesListPage.jsx';
 import { CustomersPage }  from '../pages/Customers/CustomersPage.jsx';
 import { VouchersPage }   from '../pages/Vouchers/VouchersPage.jsx';
 import { PromotionsPage } from '../pages/Promotions/PromotionsPage.jsx';
@@ -55,7 +56,8 @@ const AppRoutes = () => {
             <Route path="suppliers"   element={<SuppliersPage />} />
             <Route path="products"    element={<ProductsPage />} />
             <Route path="categories"  element={<CategoriesPage />} />
-            <Route path="invoices"    element={<InvoicesPage />} />
+            <Route path="cashier"     element={<InvoicesPage />} />
+            <Route path="invoices"    element={<InvoicesListPage />} />
             <Route path="customers"   element={<CustomersPage />} />
             <Route path="vouchers"    element={<VouchersPage />} />
             <Route path="promotions"  element={<PromotionsPage />} />
@@ -75,6 +77,7 @@ const AppRoutes = () => {
           <Route path="/manage/suppliers"   element={<Navigate to="/suppliers"  replace />} />
           <Route path="/manage/products"    element={<Navigate to="/products"   replace />} />
           <Route path="/manage/categories"  element={<Navigate to="/categories" replace />} />
+          <Route path="/manage/cashier"     element={<Navigate to="/cashier"    replace />} />
           <Route path="/manage/invoices"    element={<Navigate to="/invoices"   replace />} />
           <Route path="/manage/customers"   element={<Navigate to="/customers"  replace />} />
           <Route path="/manage/vouchers"    element={<Navigate to="/vouchers"   replace />} />

@@ -9,6 +9,7 @@ const INVOICE_STATUS = {
 
 export const InvoiceGridItem = ({ item, openEdit, del, idx, list, setList, addToast, openView }) => {
     const s = INVOICE_STATUS[Number(item.TRANGTHAI)] || { label: String(item.TRANGTHAI ?? '—'), cls: 'badge' };
+    const canEdit = Number(item?.TRANGTHAI) === 0;
 
     return (
         <div key={item.MAHD} className="grid-item-card">
@@ -27,8 +28,7 @@ export const InvoiceGridItem = ({ item, openEdit, del, idx, list, setList, addTo
             </div>
             <div className="grid-item-actions">
                 {openView && <button className="btn-view-action" title="Xem" onClick={() => openView(item)}>{Ico.eye}</button>}
-                <button className="btn-edit-action" title="Sửa" onClick={() => openEdit(item)}>{Ico.edit}</button>
-                <button className="btn-del-action" title="Xóa" onClick={() => del(item.MAHD)}>{Ico.trash}</button>
+                {canEdit && openEdit && <button className="btn-edit-action" title="Sửa" onClick={() => openEdit(item)}>{Ico.edit}</button>}
             </div>
         </div>
     );
