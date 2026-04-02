@@ -22,7 +22,9 @@ class PermissionSeeder extends Seeder
             ['CODE' => 'positions.view', 'NAME' => 'Xem chức vụ', 'DESCRIPTION' => 'Xem danh sách chức vụ', 'MODULE' => 'positions', 'ACTION' => 'view'],
             ['CODE' => 'positions.manage', 'NAME' => 'Quản lý chức vụ', 'DESCRIPTION' => 'Quản lý chức vụ và quyền', 'MODULE' => 'positions', 'ACTION' => 'manage'],
             ['CODE' => 'accounts.view', 'NAME' => 'Xem tài khoản', 'DESCRIPTION' => 'Xem danh sách tài khoản', 'MODULE' => 'accounts', 'ACTION' => 'view'],
+            ['CODE' => 'accounts.create', 'NAME' => 'Tạo tài khoản', 'DESCRIPTION' => 'Tạo tài khoản mới', 'MODULE' => 'accounts', 'ACTION' => 'create'],
             ['CODE' => 'accounts.edit', 'NAME' => 'Sửa tài khoản', 'DESCRIPTION' => 'Chỉnh sửa tài khoản', 'MODULE' => 'accounts', 'ACTION' => 'edit'],
+            ['CODE' => 'accounts.delete', 'NAME' => 'Xóa tài khoản', 'DESCRIPTION' => 'Xóa tài khoản', 'MODULE' => 'accounts', 'ACTION' => 'delete'],
 
             // ========== Hàng hóa ==========
             ['CODE' => 'products.view', 'NAME' => 'Xem sản phẩm', 'DESCRIPTION' => 'Xem danh sách sản phẩm', 'MODULE' => 'products', 'ACTION' => 'view'],

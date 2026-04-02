@@ -21,7 +21,7 @@ class NhanVienSeeder extends Seeder
 
         $data = [
             [
-                'TENNV' => 'Ngô Văn Tuấn',
+                'TENNV' => 'ADMIN',
                 'GIOITINH' => true, // Nam
                 'CCCD' => '001234567890',
                 'NGAYSINH' => '1995-05-15',
@@ -33,8 +33,8 @@ class NhanVienSeeder extends Seeder
                 'IS_DELETED' => false,
             ],
             [
-                'TENNV' => 'Trần Thị Liên',
-                'GIOITINH' => false, // Nữ
+                'TENNV' => 'Lê Quản Lý',
+                'GIOITINH' => true, // Nam
                 'CCCD' => '001234567891',
                 'NGAYSINH' => '1996-08-20',
                 'SODIENTHOAI' => '0912345678',
@@ -45,8 +45,8 @@ class NhanVienSeeder extends Seeder
                 'IS_DELETED' => false,
             ],
             [
-                'TENNV' => 'Lê Văn Ạt Min',
-                'GIOITINH' => true, // Nam
+                'TENNV' => 'Nguyễn Thị Thu Ngân',
+                'GIOITINH' => false, // Nữ
                 'CCCD' => '001234567892',
                 'NGAYSINH' => '1998-03-10',
                 'SODIENTHOAI' => '0923456789',
@@ -57,7 +57,7 @@ class NhanVienSeeder extends Seeder
                 'IS_DELETED' => false,
             ],
             [
-                'TENNV' => 'Phạm Minh Khôi',
+                'TENNV' => 'Phạm Thủ Kho',
                 'GIOITINH' => true, // Nam
                 'CCCD' => '001234567893',
                 'NGAYSINH' => '1997-11-25',

@@ -14,14 +14,14 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         // ========== ADMIN - TẤT CẢ QUYỀN ==========
-        $admin = ChucVu::where('CODE', 'admin')->first();
+        $admin = ChucVu::where('CODE', 'ADMIN')->first();
         if ($admin) {
             $allPermissions = Permission::where('IS_DELETED', 0)->pluck('MAPERMISSION')->toArray();
             $admin->permissions()->sync($allPermissions);
         }
 
         // ========== QUẢN LÝ - HẦU HẾT QUYỀN (trừ positions.manage, accounts.edit) ==========
-        $quanly = ChucVu::where('CODE', 'manager')->first();
+        $quanly = ChucVu::where('CODE', 'QUANLY')->first();
         if ($quanly) {
             $permissions = Permission::where('IS_DELETED', 0)
                 ->whereNotIn('CODE', ['positions.manage', 'accounts.edit'])
@@ -31,7 +31,7 @@ class RolePermissionSeeder extends Seeder
         }
 
         // ========== THU NGÂN - CHỈ QUYỀN BÁN HÀNG ==========
-        $thungan = ChucVu::where('CODE', 'cashier')->first();
+        $thungan = ChucVu::where('CODE', 'THUNGAN')->first();
         if ($thungan) {
             $permissions = Permission::where('IS_DELETED', 0)
                 ->whereIn('CODE', [
@@ -50,7 +50,7 @@ class RolePermissionSeeder extends Seeder
         }
 
         // ========== NHÂN VIÊN KHO - QUYỀN NHẬP/HUỶ/SẢN PHẨM ==========
-        $nvkho = ChucVu::where('CODE', 'warehouse')->first();
+        $nvkho = ChucVu::where('CODE', 'NVKHO')->first();
         if ($nvkho) {
             $permissions = Permission::where('IS_DELETED', 0)
                 ->whereIn('CODE', [
