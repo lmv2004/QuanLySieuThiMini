@@ -2,56 +2,53 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // NHÓM 1: Các bảng cơ bản không phụ thuộc
-        $this->call([
-            LoaiSanPhamSeeder::class,
-            NhaCungCapSeeder::class,
-            ChucVuSeeder::class,
-            KhachHangSeeder::class,
-            VoucherSeeder::class,
-            StoreInfoSeeder::class,
-        ]);
+        // Trình tự seed: ChucVu → Permission → NhanVien → TaiKhoan → RolePermission → Khách hàng → Sản phẩm & liên quan
 
-        // NHÓM 2: Nhân viên và tài khoản
-        $this->call([
-            NhanVienSeeder::class,
-            TaiKhoanSeeder::class,
-        ]);
+        // 1. Seed Chức vụ
+        $this->call(ChucVuSeeder::class);
 
-        // NHÓM 3: Sản phẩm và giảm giá
-        $this->call([
-            SanPhamSeeder::class,
-            GiamGiaSPSeeder::class,
-        ]);
+        // 2. Seed Permissions (tất cả quyền)
+        $this->call(PermissionSeeder::class);
 
-        // NHÓM 4: Phiếu nhập và tồn kho
-        $this->call([
-            PhieuNhapSeeder::class,
-            CTPhieuNhapSeeder::class,
-            TonKhoSeeder::class,
-        ]);
+        // 3. Seed Nhân viên (gắn với Chức vụ)
+        $this->call(NhanVienSeeder::class);
 
-        // NHÓM 5: Phiếu hủy
-        $this->call([
-            PhieuHuySeeder::class,
-        ]);
+        // 4. Seed Tài khoản (gắn với Nhân viên)
+        $this->call(TaiKhoanSeeder::class);
 
-        // NHÓM 6: Hóa đơn
-        $this->call([
-            HoaDonSeeder::class,
-        ]);
+        // 5. Seed phân quyền (gắn permissions vào chức vụ, Admin được tất cả)
+        $this->call(RolePermissionSeeder::class);
+
+        // 6. Seed Khách hàng
+        $this->call(KhachHangSeeder::class);
+
+        // 7. Seed danh mục sản phẩm
+        $this->call(LoaiSanPhamSeeder::class);
+
+        // 8. Seed Nhà cung cấp
+        $this->call(NhaCungCapSeeder::class);
+
+        // 9. Seed Sản phẩm (gắn với Loại & NCC)
+        $this->call(SanPhamSeeder::class);
+
+        // 10. Seed Giảm giá
+        $this->call(GiamGiaSPSeeder::class);
+
+        // 11. Seed Voucher
+        $this->call(VoucherSeeder::class);
+
+        // 12. Seed thông tin cửa hàng
+        $this->call(StoreInfoSeeder::class);
+
+        // ❌ KHÔNG seed: Phiếu nhập, Hóa đơn, Phiếu hủy (cần nhất quán dữ liệu)
     }
 }

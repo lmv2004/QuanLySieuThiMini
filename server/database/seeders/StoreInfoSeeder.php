@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\StoreInfo;
+use Illuminate\Database\Seeder;
 
 class StoreInfoSeeder extends Seeder
 {
@@ -13,15 +12,15 @@ class StoreInfoSeeder extends Seeder
      */
     public function run(): void
     {
-        // Only create if no store info exists
-        if (StoreInfo::count() === 0) {
-            StoreInfo::create([
-                'name' => 'Siêu Thị Mini',
-                'address' => '123 Đường ABC, Quận 1, TP.HCM',
-                'phone' => 'Hotline: 0123 456 789',
+        StoreInfo::updateOrCreate(
+            ['id' => 1],
+            [
+                'name' => 'Siêu Thị Mini - Quản Lý Hàng',
+                'address' => '999 Đường Lê Lợi, Quận 1, TP.HCM',
+                'phone' => '0283825555',
                 'tax_code' => '0123456789',
-                'note' => 'Cảm ơn quý khách và hẹn gặp lại!'
-            ]);
-        }
+                'note' => 'Cửa hàng siêu thị mini quản lý hàng hóa, bán hàng và tồn kho',
+            ]
+        );
     }
 }

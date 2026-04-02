@@ -22,7 +22,7 @@ class Voucher extends Model
         'KMTOIDA',
         'PTGIAM',
         'SOLUOTSD',
-        'DADUNG',
+        'SOLUOTSD_DADUNG',
         'TRANGTHAI',
         'IS_DELETED',
     ];
@@ -35,7 +35,7 @@ class Voucher extends Model
         'KMTOIDA' => 'decimal:0',
         'PTGIAM' => 'integer',
         'SOLUOTSD' => 'integer',
-        'DADUNG' => 'integer',
+        'SOLUOTSD_DADUNG' => 'integer',
         'TRANGTHAI' => 'integer',
         'IS_DELETED' => 'boolean',
     ];

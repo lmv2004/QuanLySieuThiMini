@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChucVuController;
 use App\Http\Controllers\CTPhieuHuyController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\GiamGiaSPController;
@@ -243,4 +244,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('store-info/{storeInfo}', [StoreInfoController::class, 'show'])->middleware('permission:invoices.view');
     Route::put('store-info/{storeInfo}', [StoreInfoController::class, 'update'])->middleware('permission:invoices.edit');
     Route::delete('store-info/{storeInfo}', [StoreInfoController::class, 'destroy'])->middleware('permission:invoices.edit');
+
+    // ── Dashboard ──
+    Route::get('dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
 });

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\ChucVu;
 use Illuminate\Database\Seeder;
 
 class ChucVuSeeder extends Seeder
@@ -12,29 +12,35 @@ class ChucVuSeeder extends Seeder
      */
     public function run(): void
     {
-        $chucVus = [
+        $data = [
             [
-                'CODE' => 'manager',
+                'CODE' => 'ADMIN',
+                'TENCHUCVU' => 'Quản trị viên',
+                'MOTA' => 'Toàn quyền hệ thống',
+                'IS_DELETED' => false,
+            ],
+            [
+                'CODE' => 'QUANLY',
                 'TENCHUCVU' => 'Quản lý cửa hàng',
-                'MOTA' => 'Người quản lý cửa hàng có quyền quản lý toàn bộ hệ thống'
+                'MOTA' => 'Quản lý sản phẩm, khách hàng, nhập xuất',
+                'IS_DELETED' => false,
             ],
             [
-                'CODE' => 'cashier',
-                'TENCHUCVU' => 'Nhân viên thu ngân',
-                'MOTA' => 'Nhân viên thu ngân xử lý các giao dịch bán hàng'
+                'CODE' => 'THUNGAN',
+                'TENCHUCVU' => 'Thu ngân',
+                'MOTA' => 'Bán hàng, thanh toán',
+                'IS_DELETED' => false,
             ],
             [
-                'CODE' => 'warehouse',
+                'CODE' => 'NVKHO',
                 'TENCHUCVU' => 'Nhân viên kho',
-                'MOTA' => 'Nhân viên kho quản lý hàng tồn kho'
+                'MOTA' => 'Quản lý kho hàng, nhập xuất',
+                'IS_DELETED' => false,
             ],
         ];
 
-        foreach ($chucVus as $cv) {
-            \App\Models\ChucVu::updateOrCreate(
-                ['CODE' => $cv['CODE']],
-                $cv
-            );
+        foreach ($data as $chucVu) {
+            ChucVu::create($chucVu);
         }
     }
 }

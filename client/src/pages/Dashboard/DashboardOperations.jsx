@@ -1,24 +1,34 @@
 import React from 'react';
 
 // ── Module Hub ─────────────────────────────────
-export const ModuleHub = ({ stats }) => (
-    <div className="dash-card dash-animate" style={{ animationDelay: '0.15s', marginBottom: 20 }}>
-        <div className="dash-card-header">
-            <div className="dash-card-header-title">Tổng quan Hệ thống</div>
-        </div>
-        <div className="dash-module-grid">
-            {stats.map((s, i) => (
-                <div className="dash-module-item" key={i}>
-                    <div className="dash-module-icon" style={{ background: s.bg + '15', color: s.bg }}>{s.icon}</div>
-                    <div>
-                        <div className="dash-module-count">{s.count}</div>
-                        <div className="dash-module-label">{s.label}</div>
+export const ModuleHub = ({ stats = {} }) => {
+    // Convert operations object to array format
+    const modules = [
+        { icon: '📦', label: 'Phiếu nhập', count: stats.total_purchases || 0, bg: '#4CAF50' },
+        { icon: '📄', label: 'Tổng hóa đơn', count: stats.total_invoices || 0, bg: '#2196F3' },
+        { icon: '✅', label: 'Đã thanh toán', count: stats.paid_invoices || 0, bg: '#FF9800' },
+        { icon: '⏳', label: 'Chờ thanh toán', count: stats.pending_invoices || 0, bg: '#f44336' },
+    ];
+
+    return (
+        <div className="dash-card dash-animate" style={{ animationDelay: '0.15s', marginBottom: 20 }}>
+            <div className="dash-card-header">
+                <div className="dash-card-header-title">Tổng quan Hệ thống</div>
+            </div>
+            <div className="dash-module-grid">
+                {modules.map((s, i) => (
+                    <div className="dash-module-item" key={i}>
+                        <div className="dash-module-icon" style={{ background: s.bg + '15', color: s.bg }}>{s.icon}</div>
+                        <div>
+                            <div className="dash-module-count">{s.count}</div>
+                            <div className="dash-module-label">{s.label}</div>
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 // ── Alerts ─────────────────────────────────────
 export const DashboardAlerts = ({ alerts }) => (
