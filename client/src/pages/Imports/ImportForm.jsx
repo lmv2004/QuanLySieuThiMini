@@ -1,23 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../services/api';
+import useAuth from '../../hooks/useAuth';
 
 export const emptyImport = {
-    MAPHIEU: null,   // cần để customSave biết ID khi edit
-    NGAYLAP: '',
-    MANV: '',
-    MANCC: '',
-    GCHU: '',
-    TRANGTHAI: '',   // QUAN TRỌNG: phải có để SimplePage không drop field này
-    chiTiets: [],
+    MAPHIEU:   null,
+    NGAYLAP:   '',
+    MANV:      '',
+    TENNV:     '',   // chỉ để hiển thị
+    MANCC:     '',
+    GCHU:      '',
+    TRANGTHAI: '',
+    chiTiets:  [],
 };
 
 const emptyLine = { MASP: '', TENSP: '', SOLUONG: '', DONGIANHAP: '', HANSUDUNG: '' };
 
 const fmtVND = (v) => Number(v || 0).toLocaleString('vi-VN') + ' ₫';
 
-export const ImportForm = ({ form, hc, setForm, isView, formErrors = {}, suppliers = [], modalMode }) => {
+// Format datetime-local value từ Date object
+const toDatetimeLocal = (d) => {
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+export const ImportForm = ({ form, hc, setForm, isView, formErrors = {}, suppliers = [] }) => {
+    const { user } = useAuth();
     const [products, setProducts] = useState([]);
-    const [employees, setEmployees] = useState([]);
+
+    // Tự động điền NGAYLAP và MANV khi mở form thêm mới
+    useEffect(() => {
+        if (!form.MAPHIEU && !form.TRANGTHAI) {
+            setForm(prev => ({
+                ...prev,
+                NGAYLAP: toDatetimeLocal(new Date()),
+                MANV:    user?.MANV  ?? '',
+                TENNV:   user?.TENNV ?? '',
+            }));
+        }
+    }, [user, form.MAPHIEU, form.TRANGTHAI]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         api.get('/products', { params: { per_page: 1000 } })
@@ -27,17 +47,8 @@ export const ImportForm = ({ form, hc, setForm, isView, formErrors = {}, supplie
                 setProducts(items.filter(p => !p.IS_DELETED));
             })
             .catch(() => {});
-
-        api.get('/employees', { params: { per_page: 1000 } })
-            .then(res => {
-                const data = res?.data ?? res;
-                const items = Array.isArray(data) ? data : (data?.data ?? []);
-                setEmployees(items.filter(e => !e.IS_DELETED));
-            })
-            .catch(() => {});
     }, []);
 
-    // Đảm bảo chiTiets luôn là array
     const lines = Array.isArray(form.chiTiets) ? form.chiTiets : [];
 
     const setLines = (updater) => {
@@ -53,14 +64,14 @@ export const ImportForm = ({ form, hc, setForm, isView, formErrors = {}, supplie
             const updated = { ...line, [field]: value };
             if (field === 'MASP') {
                 const sp = products.find(p => String(p.MASP) === String(value));
-                updated.TENSP = sp?.TENSP ?? '';
+                updated.TENSP      = sp?.TENSP ?? '';
                 updated.DONGIANHAP = sp?.tonKhos?.slice(-1)[0]?.GIANHAP ?? '';
             }
             return updated;
         }));
     };
 
-    const addLine = () => setLines(prev => [...prev, { ...emptyLine }]);
+    const addLine    = () => setLines(prev => [...prev, { ...emptyLine }]);
     const removeLine = (idx) => setLines(prev => prev.filter((_, i) => i !== idx));
 
     const totalTien = lines.reduce(
@@ -68,42 +79,44 @@ export const ImportForm = ({ form, hc, setForm, isView, formErrors = {}, supplie
     );
 
     const isPending = !form.TRANGTHAI || form.TRANGTHAI === 'PENDING';
-    const canEdit = !isView && isPending;
+    const canEdit   = !isView && isPending;
+    const isNew     = !form.MAPHIEU;
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {/* Thông tin chung */}
+            {/* Ngày lập + Nhân viên */}
             <div className="form-row">
                 <div className="form-group">
-                    <label className="form-label">Ngày lập *</label>
+                    <label className="form-label">Ngày lập</label>
                     <input
                         className="form-input"
                         type="datetime-local"
                         name="NGAYLAP"
                         value={form.NGAYLAP || ''}
-                        onChange={hc}
-                        disabled={!canEdit}
+                        readOnly
+                        disabled
+                        style={{ opacity: 0.7, cursor: 'not-allowed' }}
                     />
-                    {formErrors.NGAYLAP && <span className="form-error">{formErrors.NGAYLAP}</span>}
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, display: 'block' }}>
+                        {isNew ? 'Tự động gán khi tạo phiếu' : 'Không thể thay đổi'}
+                    </span>
                 </div>
                 <div className="form-group">
                     <label className="form-label">Nhân viên lập</label>
-                    <select
-                        className="form-select"
-                        name="MANV"
-                        value={form.MANV || ''}
-                        onChange={hc}
-                        disabled={!canEdit}
-                    >
-                        <option value="">— Chọn nhân viên —</option>
-                        {employees.map(e => (
-                            <option key={e.MANV} value={e.MANV}>{e.TENNV}</option>
-                        ))}
-                    </select>
-                    {formErrors.MANV && <span className="form-error">{formErrors.MANV}</span>}
+                    <input
+                        className="form-input"
+                        value={form.TENNV || form.nhanVien?.TENNV || (user?.TENNV ?? '—')}
+                        readOnly
+                        disabled
+                        style={{ opacity: 0.7, cursor: 'not-allowed' }}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, display: 'block' }}>
+                        Lấy từ tài khoản đang đăng nhập
+                    </span>
                 </div>
             </div>
 
+            {/* NCC + Ghi chú */}
             <div className="form-row">
                 <div className="form-group">
                     <label className="form-label">Nhà cung cấp *</label>
@@ -134,7 +147,7 @@ export const ImportForm = ({ form, hc, setForm, isView, formErrors = {}, supplie
                 </div>
             </div>
 
-            {/* Trạng thái (chỉ hiển thị khi xem/sửa) */}
+            {/* Trạng thái — chỉ hiển thị khi xem/sửa */}
             {form.TRANGTHAI && (
                 <div className="form-group">
                     <label className="form-label">Trạng thái</label>
@@ -181,9 +194,9 @@ export const ImportForm = ({ form, hc, setForm, isView, formErrors = {}, supplie
                         <tr style={{ borderBottom: '1px solid var(--border)' }}>
                             <th style={{ padding: '6px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' }}>Sản phẩm</th>
                             <th style={{ padding: '6px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', width: 80 }}>SL</th>
-                            <th style={{ padding: '6px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', width: 120 }}>Đơn giá nhập</th>
+                            <th style={{ padding: '6px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', width: 130 }}>Đơn giá nhập</th>
                             <th style={{ padding: '6px 8px', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', width: 130 }}>Hạn sử dụng</th>
-                            <th style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', width: 110 }}>Thành tiền</th>
+                            <th style={{ padding: '6px 8px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', width: 120 }}>Thành tiền</th>
                             {canEdit && <th style={{ width: 36 }}></th>}
                         </tr>
                     </thead>
@@ -274,7 +287,7 @@ export const ImportForm = ({ form, hc, setForm, isView, formErrors = {}, supplie
                     </tbody>
                 </table>
 
-                {/* Tổng tiền */}
+                {/* Tổng tiền realtime */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10, fontSize: 15, fontWeight: 700, color: 'var(--accent)' }}>
                     Tổng tiền: {fmtVND(totalTien)}
                 </div>

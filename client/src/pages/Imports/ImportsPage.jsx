@@ -92,9 +92,8 @@ export const ImportsPage = () => {
                     suppliers={suppliers}
                 />
             )}
-            validate={(form, mode) => {
+            validate={(form) => {
                 const errs = {};
-                if (!form.NGAYLAP) errs.NGAYLAP = 'Ngày lập là bắt buộc';
                 if (!form.MANCC) errs.MANCC = 'Vui lòng chọn nhà cung cấp';
                 const lines = Array.isArray(form.chiTiets) ? form.chiTiets : [];
                 if (lines.length === 0) errs.chiTiets = 'Phiếu nhập phải có ít nhất 1 sản phẩm';
@@ -103,11 +102,10 @@ export const ImportsPage = () => {
                 return errs;
             }}
             customSave={async (form, isEdit, setList, addToast, close) => {
+                // NGAYLAP và MANV do server tự gán — không gửi lên
                 const payload = {
-                    NGAYLAP:  form.NGAYLAP,
-                    MANV:     form.MANV     || undefined,
                     MANCC:    form.MANCC,
-                    GCHU:     form.GCHU     || undefined,
+                    GCHU:     form.GCHU || undefined,
                     chiTiets: (form.chiTiets ?? []).map(l => ({
                         MASP:       Number(l.MASP),
                         SOLUONG:    Number(l.SOLUONG),
@@ -118,7 +116,6 @@ export const ImportsPage = () => {
                 if (isEdit) {
                     const res = await api.put(`/purchase-orders/${form.MAPHIEU}`, payload);
                     const updated = res?.data?.data ?? res?.data ?? res;
-                    // Giữ nguyên TRANGTHAI từ server response hoặc form gốc
                     setList(prev => prev.map(x =>
                         x.MAPHIEU === form.MAPHIEU
                             ? { ...x, ...updated, TRANGTHAI: updated.TRANGTHAI ?? form.TRANGTHAI }

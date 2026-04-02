@@ -48,15 +48,19 @@ class PhieuNhapController extends Controller
         try {
             $data = $request->validated();
 
-            // Tính TONGTIEN từ chiTiets
+            /** @var \App\Models\TaiKhoan $authUser */
+            $authUser = $request->user();
+            $manv = $authUser->MANV;
+
+            // Tính TONGTIEN chính xác từ chiTiets (không nhận từ client)
             $tongTien = collect($data['chiTiets'])
-                ->sum(fn($ct) => $ct['SOLUONG'] * $ct['DONGIANHAP']);
+                ->sum(fn($ct) => (int)$ct['SOLUONG'] * (float)$ct['DONGIANHAP']);
 
             $phieuNhap = PhieuNhap::create([
-                'NGAYLAP'   => $data['NGAYLAP'],
-                'MANV'      => $data['MANV'],
-                'MANCC' => $data['MANCC'],
-                'TONGTIEN'  => $tongTien,
+                'NGAYLAP'   => now(),           // hardcode server time
+                'MANV'      => $manv,           // hardcode từ auth
+                'MANCC'     => $data['MANCC'],
+                'TONGTIEN'  => $tongTien,       // tính lại server-side
                 'GCHU'      => $data['GCHU'] ?? null,
                 'TRANGTHAI' => PhieuNhap::TRANGTHAI_PENDING,
             ]);
@@ -104,7 +108,7 @@ class PhieuNhapController extends Controller
             $phieuNhap->chiTiets()->delete();
 
             $tongTien = collect($data['chiTiets'])
-                ->sum(fn($ct) => $ct['SOLUONG'] * $ct['DONGIANHAP']);
+                ->sum(fn($ct) => (int)$ct['SOLUONG'] * (float)$ct['DONGIANHAP']);
 
             $phieuNhap->update([
                 'NGAYLAP'  => $data['NGAYLAP'] ?? $phieuNhap->NGAYLAP,
@@ -201,6 +205,81 @@ class PhieuNhapController extends Controller
         $phieuNhap->IS_DELETED = true;
         $phieuNhap->save();
         return response()->noContent();
+    }
+
+    /**
+     * Bulk import từ file Excel template.
+     * Mỗi item trong data = { MANCC, GCHU, chiTiets: [{MASP, SOLUONG, DONGIANHAP, HANSUDUNG}] }
+     */
+    public function bulkStore(Request $request)
+    {
+        $rows = $request->input('data', []);
+
+        if (empty($rows)) {
+            return response()->json(['message' => 'Không có dữ liệu để import.'], 422);
+        }
+
+        /** @var \App\Models\TaiKhoan $authUser */
+        $authUser = $request->user();
+        $manv = $authUser->MANV;
+
+        DB::beginTransaction();
+        try {
+            $created = 0;
+
+            foreach ($rows as $row) {
+                $mancc     = (int)($row['MANCC'] ?? 0);
+                $gchu      = trim($row['GCHU'] ?? '') ?: null;
+                $chiTiets  = $row['chiTiets'] ?? [];
+
+                // Lọc bỏ các dòng không hợp lệ
+                $validLines = array_filter($chiTiets, fn($ct) =>
+                    !empty($ct['MASP']) && (int)($ct['MASP']) > 0 &&
+                    !empty($ct['SOLUONG']) && (int)($ct['SOLUONG']) > 0
+                );
+
+                if (empty($validLines) || $mancc === 0) continue;
+
+                $tongTien = collect($validLines)
+                    ->sum(fn($ct) => (int)$ct['SOLUONG'] * (float)($ct['DONGIANHAP'] ?? 0));
+
+                $phieuNhap = PhieuNhap::create([
+                    'NGAYLAP'   => now(),
+                    'MANV'      => $manv,
+                    'MANCC'     => $mancc,
+                    'TONGTIEN'  => $tongTien,
+                    'GCHU'      => $gchu,
+                    'TRANGTHAI' => PhieuNhap::TRANGTHAI_PENDING,
+                ]);
+
+                foreach ($validLines as $ct) {
+                    // Sanitize HANSUDUNG: chỉ chấp nhận định dạng YYYY-MM-DD
+                    $hansudung = $ct['HANSUDUNG'] ?? null;
+                    if ($hansudung && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $hansudung)) {
+                        $hansudung = null;
+                    }
+
+                    CTPhieuNhap::create([
+                        'MAPHIEU'    => $phieuNhap->MAPHIEU,
+                        'MASP'       => (int)$ct['MASP'],
+                        'SOLUONG'    => (int)$ct['SOLUONG'],
+                        'DONGIANHAP' => (float)($ct['DONGIANHAP'] ?? 0),
+                        'HANSUDUNG'  => $hansudung,
+                    ]);
+                }
+                $created++;
+            }
+
+            DB::commit();
+            return response()->json([
+                'message' => "Đã tạo {$created} phiếu nhập thành công.",
+                'count'   => $created,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Lỗi khi import: ' . $e->getMessage()], 500);
+        }
     }
 }
 
