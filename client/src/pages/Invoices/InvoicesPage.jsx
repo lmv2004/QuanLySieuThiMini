@@ -289,6 +289,11 @@ export const InvoicesPage = () => {
                 MANV: cashier.MANV,
                 MAKH: customerId || null,
                 SOVOUCHER: voucherCode || null,
+                items: cart.map(item => ({
+                    MASP: item.MASP,
+                    SOLUONG: item.SOLUONG,
+                    GIABAN_THUCTE: item.GIABAN_THUCTE,
+                })),
             };
 
             await api.post('/invoices', payload);

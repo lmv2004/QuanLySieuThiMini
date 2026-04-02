@@ -31,6 +31,10 @@ class StoreHoaDonRequest extends FormRequest
             'MANV' => 'required|integer|exists:nhan_viens,MANV',
             'MAKH' => 'nullable|integer|exists:khach_hangs,MAKH',
             'SOVOUCHER' => 'nullable|string|exists:vouchers,SOVOUCHER',
+            'items' => 'required|array|min:1',
+            'items.*.MASP' => 'required|exists:san_phams,MASP',
+            'items.*.SOLUONG' => 'required|integer|min:1',
+            'items.*.GIABAN_THUCTE' => 'required|numeric|min:0',
         ];
     }
 }

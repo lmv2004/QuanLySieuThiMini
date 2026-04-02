@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Header from '../../components/layout/Header/Header.jsx';
+import api from '../../services/api.js';
+import { useAuth } from '../../hooks/useAuth.js';
 import './Cashier.css';
 
 // ════════════════════════════════════════════════════════════
@@ -45,6 +47,7 @@ const totalStock = (tonKhos = []) =>
 //          TIEN_GIAM_VOUCHER, TONG_THANHTOAN, MANV, MAKH
 // ════════════════════════════════════════════════════════════
 const TaoDoPage = ({ onOrderCreated }) => {
+    const { user } = useAuth();
     // TODO: fetch từ API /products?with=tonKhos,giamGias,loaiSanPham
     const [products] = useState([]);
     const [search, setSearch] = useState('');
@@ -52,6 +55,7 @@ const TaoDoPage = ({ onOrderCreated }) => {
     //                   GIABAN_THUCTE, SOLUONG, THANHTIEN, ID_TONKHO }
     const [cart, setCart] = useState([]);
     const [sovoucher, setSovoucher] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const filtered = useMemo(() => {
         const q = search.toLowerCase();
@@ -120,17 +124,43 @@ const TaoDoPage = ({ onOrderCreated }) => {
     const TONGTIEN_HANG = cart.reduce((s, c) => s + c.THANHTIEN, 0);
     const TONG_THANHTOAN = TONGTIEN_HANG; // voucher deducted on confirm
 
-    const handleSubmitOrder = () => {
+    const handleSubmitOrder = async () => {
         if (cart.length === 0) return;
-        // TODO: POST /orders với body:
-        // { NGAYHD: now, MANV: currentUser.MANV, MAKH: null, SOVOUCHER: sovoucher||null,
-        //   TONGTIEN_HANG, TIEN_GIAM_VOUCHER: 0, TONG_THANHTOAN,
-        //   chiTiets: cart.map(c => ({ MASP:c.MASP, ID_TONKHO:c.ID_TONKHO,
-        //               SOLUONG:c.SOLUONG, GIABAN_GOC:c.GIABAN_GOC,
-        //               GIABAN_THUCTE:c.GIABAN_THUCTE, THANHTIEN:c.THANHTIEN })) }
-        if (onOrderCreated) onOrderCreated();
-        setCart([]);
-        setSovoucher('');
+        if (!user?.MANV) {
+            alert('Lỗi: Không tìm thấy thông tin nhân viên');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const payload = {
+                NGAYHD: new Date().toISOString().split('T')[0],
+                MANV: user.MANV,
+                MAKH: null,
+                SOVOUCHER: sovoucher || null,
+                TONGTIEN_HANG: TONGTIEN_HANG,
+                TIEN_GIAM_VOUCHER: 0,
+                TONG_THANHTOAN: TONG_THANHTOAN,
+                // Backend sẽ tự động áp dụng FEFO (First Expire First Out)
+                // Không cần gửi ID_TONKHO cụ thể
+                items: cart.map(c => ({
+                    MASP: c.MASP,
+                    SOLUONG: c.SOLUONG,
+                    GIABAN_THUCTE: c.GIABAN_THUCTE,
+                }))
+            };
+
+            const response = await api.post('/invoices', payload);
+            alert('Tạo đơn hàng thành công! Mã: ' + response.data.data.MAHD);
+            if (onOrderCreated) onOrderCreated();
+            setCart([]);
+            setSovoucher('');
+        } catch (err) {
+            console.error('Lỗi tạo đơn:', err);
+            alert('Lỗi: ' + (err.response?.data?.message || err.message));
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

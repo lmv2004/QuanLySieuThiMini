@@ -23,6 +23,11 @@ const normalizePayload = (form) => ({
     MANV: form.MANV || null,
     MAKH: form.MAKH || null,
     SOVOUCHER: form.SOVOUCHER || null,
+    items: (form.chiTiets || []).map(ct => ({
+        MASP: ct.MASP,
+        SOLUONG: Number(ct.SOLUONG || 0),
+        GIABAN_THUCTE: Number(ct.GIABAN_THUCTE || 0),
+    })),
 });
 
 const validateInvoice = (form) => {
