@@ -13,6 +13,7 @@ use App\Http\Controllers\NhaCungCapController;
 use App\Http\Controllers\NhanVienController;
 use App\Http\Controllers\PhieuHuyController;
 use App\Http\Controllers\PhieuNhapController;
+use App\Http\Controllers\RevenueReportController;
 use App\Http\Controllers\SanPhamController;
 use App\Http\Controllers\StoreInfoController;
 use App\Http\Controllers\TaiKhoanController;
@@ -249,4 +250,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ── Dashboard ──
     Route::get('dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
+
+    // ── Revenue Reports ──
+    Route::prefix('reports/revenue')->middleware('permission:reports.view')->group(function () {
+        Route::get('summary', [RevenueReportController::class, 'summary']);      // Báo cáo tổng quát
+        Route::get('monthly', [RevenueReportController::class, 'monthly']);      // Báo cáo theo tháng
+        Route::get('yearly', [RevenueReportController::class, 'yearly']);        // Báo cáo theo năm
+        Route::get('advanced', [RevenueReportController::class, 'advanced']);    // Báo cáo nâng cao
+        Route::get('hourly', [RevenueReportController::class, 'hourly']);        // Phân tích 24h
+        Route::get('by-category', [RevenueReportController::class, 'byCategory']); // Doanh thu theo loại SP
+        Route::get('trends', [RevenueReportController::class, 'trends']);        // Xu hướng doanh thu
+    });
 });
