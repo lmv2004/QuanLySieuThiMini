@@ -12,12 +12,35 @@ class SanPhamController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        return SanPhamResource::collection(SanPham::active()
-            // ->with(['loaiSanPham', 'nhaCungCap'])
-            ->get()
-        );
+        $query = SanPham::active();
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('TENSP', 'like', '%' . $search . '%')
+                  ->orWhere('BARCODE', 'like', '%' . $search . '%')
+                  ->orWhere('MOTA', 'like', '%' . $search . '%');
+            });
+        }
+
+        $query->with([
+            'loaiSanPham',
+            'nhaCungCap',
+            'tonKhos' => function ($q) {
+                $q->where('IS_ACTIVE', 1)
+                  ->where('SOLUONG_CON_LAI', '>', 0)
+                  ->orderBy('HANSUDUNG', 'asc');
+            }
+        ]);
+
+        // Pagination
+        $perPage = $request->input('per_page', 50);
+        $products = $query->paginate($perPage);
+
+        return SanPhamResource::collection($products);
     }
 
     /**
@@ -52,7 +75,9 @@ class SanPhamController extends Controller
             'loaiSanPham',
             'nhaCungCap',
             'tonKhos' => function ($query) {
-                $query->active();
+                $query->where('IS_ACTIVE', 1)
+                    ->where('SOLUONG_CON_LAI', '>', 0)
+                    ->orderBy('HANSUDUNG', 'asc');
             },
         ]);
         return new SanPhamResource($product);

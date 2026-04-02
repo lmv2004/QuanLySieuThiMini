@@ -183,6 +183,20 @@ export const InvoicesPage = () => {
 
     const addToCart = (product) => {
         if (!product || product.IS_DELETED) return;
+        
+        // Thử lấy tonKhos từ product, nếu không có thì lấy từ server
+        if (!product.tonKhos || product.tonKhos.length === 0) {
+            addToast('warning', `Đang tải thông tin tồn kho cho sản phẩm ${product.TENSP}...`);
+            // Tự động fetch lại từ server
+            api.get(`/products/barcode/${product.BARCODE}`).then(res => {
+                const fullProduct = res?.data || res;
+                addToCart(fullProduct);
+            }).catch(() => {
+                addToast('error', `Không thể tải thông tin tồn kho`);
+            });
+            return;
+        }
+        
         const activeLots = Array.isArray(product.tonKhos)
             ? product.tonKhos.filter(t => t.IS_ACTIVE && Number(t.SOLUONG_CON_LAI) > 0)
             : [];
