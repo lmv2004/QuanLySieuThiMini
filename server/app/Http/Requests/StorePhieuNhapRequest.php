@@ -14,10 +14,10 @@ class StorePhieuNhapRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'NGAYLAP'               => 'required|date',
-            'MANV'                  => 'required|integer|exists:nhan_viens,MANV',
+            // NGAYLAP và MANV không nhận từ client — server tự gán
             'MANCC'                 => 'required|integer|exists:nha_cung_caps,MANCC',
             'GCHU'                  => 'nullable|string|max:255',
+
             'chiTiets'              => 'required|array|min:1',
             'chiTiets.*.MASP'       => 'required|integer|exists:san_phams,MASP',
             'chiTiets.*.SOLUONG'    => 'required|integer|min:1',
@@ -29,12 +29,8 @@ class StorePhieuNhapRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'NGAYLAP.required' => 'Ngày lập phiếu là bắt buộc.',
-            'NGAYLAP.date'     => 'Ngày lập phải là định dạng ngày hợp lệ.',
-
-            'MANV.required' => 'Mã nhân viên lập phiếu là bắt buộc.',
-            'MANV.integer'  => 'Mã nhân viên phải là số nguyên.',
-            'MANV.exists'   => 'Nhân viên không tồn tại trong hệ thống.',
+            'MANCC.required' => 'Vui lòng chọn nhà cung cấp.',
+            'MANCC.exists'   => 'Nhà cung cấp không tồn tại trong hệ thống.',
 
             'GCHU.max' => 'Ghi chú không được vượt quá 255 ký tự.',
 

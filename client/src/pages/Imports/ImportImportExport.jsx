@@ -24,13 +24,41 @@ export const ImportImportExport = ({ onRefresh, addToast, data }) => {
     const handleClose = () => { setIsOpen(false); setTimeout(resetForm, 300); };
     const handleFileSelect = (e) => { const file = e.target.files[0]; if (file) setImportFile(file); };
 
-    const downloadTemplate = () => {
-        const templateData = [{ 'Ngày lập': '2026-03-18', 'Mã NV lập': 1, 'Tổng tiền': 15000000, 'Ghi chú': 'Nhập đợt 1' }];
-        const ws = XLSX.utils.json_to_sheet(templateData);
-        ws['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 30 }, { wch: 20 }];
+    const downloadTemplate = async () => {
+        // Sheet 1: Template Import
+        const templateRows = [
+            {
+                'Mã NCC (MANCC)': '',
+                'Mã SP (MASP)': '',
+                'Số lượng (SOLUONG)': '',
+                'Đơn giá nhập (DONGIANHAP)': '',
+                'Hạn sử dụng (HANSUDUNG - YYYY-MM-DD)': '',
+                'Ghi chú phiếu (GCHU)': '',
+            },
+        ];
+        const ws1 = XLSX.utils.json_to_sheet(templateRows);
+        ws1['!cols'] = [
+            { wch: 18 }, { wch: 16 }, { wch: 22 }, { wch: 26 }, { wch: 36 }, { wch: 24 },
+        ];
+
+        // Sheet 2: Danh mục sản phẩm — fetch từ API
+        let spRows = [{ 'Mã SP (MASP)': '(Không tải được dữ liệu)', 'Tên sản phẩm': '' }];
+        try {
+            const res = await api.get('/products', { params: { per_page: 1000 } });
+            const data = res?.data ?? res;
+            const items = Array.isArray(data) ? data : (data?.data ?? []);
+            spRows = items
+                .filter(p => !p.IS_DELETED)
+                .map(p => ({ 'Mã SP (MASP)': p.MASP, 'Tên sản phẩm': p.TENSP }));
+        } catch { /* giữ fallback */ }
+
+        const ws2 = XLSX.utils.json_to_sheet(spRows);
+        ws2['!cols'] = [{ wch: 16 }, { wch: 40 }];
+
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Template');
-        XLSX.writeFile(wb, 'imports_Template.xlsx');
+        XLSX.utils.book_append_sheet(wb, ws1, 'Template Import');
+        XLSX.utils.book_append_sheet(wb, ws2, 'Danh mục Sản phẩm');
+        XLSX.writeFile(wb, 'phieu_nhap_template.xlsx');
     };
 
     const submitExport = () => {
@@ -42,7 +70,15 @@ export const ImportImportExport = ({ onRefresh, addToast, data }) => {
         const fileName = exportName.trim() || `imports_${new Date().getTime()}`;
         const finalFileName = `${fileName}.${exportType}`;
 
-        const exportData = data.map(v => ({ 'Mã phiếu': v.MAPHIEU, 'Ngày lập': v.NGAYLAP, 'Mã NV lập': v.MANV, 'Tổng tiền': v.TONGTIEN || 0, 'Ghi chú': v.GCHU || '', 'Trạng thái': v.IS_DELETED ? 'Đã hủy' : 'Hoàn thành' }));
+        const exportData = data.map(v => ({
+            'Mã phiếu':      `IMP-${String(v.MAPHIEU).padStart(3, '0')}`,
+            'Ngày lập':      v.NGAYLAP ?? '',
+            'Nhà cung cấp':  v.nhaCungCap?.TENNCC ?? v.MANCC ?? '',
+            'NV lập':        v.nhanVien?.TENNV ?? '',
+            'Tổng tiền (₫)': Number(v.TONGTIEN || 0),
+            'Ghi chú':       v.GCHU ?? '',
+            'Trạng thái':    v.TRANGTHAI === 'APPROVED' ? 'Đã duyệt' : v.TRANGTHAI === 'CANCELLED' ? 'Đã hủy' : 'Chờ duyệt',
+        }));
 
         if (exportType === 'json') {
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -93,10 +129,28 @@ export const ImportImportExport = ({ onRefresh, addToast, data }) => {
                     jsonData = XLSX.utils.sheet_to_json(ws);
                 }
 
-                const mappedData = jsonData.map(item => ({ NGAYLAP: item['Ngày lập'] || item.NGAYLAP, MANV: Number(item['Mã NV lập'] || item.MANV || 1), TONGTIEN: Number(item['Tổng tiền'] || item.TONGTIEN || 0), GCHU: String(item['Ghi chú'] || item.GCHU || '') }));
+                const mappedData = jsonData.map(item => {
+                    const hansudung = item['Hạn sử dụng (HANSUDUNG - YYYY-MM-DD)'] || item.HANSUDUNG || '';
+                    // Chỉ giữ HANSUDUNG nếu đúng định dạng YYYY-MM-DD
+                    const validHSD = /^\d{4}-\d{2}-\d{2}$/.test(String(hansudung).trim())
+                        ? String(hansudung).trim()
+                        : undefined;
+
+                    return {
+                        MANCC: Number(item['Mã NCC (MANCC)'] || item.MANCC || 0),
+                        GCHU:  String(item['Ghi chú phiếu (GCHU)'] || item.GCHU || ''),
+                        chiTiets: [{
+                            MASP:       Number(item['Mã SP (MASP)']              || item.MASP       || 0),
+                            SOLUONG:    Number(item['Số lượng (SOLUONG)']        || item.SOLUONG    || 0),
+                            DONGIANHAP: Number(item['Đơn giá nhập (DONGIANHAP)'] || item.DONGIANHAP || 0),
+                            HANSUDUNG:  validHSD,
+                        }],
+                    };
+                });
 
                 const res = await api.post('/purchase-orders/bulk', { data: mappedData });
-                addToast('success', `Đã nhập thành công ${res.data.count || mappedData.length} dòng`);
+                const count = res?.count ?? res?.data?.count ?? mappedData.length;
+                addToast('success', `Đã nhập thành công ${count} phiếu`);
                 if (onRefresh) onRefresh();
                 handleClose();
             } catch (err) {

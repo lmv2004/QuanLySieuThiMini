@@ -163,6 +163,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('inventories/{inventory}', [TonKhoController::class, 'show'])->middleware('permission:inventories.view');
 
     // ── Purchase Orders ──
+    Route::post('purchase-orders/bulk', [PhieuNhapController::class, 'bulkStore'])->middleware('permission:purchase-orders.create');
     Route::get('purchase-orders', [PhieuNhapController::class, 'index'])->middleware('permission:purchase-orders.view');
     Route::get('purchase-orders/{purchase_order}', [PhieuNhapController::class, 'show'])->middleware('permission:purchase-orders.view');
     Route::post('purchase-orders', [PhieuNhapController::class, 'store'])->middleware('permission:purchase-orders.create');
