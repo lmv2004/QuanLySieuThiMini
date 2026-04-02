@@ -11,7 +11,9 @@ class AuthController extends Controller
             return response()->json(['message' => 'Sai thông tin'], 401);
         }
 
-        $user = Auth::user()->load('nhanVien.chucVu');
+        /** @var \App\Models\TaiKhoan $user */
+        $user = Auth::user();
+        $user->load('nhanVien.chucVu');
         $token = $user->createToken('api-token')->plainTextToken;
 
         $nhanVien = $user->nhanVien;
