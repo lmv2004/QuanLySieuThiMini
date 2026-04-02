@@ -21,6 +21,18 @@ export const CategoriesPage = () => (
                 { id: 'active', label: 'Hoạt động', filter: (x) => !x.IS_DELETED },
                 { id: 'inactive', label: 'Bị khóa', filter: (x) => x.IS_DELETED },
             ]}
+            validate={(form) => {
+                const errs = {};
+                if (!form.TENLOAI?.trim()) {
+                    errs.TENLOAI = 'Tên loại sản phẩm là bắt buộc';
+                } else if (form.TENLOAI.trim().length > 100) {
+                    errs.TENLOAI = 'Tên loại không được vượt quá 100 ký tự';
+                }
+                if (form.MOTA && form.MOTA.length > 500) {
+                    errs.MOTA = 'Mô tả không được vượt quá 500 ký tự';
+                }
+                return errs;
+            }}
             renderToolbarActions={(fetchData, addToast, list) => (
                 <CategoryImportExport onRefresh={fetchData} addToast={addToast} data={list} />
             )}
@@ -35,8 +47,8 @@ export const CategoriesPage = () => (
             renderGridItem={(item, openEdit, del, i, list, setList, addToast, openView) => (
                 <CategoryGridItem item={item} openEdit={openEdit} del={del} idx={i} list={list} setList={setList} addToast={addToast} openView={openView} />
             )}
-            renderForm={(form, hc, setForm) => (
-                <CategoryForm form={form} hc={hc} setForm={setForm} />
+            renderForm={(form, hc, setForm, isView, formErrors) => (
+                <CategoryForm form={form} hc={hc} setForm={setForm} formErrors={formErrors} />
             )}
         />
     </div>

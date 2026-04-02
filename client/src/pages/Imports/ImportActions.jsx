@@ -1,5 +1,6 @@
 import React from 'react';
 import { Ico } from '../../components/Manage/Icons';
+import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 
 /**
@@ -9,7 +10,11 @@ import api from '../../services/api';
  * - CANCELLED→ Xem (chỉ xem)
  */
 export const ImportActions = ({ item, openEdit, del, list, setList, addToast, openView }) => {
+    const { user, loading } = useAuth();
     const isPending = item.TRANGTHAI === 'PENDING' || !item.TRANGTHAI;
+    // Chỉ cho phép duyệt nếu không phải nhân viên kho (Quản lý, Giám sát,...)
+    // Chỉ show nút nếu user đã load và không phải nhân viên kho
+    const canApprove = !loading && user && user.chucVu?.TENCHUCVU !== 'Nhân viên kho';
 
     const handleApprove = async () => {
         if (!window.confirm(`Duyệt phiếu IMP-${String(item.MAPHIEU).padStart(3, '0')}? Hàng sẽ được nhập vào kho.`)) return;
@@ -57,8 +62,8 @@ export const ImportActions = ({ item, openEdit, del, list, setList, addToast, op
                 </button>
             )}
 
-            {/* Duyệt — chỉ PENDING */}
-            {isPending && (
+            {/* Duyệt — chỉ PENDING và không phải nhân viên kho */}
+            {isPending && canApprove && (
                 <button
                     className="btn-action-ico"
                     title="Duyệt phiếu"
