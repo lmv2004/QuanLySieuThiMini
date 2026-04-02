@@ -1,7 +1,7 @@
 import React from 'react';
 import { SimplePage } from '../../components/Manage/SimplePage';
 import { Ico } from '../../components/Manage/Icons';
-import { fmtDate, fmtVND } from '../../components/Manage/Shared';
+import { fmtDateTime, fmtVND } from '../../components/Manage/Shared';
 import { InvoiceForm, emptyInvoice } from './InvoiceForm';
 import { InvoiceActions } from './InvoiceActions';
 import { InvoiceGridItem } from './InvoiceGridItem';
@@ -49,6 +49,7 @@ export const InvoicesListPage = () => (
             emptyForm={emptyInvoice}
             validate={validateInvoice}
             transformBeforeSave={normalizePayload}
+            hideAdd={true}
             tabs={[
                 { id: 'all', label: 'Tất cả' },
                 { id: 'pending', label: 'Chờ thanh toán', filter: (x) => Number(x.TRANGTHAI) === 0 && !x.IS_DELETED },
@@ -62,7 +63,7 @@ export const InvoicesListPage = () => (
                 const status = STATUS_LABEL[Number(item.TRANGTHAI)] || { text: String(item.TRANGTHAI ?? '—'), cls: 'badge' };
                 return [
                     <td key="mahd" className="inv-code">#{item.MAHD ?? '—'}</td>,
-                    <td key="date" className="entity-sub">{fmtDate(item.NGAYHD)}</td>,
+                    <td key="date" className="entity-sub">{fmtDateTime(item.NGAYHD)}</td>,
                     <td key="customer"><div className="entity-name invoice-customer-name">{item.khachHang?.TENKH || 'Khách lẻ'}</div></td>,
                     <td key="employee" className="entity-sub">{item.nhanVien?.TENNV || '—'}</td>,
                     <td key="method" className="entity-sub">{item.HINHTHUC || '—'}</td>,

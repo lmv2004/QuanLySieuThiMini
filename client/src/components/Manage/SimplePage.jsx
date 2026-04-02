@@ -6,7 +6,7 @@ import api from '../../services/api';
 import { Toast } from './Toast';
 import { removeAccents } from './Shared';
 
-export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc, renderRow, emptyForm, renderForm, validate, transformBeforeSave, transformList, customSave, initialData = [], tabs, renderGridItem, renderActions, stats: statsProp, apiEndpoint, primaryKey = '_id', renderExtraActions, renderToolbarActions, modalSize }) => {
+export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc, renderRow, emptyForm, renderForm, validate, transformBeforeSave, transformList, customSave, initialData = [], tabs, renderGridItem, renderActions, stats: statsProp, apiEndpoint, primaryKey = '_id', renderExtraActions, renderToolbarActions, modalSize, hideAdd = false }) => {
     const [list, setList] = useState(initialData);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -216,9 +216,11 @@ export const SimplePage = ({ title, subtitle, icon, cols, emptyTitle, emptyDesc,
                 </div>
                 <div className="page-actions">
                     {renderExtraActions && renderExtraActions(fetchData, addToast, list)}
-                    <button className="btn-primary" onClick={openAdd}>
-                        {Ico.plus} <span>Thêm mới</span>
-                    </button>
+                    {!hideAdd && (
+                        <button className="btn-primary" onClick={openAdd}>
+                            {Ico.plus} <span>Thêm mới</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
