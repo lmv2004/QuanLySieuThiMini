@@ -42,7 +42,7 @@ class TaiKhoanSeeder extends Seeder
                 'IS_DELETED' => false,
             ],
             [
-                'TENTK' => 'thungan',
+                'TENTK' => 'nvthungan',
                 'MATKHAU' => Hash::make('123456'),
                 'EMAIL' => 'thungan@gmail.com',
                 'MANV' => $thungan?->MANV,
