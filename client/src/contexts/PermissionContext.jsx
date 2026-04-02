@@ -35,6 +35,7 @@ export const MODULE_PERMISSIONS = {
     disposals:   'disposal-slips.view',
 
     // Bán hàng
+    sales:       'invoices.create',
     invoices:    'invoices.view',
     customers:   'customers.view',
 

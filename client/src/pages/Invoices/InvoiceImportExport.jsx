@@ -1,120 +1,93 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
 import { Ico } from '../../components/Manage/Icons';
-import { Modal } from '../../components/Manage/Modal';
+import { fmtVND, fmtDateTime } from '../../components/Manage/Shared';
 
 export const InvoiceImportExport = ({ onRefresh, addToast, data, columns }) => {
-    const fileRef = useRef(null);
-    const [isOpen, setIsOpen] = useState(false);
-    const [mode, setMode] = useState('import'); 
-    const [exportType, setExportType] = useState('xlsx');
-    const [exportName, setExportName] = useState('');
-    const [importFile, setImportFile] = useState(null);
+    const [isExporting, setIsExporting] = useState(false);
 
-    const resetForm = () => {
-        setMode('import');
-        setExportType('xlsx');
-        setExportName('');
-        setImportFile(null);
-    };
+    const handleExportExcel = async () => {
+        if (!data || data.length === 0) {
+            addToast?.('error', 'Không có dữ liệu để xuất');
+            return;
+        }
 
-    const handleOpen = () => { resetForm(); setIsOpen(true); };
-    const handleClose = () => { setIsOpen(false); setTimeout(resetForm, 300); };
-    const handleFileSelect = (e) => { const file = e.target.files[0]; if (file) setImportFile(file); };
+        try {
+            setIsExporting(true);
 
-    const handleSubmit = () => {
-        if (mode === 'import') {
-            if (!importFile) {
-                addToast?.('error', 'Vui lòng chọn file dữ liệu!');
-                return;
+            // Prepare data for Excel
+            const exportData = data.map((invoice) => ({
+                'Mã HĐ': invoice.MAHD || '—',
+                'Ngày giờ lập': fmtDateTime(invoice.NGAYHD),
+                'Nhân viên': invoice.nhanVien?.TENNV || '—',
+                'Khách hàng': invoice.khachHang?.TENKH || 'Khách lẻ',
+                'Hình thức': invoice.HINHTHUC || '—',
+                'Tổng tiền hàng': invoice.TONGTIEN_HANG || 0,
+                'Voucher': invoice.voucher?.MA_VOUCHER || 'Không dùng',
+                'Tiền giảm': invoice.TIEN_GIAM_VOUCHER || 0,
+                'Tổng thanh toán': invoice.TONG_THANHTOAN || 0,
+                'Trạng thái': Number(invoice.TRANGTHAI) === 0 ? 'Chờ thanh toán' : 'Đã thanh toán',
+            }));
+
+            // Create workbook and worksheet
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Danh sách hóa đơn');
+
+            // Auto-size columns
+            ws['!cols'] = [
+                { wch: 12 },  // Mã HĐ
+                { wch: 20 },  // Ngày giờ lập
+                { wch: 15 },  // Nhân viên
+                { wch: 15 },  // Khách hàng
+                { wch: 12 },  // Hình thức
+                { wch: 15 },  // Tổng tiền hàng
+                { wch: 12 },  // Voucher
+                { wch: 12 },  // Tiền giảm
+                { wch: 15 },  // Tổng thanh toán
+                { wch: 15 },  // Trạng thái
+            ];
+
+            // Format numeric columns
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let row = range.s.r + 1; row <= range.e.r; row++) {
+                // Tổng tiền hàng (F)
+                const cellF = XLSX.utils.encode_cell({ r: row, c: 5 });
+                if (ws[cellF]) ws[cellF].z = '#,##0';
+                
+                // Tiền giảm (H)
+                const cellH = XLSX.utils.encode_cell({ r: row, c: 7 });
+                if (ws[cellH]) ws[cellH].z = '#,##0';
+                
+                // Tổng thanh toán (I)
+                const cellI = XLSX.utils.encode_cell({ r: row, c: 8 });
+                if (ws[cellI]) ws[cellI].z = '#,##0';
             }
-            addToast?.('success', `Đã nhận file ${importFile.name} (Chức năng import đang mô phỏng)`);
-            if (onRefresh) onRefresh();
-            handleClose();
-        } else {
-            if (!data || data.length === 0) {
-                addToast?.('error', 'Không có dữ liệu để xuất');
-                return;
-            }
-            addToast?.('success', `Đã xuất dữ liệu ra file (Chức năng export đang mô phỏng)`);
-            handleClose();
+
+            // Generate filename with timestamp
+            const timestamp = new Date().toISOString().slice(0, 10);
+            const filename = `Danh_sach_hoa_don_${timestamp}.xlsx`;
+
+            // Write file
+            XLSX.writeFile(wb, filename);
+            addToast?.('success', `Đã xuất file "${filename}" thành công`);
+        } catch (error) {
+            console.error('Export error:', error);
+            addToast?.('error', 'Lỗi khi xuất file Excel');
+        } finally {
+            setIsExporting(false);
         }
     };
 
     return (
-        <div className="invoice-import-export">
-            <button className="btn-secondary btn-import-export" onClick={handleOpen}>
-                {Ico.file} <span>Nhập / Xuất dữ liệu</span>
+        <div className="invoice-export">
+            <button 
+                className="btn-secondary btn-export" 
+                onClick={handleExportExcel}
+                disabled={isExporting}
+            >
+                {Ico.download} <span>{isExporting ? 'Đang xuất...' : 'Xuất Excel'}</span>
             </button>
-
-            {isOpen && (
-                <Modal
-                    title="Công cụ Nhập / Xuất Dữ Liệu"
-                    onClose={handleClose}
-                    actions={
-                        <>
-                            <button className="btn-secondary" onClick={handleClose}>Hủy</button>
-                            <button className="btn-primary" onClick={handleSubmit}>
-                                {mode === 'import' ? 'Xác nhận Nhập' : 'Thực hiện Xuất'}
-                            </button>
-                        </>
-                    }
-                >
-                    <div className="ie-form">
-                        <div className="form-group" style={{ marginBottom: '24px' }}>
-                            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                {mode === 'import' ? Ico.upload : Ico.download}
-                                Phương thức thao tác
-                            </label>
-                            <div className="ie-select-wrapper">
-                                <select className="form-control ie-select" value={mode} onChange={(e) => setMode(e.target.value)}>
-                                    <option value="import">Nhập dữ liệu (Import từ file lên)</option>
-                                    <option value="export">Xuất dữ liệu (Export danh sách xuống máy)</option>
-                                </select>
-                                <span className="ie-select-caret">{Ico.caret}</span>
-                            </div>
-                        </div>
-
-                        <div className="ie-form-body">
-                            {mode === 'import' ? (
-                                <div className="ie-form-section">
-                                    <label className="form-label">Chọn tệp tải lên</label>
-                                    <div className="ie-upload-area" onClick={() => fileRef.current?.click()}>
-                                        <input type="file" ref={fileRef} style={{ display: 'none' }} onChange={handleFileSelect} accept=".xlsx, .xls, .csv, .json" />
-                                        <div className="ie-upload-icon">{Ico.upload}</div>
-                                        {importFile ? (
-                                            <div className="ie-file-selected">
-                                                <strong>{importFile.name}</strong><span>{(importFile.size / 1024).toFixed(1)} KB</span>
-                                            </div>
-                                       ) : (
-                                            <div className="ie-upload-text">
-                                                <strong>Nhấn để chọn hoặc kéo thả file vào đây</strong>
-                                                <span>Hỗ trợ định dạng: .xlsx, .csv, .json</span>
-                                            </div>
-                                       )}
-                                    </div>
-                                    <p className="form-help-text">Lưu ý: Tệp dữ liệu cần có cấu trúc cột theo quy chuẩn gốc.</p>
-                                </div>
-                            ) : (
-                                <div className="ie-form-section">
-                                    <div className="form-group">
-                                        <label className="form-label" style={{ fontSize: '15px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>Tên tệp xuất</label>
-                                        <input type="text" className="ie-input" placeholder={`invoices_${new Date().getTime()}`} value={exportName} onChange={(e) => setExportName(e.target.value)} />
-                                    </div>
-
-                                    <div className="form-group" style={{ marginTop: '16px' }}>
-                                        <label className="form-label">Định dạng file</label>
-                                        <div className="ie-format-grid">
-                                            <div className={`ie-format-card excel-card ${exportType === 'xlsx' ? 'selected' : ''}`} onClick={() => setExportType('xlsx')}>{Ico.fileExcel}<span>Excel</span></div>
-                                            <div className={`ie-format-card csv-card ${exportType === 'csv' ? 'selected' : ''}`} onClick={() => setExportType('csv')}>{Ico.fileCsv}<span>CSV</span></div>
-                                            <div className={`ie-format-card json-card ${exportType === 'json' ? 'selected' : ''}`} onClick={() => setExportType('json')}>{Ico.fileJson}<span>JSON</span></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </Modal>
-            )}
         </div>
     );
 };

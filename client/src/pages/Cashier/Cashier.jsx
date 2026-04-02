@@ -350,7 +350,7 @@ const TonKhoPage = () => {
 //         TIEN_GIAM_VOUCHER, TONG_THANHTOAN, MANV, MAKH, IS_DELETED
 // joined: nhanVien.TENNV, khachHang.TENKH, chiTiets[]
 // ════════════════════════════════════════════════════════════
-const DanhSachDonPage = () => {
+export const DanhSachDonPage = () => {
     // TODO: fetch từ API /orders?with=nhanVien,khachHang,chiTiets
     const [orders, setOrders] = useState([]);
     const [modalOrder, setModalOrder] = useState(null);

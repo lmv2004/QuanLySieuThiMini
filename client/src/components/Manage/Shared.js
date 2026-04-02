@@ -6,6 +6,14 @@ export const fmtInputNumber = (v) => {
 };
 export const parseInputNumber = (v) => String(v).replace(/\D/g, '');
 export const fmtDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '—';
+export const fmtDateTime = (d) => {
+    if (!d) return '—';
+    const date = new Date(d);
+    const dateStr = date.toLocaleDateString('vi-VN');
+    const timeStr = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return `${dateStr} ${timeStr}`;
+};
+export const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '—';
 export const totalStock = (t = []) => t.reduce((s, x) => s + (x.IS_ACTIVE !== false ? (x.SOLUONG_CON_LAI || 0) : 0), 0);
 export const earliestHSD = (t = []) => { const a = t.filter(x => x.IS_ACTIVE !== false && x.HANSUDUNG); return a.length ? a.sort((a, b) => new Date(a.HANSUDUNG) - new Date(b.HANSUDUNG))[0].HANSUDUNG : null; };
 export const latestGiaNhap = (t = []) => { const a = t.filter(x => x.GIANHAP); return a.length ? a[a.length - 1].GIANHAP : null; };

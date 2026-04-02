@@ -1,0 +1,241 @@
+.invoices-list-page .data-table th:nth-child(1),
+.invoices-list-page .data-table td:nth-child(1) {
+  width: 90px;
+  min-width: 90px;
+}
+
+.invoices-list-page .data-table th:nth-child(2),
+.invoices-list-page .data-table td:nth-child(2) {
+  width: 130px;
+  min-width: 130px;
+}
+
+.invoices-list-page .inv-code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.invoices-list-page .invoice-customer-name {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ─────────────────── Form Chi Tiết Hóa Đơn ─────────────────── */
+
+.invoice-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.invoice-summary-box {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.invoice-summary-box .summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.invoice-summary-box .summary-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.invoice-summary-box .summary-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--mono);
+}
+
+.invoice-summary-box .summary-total {
+  font-size: 18px;
+  font-weight: 800;
+  color: #28a745;
+}
+
+.invoice-summary-box .summary-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.invoice-summary-box .badge-paid {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.invoice-summary-box .badge-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.form-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  padding: 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #3a3a3a;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-input.total-amount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #28a745;
+  background-color: #f8fff9;
+  border-color: #28a745;
+}
+
+.form-input.total-amount:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+/* ─────────────────── Bảng Chi Tiết Sản Phẩm ─────────────────── */
+
+.invoice-items-table {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.invoice-items-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.invoice-items-table thead {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.invoice-items-table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-right: 1px solid #e0e0e0;
+}
+
+.invoice-items-table th:last-child {
+  border-right: none;
+}
+
+.invoice-items-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s ease;
+}
+
+.invoice-items-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.invoice-items-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.invoice-items-table td {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text);
+  border-right: 1px solid #e0e0e0;
+}
+
+.invoice-items-table td:last-child {
+  border-right: none;
+}
+
+.invoice-items-table .product-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invoice-items-table .product-hsd {
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+}
+
+.invoice-items-table .product-qty {
+  text-align: center;
+  font-weight: 600;
+  color: #3a3a3a;
+  min-width: 70px;
+}
+
+.invoice-items-table .product-price {
+  text-align: right;
+  font-family: var(--mono);
+  color: #666;
+  min-width: 120px;
+}
+
+.invoice-items-table .product-total {
+  text-align: right;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: #28a745;
+  min-width: 120px;
+}
+
+/* ─────────────────── Responsive ─────────────────── */
+
+@media (max-width: 768px) {
+  .invoice-summary-box {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-section {
+    padding-bottom: 12px;
+  }
+}
+
+

@@ -35,7 +35,8 @@ const ALL_MENU = [
     {
         group: 'Bán hàng',
         items: [
-            { id: 'invoices',   label: 'Hóa đơn / Bán hàng',    icon: 'receipt',   path: '/invoices' },
+            { id: 'sales',      label: 'Bán hàng',               icon: 'package',   path: '/cashier' },
+            { id: 'invoices',   label: 'Hóa đơn',                icon: 'receipt',   path: '/invoices' },
             { id: 'customers',  label: 'Khách hàng',             icon: 'userGroup', path: '/customers' },
             { id: 'vouchers',   label: 'Voucher',                icon: 'ticket',    path: '/vouchers' },
             { id: 'promotions', label: 'Khuyến mãi / Giảm giá', icon: 'percent',   path: '/promotions' },
