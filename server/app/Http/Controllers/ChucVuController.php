@@ -15,7 +15,7 @@ class ChucVuController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ChucVu::active();
+        $query = ChucVu::active()->where('CODE', '!=', 'ADMIN');
 
         // Tìm kiếm theo tên chức vụ
         if ($request->has('search')) {

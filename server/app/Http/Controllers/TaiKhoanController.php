@@ -15,8 +15,13 @@ class TaiKhoanController extends Controller
         return TaiKhoanResource::collection(
             TaiKhoan::active()
                 ->orderBy('updated_at', 'desc')
-                ->with(['nhanVien'])
+                ->with(['nhanVien.chucVu'])
                 ->get()
+                ->filter(function($tk) {
+                    // Lọc ra các tài khoản KHÔNG phải role ADMIN
+                    return !($tk->nhanVien && $tk->nhanVien->chucVu && $tk->nhanVien->chucVu->CODE === 'ADMIN');
+                })
+                ->values()
         );
     }
 
@@ -57,6 +62,14 @@ class TaiKhoanController extends Controller
 
     public function update(UpdateTaiKhoanRequest $request, TaiKhoan $account)
     {
+        // Kiểm tra nếu tài khoản là ADMIN thì không cho phép sửa
+        $account->load(['nhanVien.chucVu']);
+        if ($account->nhanVien && $account->nhanVien->chucVu && $account->nhanVien->chucVu->CODE === 'ADMIN') {
+            return response()->json([
+                'message' => 'Không thể chỉnh sửa tài khoản Quản trị viên!'
+            ], 403);
+        }
+
         $data = $request->validated();
         if (!empty($data['MATKHAU'])) {
             $data['MATKHAU'] = Hash::make($data['MATKHAU']);
@@ -72,6 +85,14 @@ class TaiKhoanController extends Controller
         if (auth()->id() === $account->SOTK) {
             return response()->json([
                 'message' => 'Bạn không thể tự xóa tài khoản của chính mình!'
+            ], 403);
+        }
+
+        // Kiểm tra nếu tài khoản là ADMIN thì không cho phép xóa (khóa)
+        $account->load(['nhanVien.chucVu']);
+        if ($account->nhanVien && $account->nhanVien->chucVu && $account->nhanVien->chucVu->CODE === 'ADMIN') {
+            return response()->json([
+                'message' => 'Không thể khóa tài khoản Quản trị viên!'
             ], 403);
         }
 
@@ -113,7 +134,7 @@ class TaiKhoanController extends Controller
                 $updateData = [];
                 if (!empty($item['EMAIL'])) $updateData['EMAIL'] = $item['EMAIL'];
                 if (!empty($item['MATKHAU'])) $updateData['MATKHAU'] = Hash::make($item['MATKHAU']);
-                
+
                 // Ép buộc cập nhật updated_at để hiện lên đầu danh sách
                 $updateData['updated_at'] = now();
                 $existing->update($updateData);

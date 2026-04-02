@@ -15,7 +15,12 @@ class NhanVienController extends Controller
      */
     public function index(Request $request)
     {
-        $query = NhanVien::active()->latest()->with('chucVu');
+        $query = NhanVien::active()
+            ->whereHas('chucVu', function ($q) {
+                $q->where('CODE', '!=', 'ADMIN');
+            })
+            ->latest()
+            ->with('chucVu');
 
         // Tìm kiếm theo tên, CCCD, số điện thoại hoặc email
         if ($request->has('search')) {
