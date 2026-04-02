@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 
 class StoreHoaDonRequest extends FormRequest
 {
@@ -36,5 +37,47 @@ class StoreHoaDonRequest extends FormRequest
             'items.*.SOLUONG' => 'required|integer|min:1',
             'items.*.GIABAN_THUCTE' => 'required|numeric|min:0',
         ];
+    }
+
+    /**
+     * Handle the validation logic - validate voucher is active and not expired
+     */
+    public function withValidator(Validator $validator)
+    {
+        $validator->after(function ($validator) {
+            if ($this->filled('SOVOUCHER')) {
+                $voucher = \App\Models\Voucher::find($this->input('SOVOUCHER'));
+
+                if (!$voucher) {
+                    $validator->errors()->add('SOVOUCHER', 'Voucher không tồn tại.');
+                    return;
+                }
+
+                if ($voucher->IS_DELETED) {
+                    $validator->errors()->add('SOVOUCHER', 'Voucher đã bị xóa.');
+                    return;
+                }
+
+                if ($voucher->TRANGTHAI != 1) {
+                    $validator->errors()->add('SOVOUCHER', 'Voucher không còn hoạt động.');
+                    return;
+                }
+
+                if ($voucher->NGAYKT && $voucher->NGAYKT < now()) {
+                    $validator->errors()->add('SOVOUCHER', 'Voucher đã hết hạn.');
+                    return;
+                }
+
+                if ($voucher->NGAYBD && $voucher->NGAYBD > now()) {
+                    $validator->errors()->add('SOVOUCHER', 'Voucher chưa bắt đầu có hiệu lực.');
+                    return;
+                }
+
+                if ($voucher->SOLUOTSD > 0 && $voucher->SOLUOTSD_DADUNG >= $voucher->SOLUOTSD) {
+                    $validator->errors()->add('SOVOUCHER', 'Voucher đã hết lượt sử dụng.');
+                    return;
+                }
+            }
+        });
     }
 }

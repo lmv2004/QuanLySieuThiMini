@@ -98,6 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ── Vouchers ──
     Route::get('vouchers', [VoucherController::class, 'index'])->middleware('permission:vouchers.view');
+    Route::get('vouchers/available', [VoucherController::class, 'available'])->middleware('permission:vouchers.view');
     Route::get('vouchers/{voucher}', [VoucherController::class, 'show'])->middleware('permission:vouchers.view');
     Route::post('vouchers', [VoucherController::class, 'store'])->middleware('permission:vouchers.create');
     Route::put('vouchers/{voucher}', [VoucherController::class, 'update'])->middleware('permission:vouchers.edit');

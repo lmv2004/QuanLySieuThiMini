@@ -46,13 +46,36 @@ class Voucher extends Model
         return $this->hasMany(HoaDon::class, 'SOVOUCHER', 'SOVOUCHER');
     }
 
+    // Scope: Voucher còn khả dụng
+    public function scopeAvailable($query)
+    {
+        $now = now();
+        return $query->where('IS_DELETED', 0)
+            ->where('TRANGTHAI', 1)
+            ->where(function ($q) use ($now) {
+                $q->whereNull('NGAYBD')
+                  ->orWhere('NGAYBD', '<=', $now);
+            })
+            ->where(function ($q) use ($now) {
+                $q->whereNull('NGAYKT')
+                  ->orWhere('NGAYKT', '>=', $now);
+            })
+            ->where(function ($q) {
+                $q->where('SOLUOTSD', 0)
+                  ->orWhereRaw('SOLUOTSD > SOLUOTSD_DADUNG');
+            });
+    }
+
     // Helper: Kiểm tra voucher có còn dùng được không
     public function isAvailable(): bool
     {
         $now = now();
-        return $this->TRANGTHAI === 1 &&
-               (!$this->NGAYKT || $this->NGAYKT >= $now) &&
-               ($this->SOLUOTSD > $this->DADUNG);
+        if ($this->IS_DELETED) return false;
+        if ($this->TRANGTHAI !== 1) return false;
+        if ($this->NGAYBD && $this->NGAYBD > $now) return false;
+        if ($this->NGAYKT && $this->NGAYKT < $now) return false;
+        if ($this->SOLUOTSD > 0 && $this->SOLUOTSD_DADUNG >= $this->SOLUOTSD) return false;
+        return true;
     }
 
     // Helper: Tính tiền giảm theo voucher

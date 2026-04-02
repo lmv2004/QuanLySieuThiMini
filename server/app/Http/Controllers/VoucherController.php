@@ -16,9 +16,14 @@ class VoucherController extends Controller
         );
     }
 
-    public function create()
+    /**
+     * Lấy danh sách voucher còn khả dụng (cho form tạo hóa đơn)
+     */
+    public function available()
     {
-        // Dùng cho form-based, API không cần
+        return VoucherResource::collection(
+            Voucher::available()->get()
+        );
     }
 
     public function store(StoreVoucherRequest $request)

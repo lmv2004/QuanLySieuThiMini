@@ -57,8 +57,21 @@ export const InvoiceForm = ({ form, hc, setForm, readOnly = false, errors = {}, 
 
     useEffect(() => {
         setLoadingVou(true);
-        api.get('/vouchers', { params: { per_page: 500 } })
-            .then(res => setVouchers(res.data?.data || res.data || []))
+        api.get('/vouchers/available', { params: { per_page: 500 } })
+            .then(res => {
+                const allVouchers = res.data?.data || res.data || [];
+                // Lọc chỉ hiển thị voucher còn hạn, hoạt động và không bị xóa
+                const availableVouchers = allVouchers.filter(v => {
+                    if (v.IS_DELETED) return false;  // Bị xóa
+                    if (v.TRANGTHAI !== 1) return false;  // Không hoạt động
+                    const now = new Date();
+                    if (v.NGAYKT && new Date(v.NGAYKT) < now) return false;  // Hết hạn
+                    if (v.NGAYBD && new Date(v.NGAYBD) > now) return false;  // Chưa bắt đầu
+                    if (v.SOLUOTSD > 0 && v.SOLUOTSD_DADUNG >= v.SOLUOTSD) return false;  // Hết lượt
+                    return true;
+                });
+                setVouchers(availableVouchers);
+            })
             .catch(() => setVouchers([]))
             .finally(() => setLoadingVou(false));
     }, []);
@@ -108,6 +121,21 @@ export const InvoiceForm = ({ form, hc, setForm, readOnly = false, errors = {}, 
         return match?.TENKH || '';
     }, [customers, form.khachHang, makh]);
 
+    const tenVoucher = useMemo(() => {
+        if (form.voucher?.SOVOUCHER) {
+            const code = form.voucher.SOVOUCHER;
+            const name = form.voucher.MAVOUCHER || form.voucher.MOTA || 'Voucher';
+            return `${code} - ${name}`;
+        }
+        const match = vouchers.find(v => String(v.SOVOUCHER) === String(soVoucher));
+        if (match) {
+            const code = match.SOVOUCHER;
+            const name = match.MAVOUCHER || match.MOTA || 'Voucher';
+            return `${code} - ${name}`;
+        }
+        return '';
+    }, [vouchers, form.voucher, soVoucher]);
+
     const statusLabel = Number(form.TRANGTHAI) === 1 ? 'Da thanh toan' : 'Cho thanh toan';
     const totalText = Number(form.TONG_THANHTOAN || 0).toLocaleString('vi-VN');
     const tonTienHang = Number(form.TONGTIEN_HANG || 0).toLocaleString('vi-VN');
@@ -137,7 +165,7 @@ export const InvoiceForm = ({ form, hc, setForm, readOnly = false, errors = {}, 
                     </div>
                     <div className="summary-item">
                         <span className="summary-label">Giảm voucher</span>
-                        <span className="summary-value">{soVoucher ? '₫' + tienGiam : 'Không dùng'}</span>
+                        <span className="summary-value">{soVoucher ? (tenVoucher ? `${tenVoucher} · ` : '') + '₫' + tienGiam : 'Không dùng'}</span>
                     </div>
                     <div className="summary-item">
                         <span className="summary-label">Tổng thanh toán</span>
@@ -230,12 +258,12 @@ export const InvoiceForm = ({ form, hc, setForm, readOnly = false, errors = {}, 
                     <div className="form-group">
                         <label className="form-label">Voucher</label>
                         {readOnly ? (
-                            <input className="form-input" value={soVoucher ? soVoucher : 'Không dùng voucher'} readOnly />
+                            <input className="form-input" value={soVoucher ? tenVoucher : 'Không dùng voucher'} readOnly />
                         ) : (
                             <select className="form-select" name="SOVOUCHER" value={soVoucher} onChange={hc} disabled={loadingVou} style={errStyle(errors, 'SOVOUCHER')}>
                                 <option value="">{loadingVou ? 'Đang tải...' : '-- Không áp dụng --'}</option>
                                 {vouchers.map(v => (
-                                    <option key={v.SOVOUCHER} value={v.SOVOUCHER}>{v.SOVOUCHER} · {v.MAVOUCHER || v.MOTA || 'Voucher'}</option>
+                                    <option key={v.SOVOUCHER} value={v.SOVOUCHER}>{v.SOVOUCHER} - {v.MAVOUCHER || v.MOTA || 'Voucher'}</option>
                                 ))}
                             </select>
                         )}

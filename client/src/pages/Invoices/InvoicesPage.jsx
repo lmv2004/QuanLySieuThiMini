@@ -77,7 +77,7 @@ export const InvoicesPage = () => {
     }, []);
 
     useEffect(() => {
-        api.get('/vouchers', { params: { per_page: 1000 } })
+        api.get('/vouchers/available', { params: { per_page: 1000 } })
             .then(res => setVouchers(normalizeList(res)))
             .catch(() => setVouchers([]));
     }, []);
@@ -181,19 +181,26 @@ export const InvoicesPage = () => {
         };
     }, [cart, paymentMethod, cashGivenNum, total, subtotal, discount, selectedVoucher, currentCustomer, cashier, orderNumber]);
 
-    const addToCart = (product) => {
+    const addToCart = (product, _retryCount = 0) => {
         if (!product || product.IS_DELETED) return;
         
+        const MAX_RETRIES = 1; // Chỉ thử fetch 1 lần để tránh vòng lặp vô hạn
+        
         // Thử lấy tonKhos từ product, nếu không có thì lấy từ server
-        if (!product.tonKhos || product.tonKhos.length === 0) {
-            addToast('warning', `Đang tải thông tin tồn kho cho sản phẩm ${product.TENSP}...`);
-            // Tự động fetch lại từ server
+        if ((!product.tonKhos || product.tonKhos.length === 0) && _retryCount < MAX_RETRIES) {
+            // Chỉ fetch nếu chưa vượt quá số lần thử
             api.get(`/products/barcode/${product.BARCODE}`).then(res => {
                 const fullProduct = res?.data || res;
-                addToCart(fullProduct);
+                addToCart(fullProduct, _retryCount + 1);
             }).catch(() => {
                 addToast('error', `Không thể tải thông tin tồn kho`);
             });
+            return;
+        }
+        
+        // Nếu vẫn không có tonKhos sau khi fetch, thông báo lỗi và không thêm vào giỏ
+        if (!product.tonKhos || product.tonKhos.length === 0) {
+            addToast('error', `Sản phẩm ${product.TENSP} không có thông tin tồn kho`);
             return;
         }
         
