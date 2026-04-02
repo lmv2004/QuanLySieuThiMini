@@ -146,6 +146,8 @@ Route::middleware('auth:sanctum')->group(function () {
             'update' => 'permission:purchase-orders.approve',
             'destroy' => 'permission:purchase-orders.delete',
         ]);
+    Route::patch('phieu-nhap/{phieuNhap}/approve', [PhieuNhapController::class, 'approve'])->middleware('permission:purchase-orders.approve');
+    Route::patch('phieu-nhap/{phieuNhap}/cancel', [PhieuNhapController::class, 'cancel'])->middleware('permission:purchase-orders.approve');
     Route::apiResource('khach-hang', KhachHangController::class)
         ->parameters(['khach-hang' => 'khachHang'])
         ->middleware([
@@ -165,6 +167,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('purchase-orders/{purchase_order}', [PhieuNhapController::class, 'show'])->middleware('permission:purchase-orders.view');
     Route::post('purchase-orders', [PhieuNhapController::class, 'store'])->middleware('permission:purchase-orders.create');
     Route::put('purchase-orders/{purchase_order}', [PhieuNhapController::class, 'update'])->middleware('permission:purchase-orders.approve');
+    Route::patch('purchase-orders/{purchase_order}/approve', [PhieuNhapController::class, 'approve'])->middleware('permission:purchase-orders.approve');
+    Route::patch('purchase-orders/{purchase_order}/cancel', [PhieuNhapController::class, 'cancel'])->middleware('permission:purchase-orders.approve');
     Route::delete('purchase-orders/{purchase_order}', [PhieuNhapController::class, 'destroy'])->middleware('permission:purchase-orders.delete');
 
     // Chi tiết phiếu nhập

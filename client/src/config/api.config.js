@@ -72,6 +72,8 @@ export const API_ENDPOINTS = {
     CREATE: '/purchase-orders',
     UPDATE: (id) => `/purchase-orders/${id}`,
     DELETE: (id) => `/purchase-orders/${id}`,
+    APPROVE: (id) => `/purchase-orders/${id}/approve`,
+    CANCEL: (id) => `/purchase-orders/${id}/cancel`,
   },
 
   // Disposal Receipts

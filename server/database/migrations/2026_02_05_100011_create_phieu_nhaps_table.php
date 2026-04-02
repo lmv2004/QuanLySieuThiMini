@@ -16,11 +16,14 @@ return new class extends Migration
             $table->dateTime('NGAYLAP');
             $table->unsignedBigInteger('MANV');
             $table->decimal('TONGTIEN', 15, 0);
+            $table->unsignedBigInteger('MANCC');
             $table->string('GCHU', 255)->nullable();
+            $table->string('TRANGTHAI', 20)->default('PENDING'); 
             $table->tinyInteger('IS_DELETED')->default(0);
             $table->timestamps();
 
             $table->foreign('MANV')->references('MANV')->on('nhan_viens')->onDelete('cascade');
+            $table->foreign('MANCC')->references('MANCC')->on('nha_cung_caps')->onDelete('cascade');
         });
     }
 

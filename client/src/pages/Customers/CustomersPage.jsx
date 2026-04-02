@@ -19,6 +19,16 @@ export const CustomersPage = () => <SimplePage
         { id: 'vip', label: 'VIP (>1000đ)', filter: (x) => x.DIEMTHUONG >= 1000 },
         { id: 'inactive', label: 'Bị khóa', filter: (x) => x.IS_DELETED },
     ]}
+    validate={(form) => {
+        const errs = {};
+        if (!form.TENKH?.trim()) errs.TENKH = 'Tên khách hàng là bắt buộc';
+        else if (form.TENKH.trim().length > 200) errs.TENKH = 'Tên không được vượt quá 200 ký tự';
+        if (!form.SODIENTHOAI?.trim()) errs.SODIENTHOAI = 'Số điện thoại là bắt buộc';
+        else if (!/^(0|\+84)[0-9]{8,10}$/.test(form.SODIENTHOAI.trim())) errs.SODIENTHOAI = 'Số điện thoại không hợp lệ (VD: 0901234567)';
+        if (form.DIEMTHUONG !== '' && form.DIEMTHUONG !== undefined && Number(form.DIEMTHUONG) < 0)
+            errs.DIEMTHUONG = 'Điểm thưởng không được âm';
+        return errs;
+    }}
     renderToolbarActions={(fetchData, addToast, list) => (
         <CustomerImportExport onRefresh={fetchData} addToast={addToast} data={list} />
     )}
@@ -35,7 +45,7 @@ export const CustomersPage = () => <SimplePage
     renderGridItem={(item, openEdit, del, i, list, setList, addToast, openView) => (
         <CustomerGridItem item={item} openEdit={openEdit} del={del} idx={i} list={list} setList={setList} addToast={addToast} openView={openView} />
     )}
-    renderForm={(form, hc, setForm) => (
-        <CustomerForm form={form} hc={hc} setForm={setForm} />
+    renderForm={(form, hc, setForm, isView, formErrors) => (
+        <CustomerForm form={form} hc={hc} setForm={setForm} formErrors={formErrors} />
     )}
 />;

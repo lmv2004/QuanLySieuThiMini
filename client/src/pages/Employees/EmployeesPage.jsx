@@ -21,6 +21,16 @@ export const EmployeesPage = () => <SimplePage
         { id: 'warehouse', label: 'Thủ kho', filter: (x) => x.chucVu?.MACHUCVU === 3 },
         { id: 'inactive', label: 'Đã nghỉ', filter: (x) => x.IS_DELETED },
     ]}
+    validate={(form) => {
+        const errs = {};
+        if (!form.TENNV?.trim()) errs.TENNV = 'Họ tên nhân viên là bắt buộc';
+        else if (form.TENNV.trim().length > 200) errs.TENNV = 'Họ tên không được vượt quá 200 ký tự';
+        if (!form.SODIENTHOAI?.trim()) errs.SODIENTHOAI = 'Số điện thoại là bắt buộc';
+        else if (!/^(0|\+84)[0-9]{8,10}$/.test(form.SODIENTHOAI.trim())) errs.SODIENTHOAI = 'Số điện thoại không hợp lệ (VD: 0901234567)';
+        if (form.EMAIL && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.EMAIL)) errs.EMAIL = 'Email không đúng định dạng';
+        if (!form.MACHUCVU) errs.MACHUCVU = 'Vui lòng chọn chức vụ';
+        return errs;
+    }}
     renderToolbarActions={(fetchData, addToast, list) => (
         <EmployeeImportExport onRefresh={fetchData} addToast={addToast} data={list} />
     )}
@@ -36,7 +46,7 @@ export const EmployeesPage = () => <SimplePage
     renderGridItem={(item, openEdit, del, i, list, setList, addToast, openView) => (
         <EmployeeGridItem item={item} openEdit={openEdit} del={del} idx={i} list={list} setList={setList} addToast={addToast} openView={openView} />
     )}
-    renderForm={(form, hc, setForm) => (
-        <EmployeeForm form={form} hc={hc} setForm={setForm} />
+    renderForm={(form, hc, setForm, isView, formErrors) => (
+        <EmployeeForm form={form} hc={hc} setForm={setForm} formErrors={formErrors} />
     )}
 />;

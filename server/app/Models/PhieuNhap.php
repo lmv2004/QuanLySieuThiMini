@@ -15,8 +15,10 @@ class PhieuNhap extends Model
     protected $fillable = [
         'NGAYLAP',
         'MANV',
+        'MANCC',
         'TONGTIEN',
         'GCHU',
+        'TRANGTHAI',
         'IS_DELETED',
     ];
 
@@ -26,10 +28,19 @@ class PhieuNhap extends Model
         'IS_DELETED' => 'boolean',
     ];
 
+    const TRANGTHAI_PENDING   = 'PENDING';
+    const TRANGTHAI_APPROVED  = 'APPROVED';
+    const TRANGTHAI_CANCELLED = 'CANCELLED';
+
     // Relationships
     public function nhanVien()
     {
         return $this->belongsTo(NhanVien::class, 'MANV', 'MANV');
+    }
+
+    public function nhaCungCap()
+    {
+    return $this->belongsTo(NhaCungCap::class, 'MANCC', 'MANCC');
     }
 
     public function chiTiets()

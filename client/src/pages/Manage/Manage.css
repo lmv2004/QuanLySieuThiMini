@@ -2558,3 +2558,11 @@ html[data-theme="dark"] .btn-action-ico.delete {
 .data-table th:last-child {
     text-align: center !important;
 }
+
+/* ── Form error message ─────────────────────────────────── */
+.form-error {
+    font-size: 11px;
+    color: #ef4444;
+    margin-top: 3px;
+    display: block;
+}

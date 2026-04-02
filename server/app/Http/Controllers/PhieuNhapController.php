@@ -13,120 +13,194 @@ use Illuminate\Support\Facades\DB;
 
 class PhieuNhapController extends Controller
 {
-    /**
-     * Display a listing of the resource with pagination and search.
-     */
     public function index(Request $request)
     {
-        $query = PhieuNhap::active()->with(['nhanVien.chucVu']);
+        $query = PhieuNhap::active()->with(['nhanVien.chucVu', 'nhaCungCap', 'chiTiets.sanPham']);
 
-        // Tìm kiếm theo mã phiếu hoặc tên nhân viên
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('MAPHIEU', 'like', '%' . $search . '%')
                   ->orWhere('GCHU', 'like', '%' . $search . '%')
-                  ->orWhereHas('nhanVien', function ($nv) use ($search) {
-                      $nv->where('TENNV', 'like', '%' . $search . '%');
-                  });
+                  ->orWhereHas('nhanVien', fn($nv) => $nv->where('TENNV', 'like', '%' . $search . '%'));
             });
         }
 
-        // Lọc theo ngày
-        if ($request->has('from_date')) {
+        if ($request->filled('from_date')) {
             $query->whereDate('NGAYLAP', '>=', $request->input('from_date'));
         }
-        if ($request->has('to_date')) {
+        if ($request->filled('to_date')) {
             $query->whereDate('NGAYLAP', '<=', $request->input('to_date'));
         }
+        if ($request->filled('trangthai')) {
+            $query->where('TRANGTHAI', $request->input('trangthai'));
+        }
 
-        // Phân trang
         $perPage = $request->input('per_page', 15);
         $phieuNhaps = $query->orderBy('NGAYLAP', 'desc')->paginate($perPage);
 
         return PhieuNhapResource::collection($phieuNhaps);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StorePhieuNhapRequest $request)
     {
         DB::beginTransaction();
         try {
             $data = $request->validated();
-            
-            // Tạo phiếu nhập
+
+            // Tính TONGTIEN từ chiTiets
+            $tongTien = collect($data['chiTiets'])
+                ->sum(fn($ct) => $ct['SOLUONG'] * $ct['DONGIANHAP']);
+
             $phieuNhap = PhieuNhap::create([
-                'NGAYLAP' => $data['NGAYLAP'],
-                'MANV' => $data['MANV'],
-                'TONGTIEN' => $data['TONGTIEN'] ?? 0,
-                'GCHU' => $data['GCHU'] ?? null,
+                'NGAYLAP'   => $data['NGAYLAP'],
+                'MANV'      => $data['MANV'],
+                'MANCC' => $data['MANCC'],
+                'TONGTIEN'  => $tongTien,
+                'GCHU'      => $data['GCHU'] ?? null,
+                'TRANGTHAI' => PhieuNhap::TRANGTHAI_PENDING,
             ]);
 
-            // Tạo chi tiết phiếu nhập nếu có
-            if (isset($data['chiTiets']) && is_array($data['chiTiets'])) {
-                foreach ($data['chiTiets'] as $chiTiet) {
-                    $ctPhieuNhap = CTPhieuNhap::create([
-                        'MAPHIEU' => $phieuNhap->MAPHIEU,
-                        'MASP' => $chiTiet['MASP'],
-                        'SOLUONG' => $chiTiet['SOLUONG'],
-                        'DONGIANHAP' => $chiTiet['DONGIANHAP'],
-                        'HANSUDUNG' => $chiTiet['HANSUDUNG'] ?? null,
-                    ]);
-
-                    // Tự động tạo tồn kho
-                    TonKho::create([
-                        'MASP' => $chiTiet['MASP'],
-                        'MAPHIEUNHAP' => $phieuNhap->MAPHIEU,
-                        'SOLUONGTON' => $chiTiet['SOLUONG'],
-                        'DONGIANHAP' => $chiTiet['DONGIANHAP'],
-                        'HANSUDUNG' => $chiTiet['HANSUDUNG'] ?? null,
-                    ]);
-                }
+            foreach ($data['chiTiets'] as $chiTiet) {
+                CTPhieuNhap::create([
+                    'MAPHIEU'    => $phieuNhap->MAPHIEU,
+                    'MASP'       => $chiTiet['MASP'],
+                    'SOLUONG'    => $chiTiet['SOLUONG'],
+                    'DONGIANHAP' => $chiTiet['DONGIANHAP'],
+                    'HANSUDUNG'  => $chiTiet['HANSUDUNG'] ?? null,
+                ]);
             }
 
             DB::commit();
-            
-            $phieuNhap->load(['nhanVien.chucVu', 'chiTiets.sanPham']);
-            return new PhieuNhapResource($phieuNhap);
-            
+
+            $phieuNhap->load(['nhanVien.chucVu', 'nhaCungCap', 'chiTiets.sanPham']);
+            return (new PhieuNhapResource($phieuNhap))->response()->setStatusCode(201);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'message' => 'Lỗi khi tạo phiếu nhập: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['message' => 'Lỗi khi tạo phiếu nhập: ' . $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(PhieuNhap $purchase_order)
+    public function show(PhieuNhap $phieuNhap)
     {
-        abort_if($purchase_order->IS_DELETED, 404);
-        $purchase_order->load(['nhanVien.chucVu', 'chiTiets.sanPham']);
-        return new PhieuNhapResource($purchase_order);
+        $phieuNhap->load(['nhanVien.chucVu', 'nhaCungCap', 'chiTiets.sanPham']);
+        return new PhieuNhapResource($phieuNhap);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePhieuNhapRequest $request, PhieuNhap $purchase_order)
+    public function update(UpdatePhieuNhapRequest $request, PhieuNhap $phieuNhap)
     {
-        $data = $request->validated();
-        $purchase_order->update($data);
-        $purchase_order->load(['nhanVien.chucVu', 'chiTiets.sanPham']);
-        return new PhieuNhapResource($purchase_order);
+        if ($phieuNhap->TRANGTHAI !== PhieuNhap::TRANGTHAI_PENDING) {
+            return response()->json([
+                'message' => 'Chỉ được sửa phiếu nhập đang ở trạng thái chờ duyệt (PENDING).',
+            ], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            $data = $request->validated();
+
+            // Xóa chi tiết cũ và insert lại
+            $phieuNhap->chiTiets()->delete();
+
+            $tongTien = collect($data['chiTiets'])
+                ->sum(fn($ct) => $ct['SOLUONG'] * $ct['DONGIANHAP']);
+
+            $phieuNhap->update([
+                'NGAYLAP'  => $data['NGAYLAP'] ?? $phieuNhap->NGAYLAP,
+                'MANV'     => $data['MANV'] ?? $phieuNhap->MANV,
+                'MANCC'    => $data['MANCC'],
+                'TONGTIEN' => $tongTien,
+                'GCHU'     => $data['GCHU'] ?? $phieuNhap->GCHU,
+            ]);
+
+            foreach ($data['chiTiets'] as $chiTiet) {
+                CTPhieuNhap::create([
+                    'MAPHIEU'    => $phieuNhap->MAPHIEU,
+                    'MASP'       => $chiTiet['MASP'],
+                    'SOLUONG'    => $chiTiet['SOLUONG'],
+                    'DONGIANHAP' => $chiTiet['DONGIANHAP'],
+                    'HANSUDUNG'  => $chiTiet['HANSUDUNG'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+
+            $phieuNhap->load(['nhanVien.chucVu', 'nhaCungCap', 'chiTiets.sanPham']);
+            return new PhieuNhapResource($phieuNhap);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Lỗi khi cập nhật phiếu nhập: ' . $e->getMessage()], 500);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(PhieuNhap $purchase_order)
+    public function approve(PhieuNhap $phieuNhap)
     {
-        $purchase_order->IS_DELETED = true;
-        $purchase_order->save();
+        if ($phieuNhap->TRANGTHAI !== PhieuNhap::TRANGTHAI_PENDING) {
+            return response()->json([
+                'message' => 'Chỉ có thể duyệt phiếu nhập đang ở trạng thái chờ duyệt (PENDING).',
+            ], 403);
+        }
+
+        DB::beginTransaction();
+        try {
+            $phieuNhap->update(['TRANGTHAI' => PhieuNhap::TRANGTHAI_APPROVED]);
+
+            foreach ($phieuNhap->chiTiets as $chiTiet) {
+                TonKho::create([
+                    'MASP'          => $chiTiet->MASP,
+                    'MAPHIEUNHAP'   => $phieuNhap->MAPHIEU,
+                    'SOLUONG_CON_LAI' => $chiTiet->SOLUONG,
+                    'GIANHAP'       => $chiTiet->DONGIANHAP,
+                    'HANSUDUNG'     => $chiTiet->HANSUDUNG,
+                    'NGAYNHAP'      => $phieuNhap->NGAYLAP,
+                    'IS_ACTIVE'     => true,
+                ]);
+            }
+
+            DB::commit();
+
+            $phieuNhap->load(['nhanVien.chucVu', 'nhaCungCap', 'chiTiets.sanPham']);
+            return new PhieuNhapResource($phieuNhap);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Lỗi khi duyệt phiếu nhập: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function cancel(PhieuNhap $phieuNhap)
+    {
+        if ($phieuNhap->TRANGTHAI === PhieuNhap::TRANGTHAI_APPROVED) {
+            return response()->json([
+                'message' => 'Không thể hủy phiếu nhập đã được duyệt.',
+            ], 403);
+        }
+
+        if ($phieuNhap->TRANGTHAI === PhieuNhap::TRANGTHAI_CANCELLED) {
+            return response()->json([
+                'message' => 'Phiếu nhập này đã bị hủy trước đó.',
+            ], 422);
+        }
+
+        $phieuNhap->update(['TRANGTHAI' => PhieuNhap::TRANGTHAI_CANCELLED]);
+
+        $phieuNhap->load(['nhanVien.chucVu', 'nhaCungCap', 'chiTiets.sanPham']);
+        return new PhieuNhapResource($phieuNhap);
+    }
+
+    public function destroy(PhieuNhap $phieuNhap)
+    {
+        if ($phieuNhap->TRANGTHAI === PhieuNhap::TRANGTHAI_APPROVED) {
+            return response()->json([
+                'message' => 'Không thể xóa phiếu nhập đã được duyệt.',
+            ], 403);
+        }
+
+        $phieuNhap->IS_DELETED = true;
+        $phieuNhap->save();
         return response()->noContent();
     }
 }
+

@@ -2,20 +2,16 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class PhieuNhapSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Chạy ResetPhieuNhapSeeder để seed dữ liệu phiếu nhập.
+     * Yêu cầu: ResetNhaCungCapSeeder và ResetChucVuNhanVienSeeder đã chạy trước.
      */
     public function run(): void
     {
-        $nhanVienIds = \App\Models\NhanVien::pluck('MANV')->toArray();
-
-        \App\Models\PhieuNhap::factory(30)->create([
-            'MANV' => fake()->randomElement($nhanVienIds),
-        ]);
+        $this->call(ResetPhieuNhapSeeder::class);
     }
 }

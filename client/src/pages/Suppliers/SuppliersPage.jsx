@@ -18,6 +18,15 @@ export const SuppliersPage = () => <SimplePage
         { id: 'active', label: 'Đang hợp tác', filter: (x) => !x.IS_DELETED },
         { id: 'inactive', label: 'Ngừng hợp tác', filter: (x) => x.IS_DELETED },
     ]}
+    validate={(form) => {
+        const errs = {};
+        if (!form.TENNCC?.trim()) errs.TENNCC = 'Tên công ty là bắt buộc';
+        else if (form.TENNCC.trim().length > 200) errs.TENNCC = 'Tên công ty không được vượt quá 200 ký tự';
+        if (!form.SDT?.trim()) errs.SDT = 'Số điện thoại là bắt buộc';
+        else if (!/^(0|\+84)[0-9]{8,10}$/.test(form.SDT.trim())) errs.SDT = 'Số điện thoại không hợp lệ (VD: 0281234567)';
+        if (form.EMAIL && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.EMAIL)) errs.EMAIL = 'Email không đúng định dạng';
+        return errs;
+    }}
     renderToolbarActions={(fetchData, addToast, list) => (
         <SupplierImportExport onRefresh={fetchData} addToast={addToast} data={list} />
     )}
@@ -34,7 +43,7 @@ export const SuppliersPage = () => <SimplePage
     renderGridItem={(n, openEdit, del, i, list, setList, addToast, openView) => (
         <SupplierGridItem item={n} openEdit={openEdit} del={del} idx={i} list={list} setList={setList} addToast={addToast} openView={openView} />
     )}
-    renderForm={(form, hc, setForm) => (
-        <SupplierForm form={form} hc={hc} setForm={setForm} />
+    renderForm={(form, hc, setForm, isView, formErrors) => (
+        <SupplierForm form={form} hc={hc} setForm={setForm} formErrors={formErrors} />
     )}
 />;

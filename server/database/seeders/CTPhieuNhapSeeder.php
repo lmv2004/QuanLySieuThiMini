@@ -2,33 +2,22 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CTPhieuNhapSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Chi tiết phiếu nhập đã được insert trong ResetPhieuNhapSeeder.
+     * Seeder này chỉ chạy nếu bảng đang trống (tránh duplicate).
      */
     public function run(): void
     {
-        $phieuNhaps = \App\Models\PhieuNhap::all();
-        $sanPhamIds = \App\Models\SanPham::pluck('MASP')->toArray();
-
-        foreach ($phieuNhaps as $phieu) {
-            // Mỗi phiếu nhập có 3-7 sản phẩm
-            $numProducts = rand(3, 7);
-            $selectedProducts = fake()->randomElements($sanPhamIds, $numProducts);
-
-            foreach ($selectedProducts as $masp) {
-                \App\Models\CTPhieuNhap::create([
-                    'MAPHIEU' => $phieu->MAPHIEU,
-                    'MASP' => $masp,
-                    'SOLUONG' => rand(10, 500),
-                    'DONGIANHAP' => rand(5000, 400000),
-                    'HANSUDUNG' => fake()->optional()->dateTimeBetween('now', '+2 years'),
-                ]);
-            }
+        if (DB::table('c_t_phieu_nhaps')->count() > 0) {
+            $this->command->info('⏭  CTPhieuNhapSeeder: đã có dữ liệu, bỏ qua.');
+            return;
         }
+
+        $this->command->info('⚠  CTPhieuNhapSeeder: không có dữ liệu, hãy chạy ResetPhieuNhapSeeder trước.');
     }
 }
